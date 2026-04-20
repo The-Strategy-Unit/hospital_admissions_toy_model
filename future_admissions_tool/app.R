@@ -10,6 +10,8 @@
 library(shiny)
 library(bslib)
 
+baseline_beds<-1000
+
 # Define UI for application that draws a histogram
 ui <- page_navbar(
   title = "Title",
@@ -23,14 +25,9 @@ ui <- page_navbar(
     ),
   
   nav_panel(
-    "Introduction",
+    "Future beds calculator",
     class = "panel-one",
-    card(
-      card_header("xxxxxxxxxxx",
-                  class = "bg-dark"),
-      p("xxxxxxxxxxxxxxxxx")
-      )
-    ),
+
   
   tags$head(
     tags$style(HTML("
@@ -38,14 +35,13 @@ ui <- page_navbar(
     "))
   ),
 
-
+  layout_sidebar(
   sidebar = sidebar(
-    title ="Setting assumptions",
+    title ="Input assumptions",
     id = "sidebar",
     width = "320px",
     
-    p("Use the sliders to model how admissions, LoS, and occupancy might change annually over the next 10 yrs. 
-      The beds required will be calculated automatically.",  style = "font-size: 0.9rem", class = "pt-0"),
+    p("Adjust each input to model the impact on beds over the next 10 years.",  style = "font-size: 0.9rem", class = "pt-0"),
     
     hr(class = "my-0"), # This creates the horizontal line
     
@@ -58,24 +54,77 @@ ui <- page_navbar(
       placement = "right"                      
     ),
       
-    sliderInput("admissions_val", "Annual change:", min = -10, max = 10, value = 0, step = 0.5),
+    sliderInput("admissions_change", "Annual % change:", min = -10, max = 10, value = 0, step = 0.1),
     
     hr(class = "my-0"), # This creates the horizontal line
     
     h5("Length of Stay"),
 
-    sliderInput("los_val", "Annual change:", min = -10, max =+10,  value=0, step=0.5),
+    sliderInput("los_change", "Annual % change:", min = -10, max =+10,  value=0, step=0.1),
     
     hr(class = "my-0"), # This creates the horizontal line
     
-    h5("Target Occupancy"),
+    h5("Bed Occupancy"),
     
-    sliderInput("val", "Fixed value:", min = 0, max =100, value = 80, step=0.5),
+    sliderInput("target_occupancy", "Fixed % value:", min = 0, max =100, value = 80, step=0.1),
   
-    actionButton("reset", 
+    actionButton("reset_scenario", 
       "Reset to Selected Scenario", 
       class = "btn-secondary w-100" )
+  ),
+  card(
+    card_header("xxxxxxxxxxx",
+                class = "bg-dark"),
+    p("xxxxxxxxxxxxxxxxx")
   )
+  )  
+  ),
+  
+  nav_panel(
+    "Future Admissions calculator",
+
+  
+  layout_sidebar(
+    sidebar = sidebar(
+    title ="Input assumptions",
+    id = "sidebar",
+    width = "320px",
+    
+    p("Adjust each input to model the impact on admissions over the next 10 years.",  style = "font-size: 0.9rem", class = "pt-0"),
+    
+    hr(class = "my-0"), # This creates the horizontal line
+    
+    h5("Beds"),
+    
+    p("Baseline (2025):",baseline_beds),
+    
+    sliderInput("bedday_growth", label="Predicted growth (%):", min = 0, max =50,  value=0, step=0.1),
+    
+    hr(class = "my-0"), # This creates the horizontal line
+    
+    h5("Length of Stay (in days)"),
+    
+    sliderInput("los_days", label=NULL, min = 0, max =20,  value=5.2, step=0.1),
+    
+    hr(class = "my-0"), # This creates the horizontal line
+    
+    h5("Bed Occupancy (%)"),
+    
+    sliderInput("bed_occupancy",  label=NULL, min = 0, max =100, value = 85, step=0.5),
+    
+    actionButton("reset_baseline", 
+                 "Reset to baseline", 
+                 class = "btn-secondary w-100" )
+  ),
+  
+  card(
+    card_header("xxxxxxxxxxx2",
+                class = "bg-dark"),
+    p("xxxxxxxxxxxxxxxxx2")
+  )
+  )
+  )
+  
   
     )
 
@@ -96,18 +145,23 @@ server <- function(input, output, session) {
   })
   
   
-  observeEvent(input$reset, {
+  observeEvent(input$reset_scenario, {
     if (input$preset == "Scenario 1") {
-      updateSliderInput(session, "admissions_val", value = 1)
-      updateSliderInput(session, "los_val", value = -2)
-      updateSliderInput(session, "val", value = 85)
+      updateSliderInput(session, "admissions_change", value = 1)
+      updateSliderInput(session, "los_change", value = -2)
+      updateSliderInput(session, "target_occupancy", value = 85)
     } else if (input$preset == "Scenario 2") {
-      updateSliderInput(session, "admissions_val", value = 5)
-      updateSliderInput(session, "los_val", value = -5)
-      updateSliderInput(session, "val", value = 90)
+      updateSliderInput(session, "admissions_change", value = 5)
+      updateSliderInput(session, "los_change", value = -5)
+      updateSliderInput(session, "target_occupancy", value = 90)
     }
   })
   
+  observeEvent(input$reset_baseline, {
+    updateSliderInput(session, "bedday_growth", value = 0) 
+    updateSliderInput(session, "los_days", value = 5.2) 
+    updateSliderInput(session, "bed_occupancy", value = 85) 
+  })
   
   output$display_val <- renderText({
     paste("The current value is:", input$admissions_val)
