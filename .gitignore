@@ -3,6 +3,10 @@
 .Rapp.history
 *.Rproj
 
+#Data
+data/
+*.xlsx
+
 # Session Data files
 .RData
 .RDataTmp
