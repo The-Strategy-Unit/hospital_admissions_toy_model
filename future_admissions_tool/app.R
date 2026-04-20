@@ -18,7 +18,9 @@ ui <- page_navbar(
   theme = bs_theme(
     bootswatch = "united",
     dark = "black",
-    primary = "#0000EE"),
+    primary = "#686f73",
+    secondary= "#f9bf07" 
+    ),
   
   nav_panel(
     "Introduction",
@@ -36,53 +38,79 @@ ui <- page_navbar(
     "))
   ),
 
+
   sidebar = sidebar(
     title ="Setting assumptions",
     id = "sidebar",
-    width = "300px",
+    width = "320px",
     
     p("Use the sliders to model how admissions, LoS, and occupancy might change annually over the next 10 yrs. 
       The beds required will be calculated automatically.",  style = "font-size: 0.9rem", class = "pt-0"),
     
+    hr(class = "my-0"), # This creates the horizontal line
+    
     h5("Admissions"),
-      # 1. The dropdown menu
+    
+    tooltip(
       selectInput("preset", "Select a Scenario:", 
                   choices = c("Scenario 1", "Scenario 2")), # don't think we need custom as can overwrite a preset
+      "Choose a preset scenario or adjust sliders to customise assumptions",
+      placement = "right"                      
+    ),
       
-      sliderInput("val", "Annual change:", min = -10, max =+10, value = 0, step=0.5),
+    sliderInput("admissions_val", "Annual change:", min = -10, max = 10, value = 0, step = 0.5),
     
     hr(class = "my-0"), # This creates the horizontal line
     
     h5("Length of Stay"),
 
-    sliderInput("val", "Annual change:", min = -10, max =+10, value = 0, step=0.5),
+    sliderInput("los_val", "Annual change:", min = -10, max =+10,  value=0, step=0.5),
     
     hr(class = "my-0"), # This creates the horizontal line
     
     h5("Target Occupancy"),
     
-    sliderInput("val", "Annual change:", min = 0, max =100, value = 80, step=0.5)
-    )
+    sliderInput("val", "Fixed value:", min = 0, max =100, value = 80, step=0.5),
   
+    actionButton("reset", 
+      "Reset to Selected Scenario", 
+      class = "btn-secondary w-100" )
+  )
   
     )
 
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
-  # 3. Server logic to change default values based on dropdown choice
+
   observeEvent(input$preset, {
-    new_val <- switch(input$preset,
-                      "Low Range"  = 10,
-                      "Mid Range"  = 50,
-                      "High Range" = 90
-    )
-    
-    updateSliderInput(session, "val", value = new_val)
+    if (input$preset == "Scenario 1") {
+      updateSliderInput(session, "admissions_val", value = 1)
+      updateSliderInput(session, "los_val", value = -2)
+      updateSliderInput(session, "val", value = 85)
+    } else if (input$preset == "Scenario 2") {
+      updateSliderInput(session, "admissions_val", value = 5)
+      updateSliderInput(session, "los_val", value = -5)
+      updateSliderInput(session, "val", value = 90)
+    }
   })
   
+  
+  observeEvent(input$reset, {
+    if (input$preset == "Scenario 1") {
+      updateSliderInput(session, "admissions_val", value = 1)
+      updateSliderInput(session, "los_val", value = -2)
+      updateSliderInput(session, "val", value = 85)
+    } else if (input$preset == "Scenario 2") {
+      updateSliderInput(session, "admissions_val", value = 5)
+      updateSliderInput(session, "los_val", value = -5)
+      updateSliderInput(session, "val", value = 90)
+    }
+  })
+  
+  
   output$display_val <- renderText({
-    paste("The current value is:", input$val)
+    paste("The current value is:", input$admissions_val)
   })
 }
 
