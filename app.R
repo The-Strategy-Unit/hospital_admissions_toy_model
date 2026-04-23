@@ -10,6 +10,113 @@
 library(shiny)
 library(bslib)
 
+# Data-------------------------------------------------------------------------
+
+library(readxl)
+library(ggplot2)
+library(StrategyUnitTheme)
+library(plotly)
+
+options(scipen=999)
+
+data<-read_excel("data/Collating the data.xlsx")
+from_93<-data[7:38,]
+--------------------------------------------------------------------------------
+  
+# Functions--------------------------------------------------------------------
+
+## Solve for admissions
+solve_for_admissions<-function(admissions,LoS,occupancy,beds){
+  return(abs(beds - qpois(occupancy, admissions*LoS/365)))
+}
+
+
+## Generate model outputs FUTURE ADMISSIONS
+future_admissions_model<-function(from_93, beds_yearly_percentage_change, los_yearly_percentage_change, occupancy_fixed_level){
+  
+  years<-c(from_93$Year,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035)
+  admissions<-from_93$`All admissions`
+  beddays<-from_93$`All beddays`
+  beds<-from_93$Beds
+  los<-from_93$avgLoS
+  occupancy<-from_93$`occupancy`
+  
+  for(i in 1:(length(years)-length(from_93$Year))){
+    ## adds one entry to each array during each loop
+    los <- c(los , los[length(los)] + los[length(los)]*los_yearly_percentage_change/100 )
+    beddays <- c(beddays , admissions[length(admissions)]*los[length(los)])
+    ## Using MMinf as model to work out # beds to reach set performance
+    beds <- c(beds, beds[length(beds)] + beds[length(beds)]*beds_yearly_percentage_change/100)
+    occupancy<- c(occupancy, occpuancy_fixed_level)
+    # now solve for admissions
+    admissions <- c(admissions,optim(par = c(18742360),fn = solve_for_admissions  , LoS = los[length(los)], occupancy = occupancy[length(occupancy)], beds = beds[length(beds)], method="Brent",,lower=15000000,upper=26000000)$par)
+  }
+  
+  plot_data<-data.frame(
+    year = as.numeric(unlist(years)), 
+    admissions = (unlist(admissions))/1000000,
+    los = unlist(los), 
+    beds = unlist(beds),
+    occupancy = (unlist(occupancy))*100
+  )
+  
+  return(plot_data)
+  
+}
+
+
+## Generate model outputs FUTURE BEDS
+
+future_beds_model<-function(from_93, admissions_yearly_percentage_change, los_yearly_percentage_change, occupancy_fixed_level){
+  
+  years<-c(from_93$Year,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035)
+  admissions<-from_93$`All admissions`
+  beddays<-from_93$`All beddays`
+  beds<-from_93$Beds
+  los<-from_93$avgLoS
+  occupancy<-from_93$`occupancy`
+  
+  for(i in 1:(length(years)-length(from_93$Year))){
+    admissions <- c(admissions,admissions[length(admissions)] +  admissions[length(admissions)] *admissions_yearly_percentage_change/100)
+    los <- c(los , los[length(los)] + los[length(los)]*los_yearly_percentage_change/100 )
+    beddays <- c(beddays , admissions[length(admissions)]*los[length(los)])
+    beds <- c(beds, qpois(occupancy_fixed_level, admissions[length(admissions)]*los[length(los)]/365))
+    occupancy<- c(occupancy, occupancy_fixed_level)
+  }
+  
+  plot_data<-data.frame(
+    year = as.numeric(unlist(years)), 
+    admissions = (unlist(admissions))/1000000,
+    los = unlist(los), 
+    beds = unlist(beds),
+    occupancy = (unlist(occupancy))*100
+  )
+  
+  return(plot_data)
+  
+}
+
+## Generate plots
+plotting_function<-function(plot_data, output_type, y_axis_label){
+  
+  
+  p<-ggplot(data=plot_data, aes(x=year, y=.data[[output_type]], text = paste0("Year: ", year, "<br>", y_axis_label, ": ", round(.data[[output_type]],1) )))+
+    geom_line(data=scenario_1_values, aes(x=year, y=.data[[output_type]], text = paste0("Scenario 1<br>","Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]),1 ))), colour= "#b2b7b9" , linewidth=0.8, , linetype="dashed", group=1)+
+    geom_line(data=scenario_2_values, aes(x=year, y=.data[[output_type]], text = paste0("Scenario 2<br>","Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]),1 ))), colour= "#b2b7b9" , linewidth=0.8, , linetype="dashed",group=1)+
+    geom_line(colour=ifelse(as.numeric(plot_data$year) <= 2026,  "black", "#ec6555"), linewidth=0.8, linetype=ifelse(as.numeric(plot_data$year)<= 2026,  "solid", "dashed"), group=1)+
+    geom_vline(xintercept=2026, colour="#ec6555", linetype="dotted")+
+    su_theme()+
+    labs(y=y_axis_label,
+         x="Year")+
+    scale_y_continuous(limits=c(0,NA))
+  
+  ggplotly(p, tooltip = "text")
+  
+  
+}
+
+
+--------------------------------------------------------------------------------
 baseline_beds<-1000
 
 # Define UI for application that draws a histogram
