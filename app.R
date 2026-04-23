@@ -9,9 +9,6 @@
 
 library(shiny)
 library(bslib)
-
-# Data-------------------------------------------------------------------------
-
 library(readxl)
 library(ggplot2)
 library(StrategyUnitTheme)
@@ -19,9 +16,10 @@ library(plotly)
 
 options(scipen=999)
 
+# Data-------------------------------------------------------------------------
+
 data<-read_excel("data/Collating the data.xlsx")
 from_93<-data[7:38,]
---------------------------------------------------------------------------------
   
 # Functions--------------------------------------------------------------------
 
@@ -47,7 +45,7 @@ future_admissions_model<-function(from_93, beds_yearly_percentage_change, los_ye
     beddays <- c(beddays , admissions[length(admissions)]*los[length(los)])
     ## Using MMinf as model to work out # beds to reach set performance
     beds <- c(beds, beds[length(beds)] + beds[length(beds)]*beds_yearly_percentage_change/100)
-    occupancy<- c(occupancy, occpuancy_fixed_level)
+    occupancy<- c(occupancy, (occupancy_fixed_level)/100)
     # now solve for admissions
     admissions <- c(admissions,optim(par = c(18742360),fn = solve_for_admissions  , LoS = los[length(los)], occupancy = occupancy[length(occupancy)], beds = beds[length(beds)], method="Brent",,lower=15000000,upper=26000000)$par)
   }
@@ -80,8 +78,8 @@ future_beds_model<-function(from_93, admissions_yearly_percentage_change, los_ye
     admissions <- c(admissions,admissions[length(admissions)] +  admissions[length(admissions)] *admissions_yearly_percentage_change/100)
     los <- c(los , los[length(los)] + los[length(los)]*los_yearly_percentage_change/100 )
     beddays <- c(beddays , admissions[length(admissions)]*los[length(los)])
-    beds <- c(beds, qpois(occupancy_fixed_level, admissions[length(admissions)]*los[length(los)]/365))
-    occupancy<- c(occupancy, occupancy_fixed_level)
+    beds <- c(beds, qpois((occupancy_fixed_level/100), admissions[length(admissions)]*los[length(los)]/365))
+    occupancy<- c(occupancy, (occupancy_fixed_level/100))
   }
   
   plot_data<-data.frame(
@@ -116,7 +114,6 @@ plotting_function<-function(plot_data, output_type, y_axis_label){
 }
 
 
---------------------------------------------------------------------------------
 baseline_beds<-1000
 
 # Define UI for application that draws a histogram
@@ -242,13 +239,13 @@ server <- function(input, output, session) {
 
   observeEvent(input$preset, {
     if (input$preset == "Scenario 1") {
-      updateSliderInput(session, "admissions_val", value = 1)
-      updateSliderInput(session, "los_val", value = -2)
-      updateSliderInput(session, "val", value = 85)
+      updateSliderInput(session, "admissions_change", value = 1)
+      updateSliderInput(session, "los_change", value = -2)
+      updateSliderInput(session, "target_occupancy", value = 85)
     } else if (input$preset == "Scenario 2") {
-      updateSliderInput(session, "admissions_val", value = 5)
-      updateSliderInput(session, "los_val", value = -5)
-      updateSliderInput(session, "val", value = 90)
+      updateSliderInput(session, "admissions_change", value = 5)
+      updateSliderInput(session, "los_change", value = -5)
+      updateSliderInput(session, "target_occupancy", value = 90)
     }
   })
   
