@@ -75,7 +75,7 @@ ui <- page_navbar(
   card(
     card_header("xxxxxxxxxxx",
                 class = "bg-dark"),
-    p("xxxxxxxxxxxxxxxxx")
+    p(textOutput("TEST"))
   )
   )  
   ),
@@ -120,8 +120,9 @@ ui <- page_navbar(
   card(
     card_header("xxxxxxxxxxx2",
                 class = "bg-dark"),
-    p("xxxxxxxxxxxxxxxxx2")
-  )
+    card_body( p("xxxxxxxxxxxxxxxxx")
+  
+  ))
   )
   )
   
@@ -163,9 +164,9 @@ server <- function(input, output, session) {
     updateSliderInput(session, "bed_occupancy", value = 85) 
   })
   
-  output$display_val <- renderText({
-    paste("The current value is:", input$admissions_val)
-  })
+  output$TEST <- renderText(
+    paste("TEST:", input$target_occupancy)
+  )
 }
 
 # Run the application 
