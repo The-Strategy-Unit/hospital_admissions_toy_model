@@ -642,68 +642,6 @@ nav_panel(
       id = "sidebar_fixed_beds",
       width = "300px",
       
-      p(
-        "Set a fixed bed supply and test what admissions and LoS combinations would be sustainable.",
-        style = "font-size: 0.85rem; line-height: 1.2;"
-      ),
-      
-      hr(style = "margin: 10px 0;"),
-      
-      h5("BED SUPPLY", style = "font-size: 1rem; margin-bottom: 8px;"),
-      
-      div(
-        style = "display:flex; justify-content:space-between;",
-        strong("Baseline (2025):"),
-        span(baseline_beds)
-      ),
-      
-      sliderInput("bedday_growth", 
-                  label="Annual Growth (%):", 
-                  min = 0, 
-                  max =5,  
-                  value=0, 
-                  step=0.1),
-      
-      hr(style = "margin: 12px 0;"),
-      
-      h5("LENGTH OF STAY", style = "font-size: 1rem; margin-bottom: 8px;"),
-      
-      div(
-        style = "display:flex; justify-content:space-between;",
-        strong("Annual Change"),
-        span("0%")
-      ),
-      
-      sliderInput(
-        "los_change2",
-        label = NULL,
-        min = -5,
-        max = 5,
-        value = 0,
-        step = 0.1
-      ),
-      
-      hr(style = "margin: 12px 0;"),
-      
-      h5("TARGET OCCUPANCY", style = "font-size: 1rem; margin-bottom: 8px;"),
-      
-      sliderInput(
-        "bed_occupancy",
-        label = NULL,
-        min = 0,
-        max = 100,
-        value = 85,
-        step = 0.5
-      ),
-      
-      
-      actionButton(
-        "reset_baseline", 
-        "↻ Reset to Baseline", 
-        class = "btn-primary w-100",
-        style = "margin-top: 10px;"
-      ),
-      
       div(
         style = "margin-top: -18px;",
         
@@ -734,21 +672,13 @@ nav_panel(
           span("1000")
         ),
         
-        sliderInput(
-          "fixed_beds",
-          NULL,
-          min = 0,
-          max = 250000,
-          value = baseline_beds,
-          step = 100,
-          width = "100%"
-        ),
+        sliderInput("bedday_growth", 
+                    label="Annual Growth (%):", 
+                    min = 0, 
+                    max =5,  
+                    value=0, 
+                    step=0.1),
         
-        div(
-          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
-          span("0"),
-          span("250,000")
-        ),
         
         hr(style = "margin: 8px 0;"),
         
@@ -761,20 +691,13 @@ nav_panel(
         ),
         
         sliderInput(
-          "fixed_los_change",
+          "los_change2",
           NULL,
-          min = -10,
-          max = 10,
+          min = -5,
+          max = 5,
           value = 0,
           step = 0.1,
           width = "100%"
-        ),
-        
-        div(
-          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
-          span("-10%"),
-          span("0%"),
-          span("+10%")
         ),
         
         hr(style = "margin: 8px 0;"),
@@ -788,7 +711,7 @@ nav_panel(
         ),
         
         sliderInput(
-          "fixed_target_occupancy",
+          "bed_occupancy",
           NULL,
           min = 0,
           max = 100,
@@ -796,12 +719,7 @@ nav_panel(
           step = 0.5,
           width = "100%"
         ),
-        
-        div(
-          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
-          span("0%"),
-          span("100%")
-        ),
+
         
         actionButton(
           "reset_baseline", 
@@ -1105,7 +1023,7 @@ server <- function(input, output, session) {
                       planned,
                       ambitious,
                       "los", 
-                      "Length of Stay")
+                      "Length of Stay (days)")
     
   })
   
@@ -1166,7 +1084,7 @@ server <- function(input, output, session) {
                       NULL,
                       NULL,
                       "los", 
-                      "Length of Stay")
+                      "Length of Stay (days)")
     
   })
   
