@@ -45,7 +45,7 @@ future_admissions_model<-function(from_93, beds_yearly_percentage_change, los_ye
     beddays <- c(beddays , admissions[length(admissions)]*los[length(los)])
     ## Using MMinf as model to work out # beds to reach set performance
     beds <- c(beds, beds[length(beds)] + beds[length(beds)]*beds_yearly_percentage_change/100)
-    occupancy<- c(occupancy, (occupancy_fixed_level)/100)
+    occupancy<- c(occupancy, (occupancy_fixed_level/100))
     # now solve for admissions
     admissions <- c(admissions,optim(par = c(18742360),fn = solve_for_admissions  , LoS = los[length(los)], occupancy = occupancy[length(occupancy)], beds = beds[length(beds)], method="Brent",,lower=15000000,upper=26000000)$par)
   }
@@ -54,7 +54,7 @@ future_admissions_model<-function(from_93, beds_yearly_percentage_change, los_ye
     year = as.numeric(unlist(years)), 
     admissions = (unlist(admissions))/1000000,
     los = unlist(los), 
-    beds = unlist(beds),
+    beds = round(unlist(beds),0),
     occupancy = (unlist(occupancy))*100
   )
   
@@ -86,7 +86,7 @@ future_beds_model<-function(from_93, admissions_yearly_percentage_change, los_ye
     year = as.numeric(unlist(years)), 
     admissions = (unlist(admissions))/1000000,
     los = unlist(los), 
-    beds = unlist(beds),
+    beds = round(unlist(beds),0),
     occupancy = (unlist(occupancy))*100
   )
   
@@ -94,27 +94,57 @@ future_beds_model<-function(from_93, admissions_yearly_percentage_change, los_ye
   
 }
 
-## Generate plots
-plotting_function<-function(plot_data, output_type, y_axis_label){
+## Plotting function
+plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, scenario_3_values, output_type, y_axis_label) {
   
+  # Initial plot
+  p <- ggplot(data = plot_data, aes(x = year, y = .data[[output_type]], 
+                                    text = paste0("Year: ", year, "<br>", y_axis_label, ": ", round(.data[[output_type]], 1)))) +
+    geom_vline(xintercept = 2025, colour = "#5881c1" , linetype = "dashed") +
+    su_theme() +
+    labs(title=NULL, subtitle=NULL, y = y_axis_label, x = "Year") +
+    scale_y_continuous(limits = c(0, NA))
   
-  p<-ggplot(data=plot_data, aes(x=year, y=.data[[output_type]], text = paste0("Year: ", year, "<br>", y_axis_label, ": ", round(.data[[output_type]],1) )))+
-    geom_line(data=scenario_1_values, aes(x=year, y=.data[[output_type]], text = paste0("Scenario 1<br>","Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]),1 ))), colour= "#b2b7b9" , linewidth=0.8, , linetype="dashed", group=1)+
-    geom_line(data=scenario_2_values, aes(x=year, y=.data[[output_type]], text = paste0("Scenario 2<br>","Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]),1 ))), colour= "#b2b7b9" , linewidth=0.8, , linetype="dashed",group=1)+
-    geom_line(colour=ifelse(as.numeric(plot_data$year) <= 2026,  "black", "#ec6555"), linewidth=0.8, linetype=ifelse(as.numeric(plot_data$year)<= 2026,  "solid", "dashed"), group=1)+
-    geom_vline(xintercept=2026, colour="#ec6555", linetype="dotted")+
-    su_theme()+
-    labs(y=y_axis_label,
-         x="Year")+
-    scale_y_continuous(limits=c(0,NA))
+  # Add Scenario plots if needed
+  if (!is.null(scenario_1_values)) {
+    p <- p + geom_line(data = scenario_1_values, 
+                       aes(x = year, y = .data[[output_type]], 
+                           text = paste0("Do nothing<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
+                       colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)+ 
+      geom_line(data = scenario_2_values, 
+                aes(x = year, y = .data[[output_type]], 
+                    text = paste0("Planned<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
+                colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)+ 
+      geom_line(data = scenario_3_values, 
+                aes(x = year, y = .data[[output_type]], 
+                    text = paste0("Ambitious<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
+                colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)
+  }
   
-  ggplotly(p, tooltip = "text")
+  # Add the main line last so it sits on top
+  p <- p +     geom_line(data = subset(plot_data, as.numeric(year) >= 2025),
+                         aes(x = year, y = .data[[output_type]]),
+                         colour = "#ec6555", 
+                         linewidth = 0.5, 
+                         linetype = "dotted", 
+                         group = 1)+
+    geom_line(data = subset(plot_data, as.numeric(year) <= 2025),
+                     aes(x = year, y = .data[[output_type]]),
+                     colour = "black", 
+                     linewidth = 0.5, 
+                     linetype = "solid", 
+                     group = 1)
+
   
-  
+  ggplotly(p, tooltip = "text")|>
+    layout(
+    margin = list(t = 20, b = 10, l = 55, r =10), # Top, Bottom, Left, Right
+    pad = 0
+  )
 }
 
-
 baseline_beds<-1000
+
 
 #UI ----------------------------------------------------------------------------
 # Define UI for application that draws a histogram
@@ -382,11 +412,11 @@ nav_panel(
       
       h5("ADMISSIONS", style = "font-size: 1rem; margin-bottom: 8px;"),
       
-      layout_columns(
-        actionButton("scenario_1", "Scenario 1", style = "font-size: 0.8rem; padding: 6px;"),
-        actionButton("scenario_2", "Scenario 2", style = "font-size: 0.8rem; padding: 6px;"),
-        actionButton("custom_scenario", "Custom", style = "font-size: 0.8rem; padding: 6px;"),
-        col_widths = c(4, 4, 4)
+      tooltip(
+        selectInput("preset", "Select a Scenario:", 
+                    choices = c("Do nothing", "Planned", "Ambitious")), # don't think we need custom as can overwrite a preset
+        "Choose a preset scenario or adjust sliders to customise assumptions",
+        placement = "right"                      
       ),
       
       div(
@@ -398,17 +428,10 @@ nav_panel(
       sliderInput(
         "admissions_change",
         label = NULL,
-        min = -10,
-        max = 10,
+        min = -5,
+        max = 5,
         value = 0,
         step = 0.1
-      ),
-      
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-        span("-10%"),
-        span("0%"),
-        span("+10%")
       ),
       
       div(
@@ -430,17 +453,10 @@ nav_panel(
       sliderInput(
         "los_change",
         label = NULL,
-        min = -10,
-        max = 10,
+        min = -5,
+        max = 5,
         value = 0,
         step = 0.1
-      ),
-      
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-        span("-10%"),
-        span("0%"),
-        span("+10%")
       ),
       
       div(
@@ -468,18 +484,13 @@ nav_panel(
         step = 0.1
       ),
       
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-        span("0%"),
-        span("100%")
-      ),
-      
       actionButton(
         "reset_scenario", 
-        "↻ Reset to Baseline", 
+        "Reset Selected Scenario", 
         class = "btn-primary w-100",
         style = "margin-top: 10px;"
       ),
+      
       
       div(
         style = "
@@ -518,22 +529,40 @@ nav_panel(
       layout_columns(
         card(
           card_header(HTML("Admissions &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          card_body(
+            (plotlyOutput("admissions")),
+            padding = 10,
+            style = "height: 33vh; overflow-y: auto;"
+          )
+         
+         
         ),
         
         card(
           card_header(HTML("Length of Stay &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          card_body(
+            (plotlyOutput("los")),
+            padding = 10,
+            style = "height: 33vh; overflow-y: auto;"
+          )
         ),
         
         card(
           card_header(HTML("Beds Required &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          card_body(
+            (plotlyOutput("beds")),
+            padding = 10,
+            style = "height: 33vh; overflow-y: auto;"
+          )
         ),
         
         card(
           card_header(HTML("Occupancy Rate &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          card_body(
+            (plotlyOutput("occupancy")),
+            padding = 10,
+            style = "height: 33vh; overflow-y: auto;"
+          )
         ),
         
         col_widths = c(6, 6, 6, 6)
@@ -605,28 +634,18 @@ nav_panel(
       
       h5("BED SUPPLY", style = "font-size: 1rem; margin-bottom: 8px;"),
       
-      p("Baseline (2025):", baseline_beds, style = "font-size: 0.85rem;"),
-      
       div(
         style = "display:flex; justify-content:space-between;",
-        strong("Fixed beds"),
-        span("1000")
+        strong("Baseline (2025):"),
+        span(baseline_beds)
       ),
       
-      sliderInput(
-        "fixed_beds",
-        label = NULL,
-        min = 0,
-        max = 250000,
-        value = baseline_beds,
-        step = 100
-      ),
-      
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-        span("0"),
-        span("250,000")
-      ),
+      sliderInput("bedday_growth", 
+                  label="Annual Growth (%):", 
+                  min = 0, 
+                  max =5,  
+                  value=0, 
+                  step=0.1),
       
       hr(style = "margin: 12px 0;"),
       
@@ -639,33 +658,20 @@ nav_panel(
       ),
       
       sliderInput(
-        "fixed_los_change",
+        "los_change2",
         label = NULL,
-        min = -10,
-        max = 10,
+        min = -5,
+        max = 5,
         value = 0,
         step = 0.1
-      ),
-      
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-        span("-10%"),
-        span("0%"),
-        span("+10%")
       ),
       
       hr(style = "margin: 12px 0;"),
       
       h5("TARGET OCCUPANCY", style = "font-size: 1rem; margin-bottom: 8px;"),
       
-      div(
-        style = "display:flex; justify-content:space-between;",
-        strong("Fixed Value"),
-        span("85%")
-      ),
-      
       sliderInput(
-        "fixed_target_occupancy",
+        "bed_occupancy",
         label = NULL,
         min = 0,
         max = 100,
@@ -673,11 +679,6 @@ nav_panel(
         step = 0.5
       ),
       
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-        span("0%"),
-        span("100%")
-      ),
       
       actionButton(
         "reset_baseline", 
@@ -722,22 +723,38 @@ nav_panel(
       layout_columns(
         card(
           card_header(HTML("Supported Admissions &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          card_body(
+            (plotlyOutput("admissions2")),
+            padding = 10,
+            style = "height: 33vh; overflow-y: auto;"
+          )
         ),
         
         card(
           card_header(HTML("Length of Stay &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          card_body(
+            (plotlyOutput("los2")),
+            padding = 10,
+            style = "height: 33vh; overflow-y: auto;"
+          )
         ),
         
         card(
           card_header(HTML("Fixed Beds &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          card_body(
+            (plotlyOutput("beds2")),
+            padding = 10,
+            style = "height: 33vh; overflow-y: auto;"
+          )
         ),
         
         card(
           card_header(HTML("Occupancy Rate &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          card_body(
+            (plotlyOutput("occupancy2")),
+            padding = 10,
+            style = "height: 33vh; overflow-y: auto;"
+          )
         ),
         
         col_widths = c(6, 6, 6, 6)
@@ -888,43 +905,174 @@ nav_panel(
 
 #Server interface --------------------------------------------------------------
 
-# Define server logic required to draw a histogram
 server <- function(input, output, session) {
-
+  
   observeEvent(input$preset, {
-    if (input$preset == "Scenario 1") {
-      updateSliderInput(session, "admissions_change", value = 1)
-      updateSliderInput(session, "los_change", value = -2)
+    if (input$preset == "Do nothing") {
+      updateSliderInput(session, "admissions_change", value = 2.8)
+      updateSliderInput(session, "los_change", value = 0)
       updateSliderInput(session, "target_occupancy", value = 85)
-    } else if (input$preset == "Scenario 2") {
-      updateSliderInput(session, "admissions_change", value = 5)
-      updateSliderInput(session, "los_change", value = -5)
-      updateSliderInput(session, "target_occupancy", value = 90)
+    } else if (input$preset == "Planned") {
+      updateSliderInput(session, "admissions_change", value = 1.9)
+      updateSliderInput(session, "los_change", value = 0)
+      updateSliderInput(session, "target_occupancy", value = 85)
+    } else if (input$preset == "Ambitious") {
+      updateSliderInput(session, "admissions_change", value = 0.9)
+      updateSliderInput(session, "los_change", value = 0)
+      updateSliderInput(session, "target_occupancy", value = 85)
     }
   })
   
   
   observeEvent(input$reset_scenario, {
-    if (input$preset == "Scenario 1") {
-      updateSliderInput(session, "admissions_change", value = 1)
-      updateSliderInput(session, "los_change", value = -2)
+    if (input$preset == "Do nothing") {
+      updateSliderInput(session, "admissions_change", value = 2.8)
+      updateSliderInput(session, "los_change", value = 0)
       updateSliderInput(session, "target_occupancy", value = 85)
-    } else if (input$preset == "Scenario 2") {
-      updateSliderInput(session, "admissions_change", value = 5)
-      updateSliderInput(session, "los_change", value = -5)
-      updateSliderInput(session, "target_occupancy", value = 90)
+    } else if (input$preset == "Planned") {
+      updateSliderInput(session, "admissions_change", value = 1.9)
+      updateSliderInput(session, "los_change", value = 0)
+      updateSliderInput(session, "target_occupancy", value = 85)
+    } else if (input$preset == "Ambitious") {
+      updateSliderInput(session, "admissions_change", value = 0.9)
+      updateSliderInput(session, "los_change", value = 0)
+      updateSliderInput(session, "target_occupancy", value = 85)
     }
   })
   
   observeEvent(input$reset_baseline, {
     updateSliderInput(session, "bedday_growth", value = 0) 
-    updateSliderInput(session, "los_days", value = 5.2) 
+    updateSliderInput(session, "los_change2", value = 0) 
     updateSliderInput(session, "bed_occupancy", value = 85) 
   })
   
-  output$TEST <- renderText(
-    paste("TEST:", input$target_occupancy)
-  )
+  
+  # Chart outputs-----------------------------------------------------------------
+  
+  
+  output$admissions<-renderPlotly({
+    
+    plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
+    do_nothing<-future_beds_model(from_93, 2.8 , 0, 85)
+    planned<-future_beds_model(from_93, 1.9, 0, 85)
+    ambitious<-future_beds_model(from_93, 0.9, 0, 85)
+    
+    
+    plotting_function(plot_data,
+                      do_nothing,
+                      planned,
+                      ambitious,
+                      "admissions", 
+                      "Admissions (millions)")
+    
+  })
+  
+  output$los<-renderPlotly({
+    
+    plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
+    do_nothing<-future_beds_model(from_93, 2.8 , 0, 85)
+    planned<-future_beds_model(from_93, 1.9, 0, 85)
+    ambitious<-future_beds_model(from_93, 0.9, 0, 85)
+    
+    plotting_function(plot_data,
+                      do_nothing,
+                      planned,
+                      ambitious,
+                      "los", 
+                      "Length of Stay")
+    
+  })
+  
+  output$beds<-renderPlotly({
+    
+    plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
+    do_nothing<-future_beds_model(from_93, 2.8 , 0, 85)
+    planned<-future_beds_model(from_93, 1.9, 0, 85)
+    ambitious<-future_beds_model(from_93, 0.9, 0, 85)
+    
+    plotting_function(plot_data,
+                      do_nothing,
+                      planned,
+                      ambitious,
+                      "beds",
+                      "Beds")
+    
+  })
+  
+  
+  output$occupancy<-renderPlotly({
+    
+    plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
+    do_nothing<-future_beds_model(from_93, 2.8 , 0, 85)
+    planned<-future_beds_model(from_93, 1.9, 0, 85)
+    ambitious<-future_beds_model(from_93, 0.9, 0, 85)
+    
+    plotting_function(plot_data,
+                      do_nothing,
+                      planned,
+                      ambitious,
+                      "occupancy", 
+                      "Bed Occupancy (%)")
+    
+  })
+  
+  
+  
+  output$admissions2<-renderPlotly({
+    
+    plot_data<-future_beds_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
+    
+    plotting_function(plot_data,
+                      NULL,
+                      NULL,
+                      NULL,
+                      "admissions", 
+                      "Admissions (millions)")
+    
+  })
+  
+  output$los2<-renderPlotly({
+    
+    plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
+    
+    plotting_function(plot_data,
+                      NULL,
+                      NULL,
+                      NULL,
+                      "los", 
+                      "Length of Stay")
+    
+  })
+  
+  output$beds2<-renderPlotly({
+    
+    plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
+    
+    plotting_function(plot_data,
+                      NULL,
+                      NULL,
+                      NULL,
+                      "beds", 
+                      "Beds")
+    
+  })
+  
+  
+  output$occupancy2<-renderPlotly({
+    
+    plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
+    
+    plotting_function(plot_data,
+                      NULL,
+                      NULL,
+                      NULL,
+                      "occupancy", 
+                      "Bed Occupancy (%)")
+    
+  })
+  
+  
+  
 }
 
 # Run the application 
