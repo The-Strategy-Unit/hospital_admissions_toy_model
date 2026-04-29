@@ -116,18 +116,251 @@ plotting_function<-function(plot_data, output_type, y_axis_label){
 
 baseline_beds<-1000
 
+#UI ----------------------------------------------------------------------------
 # Define UI for application that draws a histogram
 ui <- page_navbar(
-  title = "Title",
+  title = "Hospital Admission Model",
   id = "nav",
   bg = "#f9bf07",
   theme = bs_theme(
     bootswatch = "united",
     dark = "black",
     primary = "#686f73",
-    secondary= "#f9bf07" 
-    ),
+    secondary = "#f9bf07" 
+  ),
+
+#Adding a logo to top right ----------------------------------------------------
+  tags$style(HTML("
+    .top-panel {
+      position: fixed;
+      top: 6px;
+      right: 15px;
+      z-index: 9999;
+    }
+
+    .logo img {
+      height: 50px;
+    }
+  ")),
   
+  tags$div(
+    class = "top-panel",
+    tags$div(
+      class = "logo",
+      tags$img(src = "tsu_logo_black.png")
+    )
+  ),
+
+##Explainer ---------------------------------------------------------  
+nav_panel(
+  "Explainer",
+  div(
+    style = "max-width: 1280px; margin: 0 auto;",
+    
+    div(
+      style = "
+        background-color: #f9bf07;
+        border: 2px solid #2c2825;
+        padding: 32px;
+        margin: 16px 0 20px 0;
+      ",
+      h2("Hospital Admissions Analysis Tool"),
+      p("This interactive tool helps you explore NHS hospital admissions data from 1994-2025 and project future scenarios through 2035 based on customisable assumptions about admissions growth, length of stay, and bed occupancy rates.")
+    ),
+    
+    card(
+      card_header("What This Tool Does"),
+      div(
+        style = "display: flex; gap: 16px; padding: 16px;",
+        tags$span(
+          style = "font-size: 24px; color: #5881c1;",
+          HTML("&#9432;")
+        ),
+        div(
+          p("This tool analyses historical NHS hospital admissions data and projects future scenarios based on your assumptions. It helps you understand:"),
+          tags$ul(
+            tags$li("How admissions have changed over the past 30+ years (1994-2025)"),
+            tags$li("How different growth rates affect future bed requirements"),
+            tags$li("The relationship between admissions, length of stay, and bed capacity"),
+            tags$li("What occupancy rates are sustainable given different scenarios")
+          )
+        )
+      )
+    ),
+    
+    card(
+      card_header("Toy Models"),
+      div(
+        style = "display: flex; gap: 16px; padding: 16px;",
+        tags$span(
+          style = "font-size: 24px; color: #5881c1;",
+          HTML("&#9432;")
+        ),
+        div(
+          p("This is one of a series of toy models developed by the Strategy Unit to support decision-making, strategic planning and also a teaching aid for testing and applying complex theories. Other toy models in the series included or being developed are:"),
+          tags$ul(
+            tags$li("How might risk stratification save money?"),
+            tags$li("Bed pooling and occupancy"),
+            tags$li("Bottlenecks and patient flow"),
+            tags$li("'Sharing nicely'"),
+            tags$li("Waiting list dynamics")
+          )
+        )
+      )
+    ),
+    
+    card(
+      card_header("Understanding the Data"),
+      div(
+        style = "padding: 16px;",
+        layout_columns(
+          div(
+            style = "
+              border: 2px solid #5881c1;
+              padding: 16px;
+              background-color: #ffffff;
+            ",
+            h4("Historical Data (1994-2025)"),
+            p(HTML("Shown as <b>solid lines</b> on all charts. This is real NHS data showing:")),
+            tags$ul(
+              tags$li(HTML("<b>Admissions:</b> Annual hospital admissions")),
+              tags$li(HTML("<b>Length of Stay (LoS):</b> Average days patients spend in hospital")),
+              tags$li(HTML("<b>Beddays:</b> Total days of care provided")),
+              tags$li(HTML("<b>Beds:</b> Number of available hospital beds")),
+              tags$li(HTML("<b>Occupancy:</b> Percentage of beds in use"))
+            )
+          ),
+          
+          div(
+            style = "
+              border: 2px solid #ec6555;
+              padding: 16px;
+              background-color: #ffffff;
+            ",
+            h4("Projected Data (2026-2035)"),
+            p(HTML("Shown as <b>dashed lines</b> on all charts. These projections are calculated based on the assumptions you set in the sidebar:")),
+            tags$ul(
+              tags$li(HTML("<b>Admissions growth:</b> Annual % increase in admissions")),
+              tags$li(HTML("<b>LoS change:</b> Annual % change in length of stay")),
+              tags$li(HTML("<b>Target occupancy:</b> Desired bed occupancy rate"))
+            ),
+            p(em("A vertical dashed line marks the transition from historical to projected data."))
+          ),
+          
+          col_widths = c(6, 6)
+        )
+      )
+    ),
+    
+    card(
+      card_header("How to Use This Tool"),
+      div(
+        style = "padding: 16px;",
+        
+        div(
+          style = "display: flex; gap: 16px; margin-bottom: 16px;",
+          tags$span(
+            style = "font-size: 24px; color: #f9bf07;",
+            HTML("&#9881;")
+          ),
+          div(
+            style = "width: 100%;",
+            h4("Step 1: Adjust Assumptions (Sidebar)"),
+            p("Use the sliders in the sidebar to set your assumptions:"),
+            
+            div(
+              style = "
+                background-color: #f4f4f4;
+                border: 1px solid #686f73;
+                padding: 10px;
+                margin-bottom: 10px;
+              ",
+              p(HTML("<b>Admissions growth:</b> -2% to +5% annually")),
+              p(style = "color: #686f73; margin-bottom: 0;", "Example: +2% means admissions increase by 2% each year from 2026-2035")
+            ),
+            
+            div(
+              style = "
+                background-color: #f4f4f4;
+                border: 1px solid #686f73;
+                padding: 10px;
+                margin-bottom: 10px;
+              ",
+              p(HTML("<b>LoS change:</b> -3% to +2% annually")),
+              p(style = "color: #686f73; margin-bottom: 0;", "Example: -1% means average length of stay decreases by 1% each year")
+            ),
+            
+            div(
+              style = "
+                background-color: #f4f4f4;
+                border: 1px solid #686f73;
+                padding: 10px;
+              ",
+              p(HTML("<b>Target occupancy:</b> 75% to 95%")),
+              p(style = "color: #686f73; margin-bottom: 0;", "The bed occupancy rate you want to maintain (85% is often considered optimal)")
+            )
+          )
+        ),
+        
+        hr(),
+        
+        div(
+          style = "display: flex; gap: 16px; margin-bottom: 16px;",
+          tags$span(
+            style = "font-size: 24px; color: #5881c1;",
+            HTML("&#8599;")
+          ),
+          div(
+            h4("Step 2: Explore the Future Beds Calculator Tab"),
+            p("View charts showing historical trends and your projected scenarios. The charts update in real-time as you adjust the sliders. Pay attention to:"),
+            tags$ul(
+              tags$li("How your assumptions affect the trajectory of each metric"),
+              tags$li(HTML('The "Key Metrics (2035 Projected)" section showing end-state values')),
+              tags$li("Whether projected occupancy rates remain sustainable")
+            )
+          )
+        ),
+        
+        hr(),
+        
+        div(
+          style = "display: flex; gap: 16px;",
+          tags$span(
+            style = "font-size: 24px; color: #ec6555;",
+            HTML("&#128425;")
+          ),
+          div(
+            h4("Step 3: Use the Fixed Bed Solver (Optional)"),
+            p('The "Fixed Bed Solver" tab lets you work backwards: specify a fixed number of beds and see what combinations of admissions growth and LoS changes would maintain your target occupancy rate.'),
+            p(em("This is useful for planning scenarios where bed capacity is constrained."))
+          )
+        )
+      )
+    ),
+    
+    card(
+      card_header("Data Source & Methodology"),
+      div(
+        style = "padding: 16px;",
+        p("Historical data (1994-2025) is sourced from NHS England. Projections are calculated by applying your chosen growth rates to the last historical year (2025) and extending through 2035."),
+        p(HTML('For detailed information about data sources, calculation methods, and assumptions, visit the <b>"Assumptions and Method"</b> tab.'))
+      )
+    ),
+    
+    div(
+      style = "
+        border: 2px solid #5881c1;
+        background-color: #eef4fb;
+        padding: 18px;
+        margin: 20px 0;
+      ",
+      h4("Ready to Get Started?"),
+      p(HTML('Click on the <b>"Overview"</b> tab to begin exploring the data. Use the sidebar sliders to adjust your assumptions and watch how the projections change in real-time.'))
+    )
+  )
+),
+
+##Future beds nav panel ---------------------------------------------------------  
   nav_panel(
     "Future beds calculator",
     class = "panel-one",
@@ -138,14 +371,16 @@ ui <- page_navbar(
       .sidebar-title { padding-bottom: 0 !important; margin-bottom: 0 !important; }
     "))
   ),
-
+  
+  
+#Sidebar layout
   layout_sidebar(
   sidebar = sidebar(
     title ="Input assumptions",
     id = "sidebar",
     width = "320px",
     
-    p("Adjust each input to model the impact on beds over the next 10 years.",  style = "font-size: 0.9rem", class = "pt-0"),
+    p("Adjust how you think each input might change over the next 10 years.",  style = "font-size: 0.9rem", class = "pt-0"),
     
     hr(class = "my-0"), # This creates the horizontal line
     
@@ -177,13 +412,14 @@ ui <- page_navbar(
       class = "btn-secondary w-100" )
   ),
   card(
-    card_header("xxxxxxxxxxx",
+    card_header("Admissions Analysis",
                 class = "bg-dark"),
     p(textOutput("TEST"))
   )
   )  
   ),
   
+##Future admissions nav panel --------------------------------------------------
   nav_panel(
     "Future Admissions calculator",
 
@@ -233,6 +469,8 @@ ui <- page_navbar(
   
     )
 
+
+#Server interface --------------------------------------------------------------
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
