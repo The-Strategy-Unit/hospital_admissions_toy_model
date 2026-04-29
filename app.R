@@ -116,8 +116,9 @@ plotting_function<-function(plot_data, output_type, y_axis_label){
 
 baseline_beds<-1000
 
+
 #UI ----------------------------------------------------------------------------
-# Define UI for application that draws a histogram
+##UI General
 ui <- page_navbar(
   title = "Hospital Admission Model",
   id = "nav",
@@ -128,8 +129,8 @@ ui <- page_navbar(
     primary = "#686f73",
     secondary = "#f9bf07" 
   ),
-
-#Adding a logo to top right ----------------------------------------------------
+  
+  ### Logo -----------------------------------------------------------------------
   tags$style(HTML("
     .top-panel {
       position: fixed;
@@ -151,7 +152,7 @@ ui <- page_navbar(
     )
   ),
 
-## Explainer ---------------------------------------------------------  
+## Panel 1: Explainer ---------------------------------------------------------  
 nav_panel(
   "Explainer",
   div(
@@ -362,135 +363,149 @@ nav_panel(
   )
 ),
 
-##Future beds nav panel ---------------------------------------------------------  
+## Panel 2: Future beds nav panel ---------------------------------------------------------  
 nav_panel(
   "Future beds calculator",
   class = "panel-one",
   
   layout_sidebar(
     sidebar = sidebar(
-      title = "Future Assumptions",
+      title = NULL,
       id = "sidebar_future_beds",
-      width = "250px",
-      
-      p(
-        "Adjust how you think each input might change over the next 10 years",
-        style = "font-size: 0.85rem; line-height: 1.2;"
-      ),
-      
-      hr(style = "margin: 10px 0;"),
-      
-      h5("ADMISSIONS", style = "font-size: 1rem; margin-bottom: 8px;"),
-      
-      layout_columns(
-        actionButton("scenario_1", "Scenario 1", style = "font-size: 0.8rem; padding: 6px;"),
-        actionButton("scenario_2", "Scenario 2", style = "font-size: 0.8rem; padding: 6px;"),
-        actionButton("custom_scenario", "Custom", style = "font-size: 0.8rem; padding: 6px;"),
-        col_widths = c(4, 4, 4)
-      ),
+      width = "300px",
       
       div(
-        style = "display:flex; justify-content:space-between; margin-top: 10px;",
-        strong("Annual Change"),
-        span("0%")
-      ),
-      
-      sliderInput(
-        "admissions_change",
-        label = NULL,
-        min = -10,
-        max = 10,
-        value = 0,
-        step = 0.1
-      ),
-      
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-        span("-10%"),
-        span("0%"),
-        span("+10%")
-      ),
-      
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-        span("2026: 16967214"),
-        span("2035: 16967214")
-      ),
-      
-      hr(style = "margin: 12px 0;"),
-      
-      h5("LENGTH OF STAY", style = "font-size: 1rem; margin-bottom: 8px;"),
-      
-      div(
-        style = "display:flex; justify-content:space-between;",
-        strong("Annual Change"),
-        span("0%")
-      ),
-      
-      sliderInput(
-        "los_change",
-        label = NULL,
-        min = -10,
-        max = 10,
-        value = 0,
-        step = 0.1
-      ),
-      
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-        span("-10%"),
-        span("0%"),
-        span("+10%")
-      ),
-      
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-        span("2026: 3.12 days"),
-        span("2035: 3.12 days")
-      ),
-      
-      hr(style = "margin: 12px 0;"),
-      
-      h5("TARGET OCCUPANCY", style = "font-size: 1rem; margin-bottom: 8px;"),
-      
-      div(
-        style = "display:flex; justify-content:space-between;",
-        strong("Fixed Value"),
-        span("80%")
-      ),
-      
-      sliderInput(
-        "target_occupancy",
-        label = NULL,
-        min = 0,
-        max = 100,
-        value = 80,
-        step = 0.1
-      ),
-      
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-        span("0%"),
-        span("100%")
-      ),
-      
-      actionButton(
-        "reset_scenario", 
-        "↻ Reset to Baseline", 
-        class = "btn-primary w-100",
-        style = "margin-top: 10px;"
-      ),
-      
-      div(
-        style = "
-          border: 1px solid #f9bf07;
-          background-color: #fff8e1;
-          padding: 8px;
-          margin-top: 10px;
-          font-size: 0.75rem;
-          line-height: 1.2;
-        ",
-        "Use the sliders to model how admissions, LoS, and occupancy might change annually."
+        style = "margin-top: -18px;",
+        
+        h3(
+          "Future Assumptions",
+          style = "font-size: 1.2rem; margin: 0 0 6px 0;"
+        ),
+        
+        hr(style = "margin: 6px 0;"),
+        
+        p(
+          "Adjust inputs for the next 10 years.",
+          style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"
+        ),
+        
+        hr(style = "margin: 6px 0;"),
+        
+        h5("ADMISSIONS", style = "font-size: 0.95rem; margin: 6px 0;"),
+        
+        div(
+          style = "display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 8px;",
+          actionButton("scenario_1", "Scenario 1", style = "font-size: 0.75rem; padding: 6px 4px;"),
+          actionButton("scenario_2", "Scenario 2", style = "font-size: 0.75rem; padding: 6px 4px;"),
+          actionButton("custom_scenario", "Custom", style = "font-size: 0.75rem; padding: 6px 4px;")
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.8rem;",
+          strong("Annual Change"),
+          span("0%")
+        ),
+        
+        sliderInput(
+          "admissions_change",
+          NULL,
+          min = -10,
+          max = 10,
+          value = 0,
+          step = 0.1,
+          width = "100%"
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
+          span("-10%"),
+          span("0%"),
+          span("+10%")
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.72rem; margin-top:6px;",
+          span("2026: 16967214"),
+          span("2035: 16967214")
+        ),
+        
+        hr(style = "margin: 8px 0;"),
+        
+        h5("LENGTH OF STAY", style = "font-size: 0.95rem; margin: 6px 0;"),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.8rem;",
+          strong("Annual Change"),
+          span("0%")
+        ),
+        
+        sliderInput(
+          "los_change",
+          NULL,
+          min = -10,
+          max = 10,
+          value = 0,
+          step = 0.1,
+          width = "100%"
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
+          span("-10%"),
+          span("0%"),
+          span("+10%")
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.72rem; margin-top:6px;",
+          span("2026: 3.12 days"),
+          span("2035: 3.12 days")
+        ),
+        
+        hr(style = "margin: 8px 0;"),
+        
+        h5("TARGET OCCUPANCY", style = "font-size: 0.95rem; margin: 6px 0;"),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.8rem;",
+          strong("Fixed Value"),
+          span("80%")
+        ),
+        
+        sliderInput(
+          "target_occupancy",
+          NULL,
+          min = 0,
+          max = 100,
+          value = 80,
+          step = 0.1,
+          width = "100%"
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
+          span("0%"),
+          span("100%")
+        ),
+        
+        actionButton(
+          "reset_scenario", 
+          "↻ Reset to Baseline", 
+          class = "btn-primary w-100",
+          style = "margin-top: 8px; font-size: 0.8rem; padding: 6px;"
+        ),
+        
+        div(
+          style = "
+            border: 1px solid #f9bf07;
+            background-color: #fff8e1;
+            padding: 8px;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            line-height: 1.15;
+          ",
+          "Beds required are calculated automatically from the assumptions."
+        )
       )
     ),
     
@@ -498,16 +513,16 @@ nav_panel(
       style = "padding-left: 10px;",
       
       h3("Admissions Analysis", style = "margin-bottom: 4px;"),
-      hr(style = "margin: 4px 0 10px 0;"),
+      hr(style = "margin: 4px 0 8px 0;"),
       
       div(
         style = "
           border: 2px solid #f9bf07;
           background-color: #fff8e1;
-          padding: 8px 10px;
+          padding: 6px 10px;
           margin-bottom: 8px;
-          font-size: 0.85rem;
-          line-height: 1.25;
+          font-size: 0.8rem;
+          line-height: 1.2;
         ",
         div(HTML("<b>Historical data (1994-2025)</b> shown in solid lines. <b>Predicted data (2026-2035)</b> shown in dashed lines, based on assumptions in the sidebar.")),
         div(HTML("<b>What this is:</b> A headline view of admissions, LoS, beddays, beds required and occupancy over time.")),
@@ -518,22 +533,22 @@ nav_panel(
       layout_columns(
         card(
           card_header(HTML("Admissions &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          div(style = "height: 160px;")
         ),
         
         card(
           card_header(HTML("Length of Stay &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          div(style = "height: 160px;")
         ),
         
         card(
           card_header(HTML("Beds Required &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          div(style = "height: 160px;")
         ),
         
         card(
           card_header(HTML("Occupancy Rate &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          div(style = "height: 160px;")
         ),
         
         col_widths = c(6, 6, 6, 6)
@@ -546,36 +561,36 @@ nav_panel(
           style = "
             border: 2px solid #f9bf07;
             background-color: #fff8e1;
-            padding: 8px 10px;
-            margin: 10px;
-            font-size: 0.8rem;
-            line-height: 1.25;
+            padding: 6px 10px;
+            margin: 8px;
+            font-size: 0.75rem;
+            line-height: 1.15;
           ",
-          "These are the modelled 2035 values based on the assumptions set in the sidebar. They start from the 2025 baseline and apply the changes each year from 2026 to 2035, so small differences compound over time."
+          "These are the modelled 2035 values based on the assumptions set in the sidebar."
         ),
         
         layout_columns(
           card(
-            style = "padding: 8px;",
-            div("Admissions", style = "font-size: 0.8rem;"),
+            style = "padding: 6px;",
+            div("Admissions", style = "font-size: 0.75rem;"),
             strong("16.97 million")
           ),
           
           card(
-            style = "padding: 8px;",
-            div("LoS", style = "font-size: 0.8rem;"),
+            style = "padding: 6px;",
+            div("LoS", style = "font-size: 0.75rem;"),
             strong("3.12 days")
           ),
           
           card(
-            style = "padding: 8px;",
-            div("Beds", style = "font-size: 0.8rem;"),
+            style = "padding: 6px;",
+            div("Beds", style = "font-size: 0.75rem;"),
             strong("181.4 thousand")
           ),
           
           card(
-            style = "padding: 8px;",
-            div("Occupancy", style = "font-size: 0.8rem;"),
+            style = "padding: 6px;",
+            div("Occupancy", style = "font-size: 0.75rem;"),
             strong("80.0 %")
           ),
           
@@ -586,116 +601,133 @@ nav_panel(
   )
 ),
 
-##Future Admissions Calculator nav panel ---------------------------------------
+## Panel 3: Future Admissions Calculator nav panel ---------------------------------------
 nav_panel(
   "Future Admissions Calculator",
   
   layout_sidebar(
     sidebar = sidebar(
-      title = "Future Admissions Calculator",
+      title = NULL,
       id = "sidebar_fixed_beds",
-      width = "250px",
-      
-      p(
-        "Set a fixed bed supply and test what admissions and LoS combinations would be sustainable.",
-        style = "font-size: 0.85rem; line-height: 1.2;"
-      ),
-      
-      hr(style = "margin: 10px 0;"),
-      
-      h5("BED SUPPLY", style = "font-size: 1rem; margin-bottom: 8px;"),
-      
-      p("Baseline (2025):", baseline_beds, style = "font-size: 0.85rem;"),
+      width = "300px",
       
       div(
-        style = "display:flex; justify-content:space-between;",
-        strong("Fixed beds"),
-        span("1000")
-      ),
-      
-      sliderInput(
-        "fixed_beds",
-        label = NULL,
-        min = 0,
-        max = 250000,
-        value = baseline_beds,
-        step = 100
-      ),
-      
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-        span("0"),
-        span("250,000")
-      ),
-      
-      hr(style = "margin: 12px 0;"),
-      
-      h5("LENGTH OF STAY", style = "font-size: 1rem; margin-bottom: 8px;"),
-      
-      div(
-        style = "display:flex; justify-content:space-between;",
-        strong("Annual Change"),
-        span("0%")
-      ),
-      
-      sliderInput(
-        "fixed_los_change",
-        label = NULL,
-        min = -10,
-        max = 10,
-        value = 0,
-        step = 0.1
-      ),
-      
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-        span("-10%"),
-        span("0%"),
-        span("+10%")
-      ),
-      
-      hr(style = "margin: 12px 0;"),
-      
-      h5("TARGET OCCUPANCY", style = "font-size: 1rem; margin-bottom: 8px;"),
-      
-      div(
-        style = "display:flex; justify-content:space-between;",
-        strong("Fixed Value"),
-        span("85%")
-      ),
-      
-      sliderInput(
-        "fixed_target_occupancy",
-        label = NULL,
-        min = 0,
-        max = 100,
-        value = 85,
-        step = 0.5
-      ),
-      
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-        span("0%"),
-        span("100%")
-      ),
-      
-      actionButton(
-        "reset_baseline", 
-        "↻ Reset to Baseline", 
-        class = "btn-primary w-100",
-        style = "margin-top: 10px;"
-      ),
-      
-      div(
-        style = "
-          border: 1px solid #f9bf07;
-          background-color: #fff8e1;
-          padding: 8px;
-          margin-top: 10px;
-          font-size: 0.75rem;
-          line-height: 1.2;
-        ",
-        "Use this panel to work backwards from a fixed bed supply. Admissions capacity is calculated from the selected beds, LoS and target occupancy assumptions."
+        style = "margin-top: -18px;",
+        
+        h3(
+          "Future Admissions Calculator",
+          style = "font-size: 1.2rem; margin: 0 0 6px 0;"
+        ),
+        
+        hr(style = "margin: 6px 0;"),
+        
+        p(
+          "Set a fixed bed supply and test what admissions and LoS combinations would be sustainable.",
+          style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"
+        ),
+        
+        hr(style = "margin: 6px 0;"),
+        
+        h5("BED SUPPLY", style = "font-size: 0.95rem; margin: 6px 0;"),
+        
+        p(
+          paste("Baseline (2025):", baseline_beds),
+          style = "font-size: 0.8rem; margin-bottom: 4px;"
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.8rem;",
+          strong("Fixed beds"),
+          span("1000")
+        ),
+        
+        sliderInput(
+          "fixed_beds",
+          NULL,
+          min = 0,
+          max = 250000,
+          value = baseline_beds,
+          step = 100,
+          width = "100%"
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
+          span("0"),
+          span("250,000")
+        ),
+        
+        hr(style = "margin: 8px 0;"),
+        
+        h5("LENGTH OF STAY", style = "font-size: 0.95rem; margin: 6px 0;"),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.8rem;",
+          strong("Annual Change"),
+          span("0%")
+        ),
+        
+        sliderInput(
+          "fixed_los_change",
+          NULL,
+          min = -10,
+          max = 10,
+          value = 0,
+          step = 0.1,
+          width = "100%"
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
+          span("-10%"),
+          span("0%"),
+          span("+10%")
+        ),
+        
+        hr(style = "margin: 8px 0;"),
+        
+        h5("TARGET OCCUPANCY", style = "font-size: 0.95rem; margin: 6px 0;"),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.8rem;",
+          strong("Fixed Value"),
+          span("85%")
+        ),
+        
+        sliderInput(
+          "fixed_target_occupancy",
+          NULL,
+          min = 0,
+          max = 100,
+          value = 85,
+          step = 0.5,
+          width = "100%"
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
+          span("0%"),
+          span("100%")
+        ),
+        
+        actionButton(
+          "reset_baseline", 
+          "↻ Reset to Baseline", 
+          class = "btn-primary w-100",
+          style = "margin-top: 8px; font-size: 0.8rem; padding: 6px;"
+        ),
+        
+        div(
+          style = "
+            border: 1px solid #f9bf07;
+            background-color: #fff8e1;
+            padding: 8px;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            line-height: 1.15;
+          ",
+          "Admissions capacity is calculated from the selected beds, LoS and target occupancy assumptions."
+        )
       )
     ),
     
@@ -703,16 +735,16 @@ nav_panel(
       style = "padding-left: 10px;",
       
       h3("Future Admissions Calculator", style = "margin-bottom: 4px;"),
-      hr(style = "margin: 4px 0 10px 0;"),
+      hr(style = "margin: 4px 0 8px 0;"),
       
       div(
         style = "
           border: 2px solid #f9bf07;
           background-color: #fff8e1;
-          padding: 8px 10px;
+          padding: 6px 10px;
           margin-bottom: 8px;
-          font-size: 0.85rem;
-          line-height: 1.25;
+          font-size: 0.8rem;
+          line-height: 1.2;
         ",
         div(HTML("<b>What this is:</b> A backwards-looking planning view that starts with a fixed number of beds and estimates what level of admissions could be supported.")),
         div(HTML("<b>Why it is useful:</b> Helps test capacity-constrained scenarios where bed numbers are fixed or cannot grow enough to match demand.")),
@@ -722,22 +754,22 @@ nav_panel(
       layout_columns(
         card(
           card_header(HTML("Supported Admissions &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          div(style = "height: 160px;")
         ),
         
         card(
           card_header(HTML("Length of Stay &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          div(style = "height: 160px;")
         ),
         
         card(
           card_header(HTML("Fixed Beds &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          div(style = "height: 160px;")
         ),
         
         card(
           card_header(HTML("Occupancy Rate &nbsp; &#9432;")),
-          div(style = "height: 170px;")
+          div(style = "height: 160px;")
         ),
         
         col_widths = c(6, 6, 6, 6)
@@ -750,36 +782,36 @@ nav_panel(
           style = "
             border: 2px solid #f9bf07;
             background-color: #fff8e1;
-            padding: 8px 10px;
-            margin: 10px;
-            font-size: 0.8rem;
-            line-height: 1.25;
+            padding: 6px 10px;
+            margin: 8px;
+            font-size: 0.75rem;
+            line-height: 1.15;
           ",
-          "These are the modelled 2035 values based on the fixed bed assumptions set in the sidebar. They show the admissions capacity that could be supported under the selected LoS and occupancy assumptions."
+          "These are the modelled 2035 values based on the fixed bed assumptions set in the sidebar."
         ),
         
         layout_columns(
           card(
-            style = "padding: 8px;",
-            div("Supported admissions", style = "font-size: 0.8rem;"),
+            style = "padding: 6px;",
+            div("Supported admissions", style = "font-size: 0.75rem;"),
             strong("Add value")
           ),
           
           card(
-            style = "padding: 8px;",
-            div("LoS", style = "font-size: 0.8rem;"),
+            style = "padding: 6px;",
+            div("LoS", style = "font-size: 0.75rem;"),
             strong("Add value")
           ),
           
           card(
-            style = "padding: 8px;",
-            div("Fixed beds", style = "font-size: 0.8rem;"),
+            style = "padding: 6px;",
+            div("Fixed beds", style = "font-size: 0.75rem;"),
             strong("Add value")
           ),
           
           card(
-            style = "padding: 8px;",
-            div("Occupancy", style = "font-size: 0.8rem;"),
+            style = "padding: 6px;",
+            div("Occupancy", style = "font-size: 0.75rem;"),
             strong("Add value")
           ),
           
@@ -790,8 +822,7 @@ nav_panel(
   )
 ),
 
-
-## Assumptions and Methods -----------------------------------------------------
+## Panel 4: Assumptions and Methods -----------------------------------------------------
 nav_panel(
   "Assumptions and Method",
   
@@ -885,6 +916,9 @@ nav_panel(
 )
 
 )
+
+
+
 
 #Server interface --------------------------------------------------------------
 
