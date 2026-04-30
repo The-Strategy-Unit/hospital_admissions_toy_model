@@ -211,6 +211,15 @@ ui <- page_navbar(
     .logo img {
       height: 52px;
     }
+    
+    .toy-model-links ul li a {
+    color: #0d6efd;
+    text-decoration: underline;
+    }
+
+    .toy-model-links ul li a:hover {
+    color: #0a58ca;
+    }
   ")),
   
   # Top-right buttons + logo ---------------------------------------------------
@@ -289,6 +298,7 @@ ui <- page_navbar(
         ),
         
         card(
+          class = "toy-model-links",
           style = "margin-bottom: 10px; height: 100%;",
           card_header("Toy Models"),
           card_body(
@@ -297,25 +307,39 @@ ui <- page_navbar(
               style = "display: flex; gap: 10px; align-items: flex-start;",
               tags$span(
                 style = "font-size: 20px; color: #5881c1; line-height: 1.1;",
-                HTML("&#9432;")
-              ),
+                HTML("&#9432;")),
               div(
                 p(
                   "This is one of a series of toy models developed by the Strategy Unit to support decision-making, strategic planning and as a teaching aid.",
-                  style = "margin: 0 0 6px 0;"
-                ),
+                  style = "margin: 0 0 6px 0;"),
+                
                 tags$ul(
                   style = "margin: 0; padding-left: 20px;",
-                  tags$li("How might risk stratification save money?"),
-                  tags$li("Bed pooling and occupancy"),
-                  tags$li("Bottlenecks and patient flow"),
+                  
+                  tags$li(
+                    tags$a(
+                      "How might risk stratification save money?",
+                      href = "https://connect.strategyunitwm.nhs.uk/risk_stratification_tool/",
+                      target = "_blank"
+                    )),
+                  
+                  tags$li(
+                    tags$a(
+                      "Bed pooling and occupancy",
+                      href = "https://connect.strategyunitwm.nhs.uk/bed_pool_tool/",
+                      target = "_blank"
+                    )),
+                  
+                  tags$li(
+                    tags$a(
+                      "Bottlenecks and patient flow",
+                      href = "https://exchange.iseesystems.com/public/sally-thompson/flows-and-bottlenecks-toy-model/index.html",
+                      target = "_blank"
+                    )),
+                  
                   tags$li("'Sharing nicely'"),
                   tags$li("Waiting list dynamics")
-                )
-              )
-            )
-          )
-        ),
+                ))))),
         
         col_widths = c(6, 6)
       ),
