@@ -160,14 +160,14 @@ ui <- page_navbar(
   
   # Styling --------------------------------------------------------------------
   tags$style(HTML("
-    /* Slightly taller navbar */
+      /* navbar */
     .navbar {
       min-height: 62px;
       padding-top: 6px;
       padding-bottom: 6px;
     }
 
-    /* Proper vertical alignment of title + tabs */
+    /* Alignment of title + tabs */
     .navbar-brand,
     .navbar-nav > li > a {
       padding-top: 10px !important;
