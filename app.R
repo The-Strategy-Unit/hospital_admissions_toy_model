@@ -151,44 +151,98 @@ baseline_beds<-1000
 ui <- page_navbar(
   title = "Hospital Admission Model",
   id = "nav",
-  bg = "#f9bf07",
+  bg = "#2c2825",
   theme = bs_theme(
     bootswatch = "united",
-    dark = "black",
     primary = "#686f73",
-    secondary = "#f9bf07" 
+    secondary = "#f9bf07"
   ),
   
-  ### Logo -----------------------------------------------------------------------
+  # Styling --------------------------------------------------------------------
   tags$style(HTML("
-    .top-panel {
-      position: fixed;
-      top: 6px;
-      right: 15px;
-      z-index: 9999;
+    /* Slightly taller navbar */
+    .navbar {
+      min-height: 62px;
+      padding-top: 6px;
+      padding-bottom: 6px;
     }
 
+    /* Proper vertical alignment of title + tabs */
+    .navbar-brand,
+    .navbar-nav > li > a {
+      padding-top: 10px !important;
+      padding-bottom: 10px !important;
+      line-height: 1.2;
+    }
+
+    /* Top right buttons + logo */
+    .top-panel {
+      position: fixed;
+      top: 8px;
+      right: 15px;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Buttons */
+    .top-panel-button {
+      border: 1px solid #ffffff;
+      color: #ffffff;
+      background-color: #2c2825;
+      padding: 5px 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 4px;
+    }
+
+    .top-panel-button:hover {
+      background-color: #3a3632;
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    /* Logo */
     .logo img {
-      height: 50px;
+      height: 52px;
     }
   ")),
   
+  # Top-right buttons + logo ---------------------------------------------------
   tags$div(
     class = "top-panel",
+    
+    tags$a(
+      href = "#",
+      class = "top-panel-button",
+      HTML("&#9432; About")
+    ),
+    
+    tags$a(
+      href = "mailto:strategy.unit@nhs.net?subject=Hospital Admission Model query",
+      class = "top-panel-button",
+      HTML("&#9993; Contact")
+    ),
+    
     tags$div(
       class = "logo",
-      tags$img(src = "tsu_logo_black.png")
+      tags$img(src = "tsu_logo_yellow_screen_transparent.png")
     )
   ),
 
-  ## Panel 1: Explainer ---------------------------------------------------------
+## Panel 1: Explainer ---------------------------------------------------------
   nav_panel(
     "Explainer",
     
     div(
       style = "max-width: 1400px; margin: 0 auto;",
       
-      # Top banner --------------------------------------------------------------
+      # Top banner 
       div(
         style = "
         background-color: #f9bf07;
@@ -203,7 +257,7 @@ ui <- page_navbar(
         )
       ),
       
-      # Side-by-side cards ------------------------------------------------------
+      ### Side-by-side cards 
       layout_columns(
         
         card(
@@ -266,7 +320,7 @@ ui <- page_navbar(
         col_widths = c(6, 6)
       ),
       
-      # Understanding data ------------------------------------------------------
+      ### Understanding data 
       card(
         style = "margin-bottom: 10px;",
         card_header("Understanding the Data"),
@@ -315,8 +369,8 @@ ui <- page_navbar(
           )
         )
       ),
-      
-      # How to use --------------------------------------------------------------
+    
+      ### How to use 
       card(
         style = "margin-bottom: 10px;",
         card_header("How to Use This Tool"),
@@ -394,7 +448,7 @@ ui <- page_navbar(
         )
       ),
       
-      # Data source -------------------------------------------------------------
+      ### Data source 
       card(
         style = "margin-bottom: 10px;",
         card_header("Data Source & Methodology"),
@@ -405,7 +459,7 @@ ui <- page_navbar(
         )
       ),
       
-      # Call to action ----------------------------------------------------------
+      ### Call to action 
       div(
         style = "
         border: 2px solid #5881c1;
