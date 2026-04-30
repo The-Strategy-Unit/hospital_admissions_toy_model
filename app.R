@@ -1080,7 +1080,7 @@ server <- function(input, output, session) {
   
   output$admissions2<-renderPlotly({
     
-    plot_data<-future_beds_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
+    plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
     
     plotting_function(plot_data,
                       NULL,
