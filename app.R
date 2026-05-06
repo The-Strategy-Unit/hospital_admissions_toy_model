@@ -395,7 +395,8 @@ ui <- page_navbar(
                   tags$li("Four trend charts are displayed: Number of admissions, Average length of stay, Number of beds and Target bed occupancy."),
                   tags$li("On each chart a solid black lines gives the historic trends and a red dotted line indicates the projected trends from 2026-2035 (based on the selected assumptions)."),
                   tags$li("In the Future Beds Calculator the admissions and beds charts show 3 dotted grey lines that give the projected values for the 3 preset scenarios."),
-                  tags$li("Adjust the sliders to watch trends change in real time.")
+                  tags$li("Adjust the sliders to watch trends change in real time."),
+                  tags$li("Hover over the chart lines to read off the values. Actual values for 2025 and projected values for 2035 are given on the sidebar.")
                 )
               )
             )
@@ -611,51 +612,8 @@ nav_panel(
         ),
         
         col_widths = c(6, 6, 6, 6)
-      ),
-      
-      card(
-        card_header("Key Metrics (2035 Projected)"),
-        
-        div(
-          style = "
-            border: 2px solid #f9bf07;
-            background-color: #fff8e1;
-            padding: 6px 10px;
-            margin: 8px;
-            font-size: 0.75rem;
-            line-height: 1.15;
-          ",
-          "These are the modelled 2035 values based on the assumptions set in the sidebar."
-        ),
-        
-        layout_columns(
-          card(
-            style = "padding: 6px;",
-            div("Number of Admissions", style = "font-size: 0.75rem;"),
-            strong("16.97 million")
-          ),
-          
-          card(
-            style = "padding: 6px;",
-            div("Average Length of Stay", style = "font-size: 0.75rem;"),
-            strong("3.12 days")
-          ),
-          
-          card(
-            style = "padding: 6px;",
-            div("Number of Beds", style = "font-size: 0.75rem;"),
-            strong("181.4 thousand")
-          ),
-          
-          card(
-            style = "padding: 6px;",
-            div("Bed Occupancy Rate", style = "font-size: 0.75rem;"),
-            strong("80.0 %")
-          ),
-          
-          col_widths = c(3, 3, 3, 3)
-        )
       )
+
     )
   )
 ),
@@ -830,49 +788,49 @@ nav_panel(
         col_widths = c(6, 6, 6, 6)
       ),
       
-      card(
-        card_header("Key Metrics (2035 Projected)"),
-        
-        div(
-          style = "
-            border: 2px solid #f9bf07;
-            background-color: #fff8e1;
-            padding: 6px 10px;
-            margin: 8px;
-            font-size: 0.75rem;
-            line-height: 1.15;
-          ",
-          "These are the modelled 2035 values based on the fixed bed assumptions set in the sidebar."
-        ),
-        
-        layout_columns(
-          card(
-            style = "padding: 6px;",
-            div("Supported admissions", style = "font-size: 0.75rem;"),
-            strong("Add value")
-          ),
+    #  card(
+    #    card_header("Key Metrics (2035 Projected)"),
+    #    
+    #    div(
+    #      style = "
+    #        border: 2px solid #f9bf07;
+    #        background-color: #fff8e1;
+    #        padding: 6px 10px;
+    #        margin: 8px;
+    #        font-size: 0.75rem;
+    #        line-height: 1.15;
+    #      ",
+    #      "These are the modelled 2035 values based on the fixed bed assumptions set in the sidebar."
+    #    ),
+    #    
+    #    layout_columns(
+     #     card(
+     #       style = "padding: 6px;",
+     #       div("Supported admissions", style = "font-size: 0.75rem;"),
+     #       strong("Add value")
+     #     ),
           
-          card(
-            style = "padding: 6px;",
-            div("LoS", style = "font-size: 0.75rem;"),
-            strong("Add value")
-          ),
+     #     card(
+     #       style = "padding: 6px;",
+     #       div("LoS", style = "font-size: 0.75rem;"),
+     #       strong("Add value")
+     #     ),
           
-          card(
-            style = "padding: 6px;",
-            div("Fixed beds", style = "font-size: 0.75rem;"),
-            strong("Add value")
-          ),
+     #     card(
+     #       style = "padding: 6px;",
+     #       div("Fixed beds", style = "font-size: 0.75rem;"),
+     #       strong("Add value")
+     #     ),
           
-          card(
-            style = "padding: 6px;",
-            div("Occupancy", style = "font-size: 0.75rem;"),
-            strong("Add value")
-          ),
+     #     card(
+      #      style = "padding: 6px;",
+     #       div("Occupancy", style = "font-size: 0.75rem;"),
+     #       strong("Add value")
+     #     ),
           
-          col_widths = c(3, 3, 3, 3)
-        )
-      )
+     #     col_widths = c(3, 3, 3, 3)
+     #   )
+      #)
     )
   )
 ),
