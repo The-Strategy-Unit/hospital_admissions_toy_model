@@ -38,6 +38,7 @@ future_admissions_model<-function(from_93, beds_yearly_percentage_change, los_ye
   beds<-from_93$Beds
   los<-from_93$avgLoS
   occupancy<-from_93$`occupancy`
+
   
   for(i in 1:(length(years)-length(from_93$Year))){
     ## adds one entry to each array during each loop
@@ -74,12 +75,18 @@ future_beds_model<-function(from_93, admissions_yearly_percentage_change, los_ye
   los<-from_93$avgLoS
   occupancy<-from_93$`occupancy`
   
+if(occupancy_fixed_level==100){
+  occupancy_fixed<-99.999999999999
+}else{ 
+  occupancy_fixed<-occupancy_fixed_level}
+  
+  
   for(i in 1:(length(years)-length(from_93$Year))){
     admissions <- c(admissions,admissions[length(admissions)] +  admissions[length(admissions)] *admissions_yearly_percentage_change/100)
     los <- c(los , los[length(los)] + los[length(los)]*los_yearly_percentage_change/100 )
     beddays <- c(beddays , admissions[length(admissions)]*los[length(los)])
-    beds <- c(beds, qpois((occupancy_fixed_level/100), admissions[length(admissions)]*los[length(los)]/365))
-    occupancy<- c(occupancy, (occupancy_fixed_level/100))
+    beds <- c(beds, qpois((occupancy_fixed/100), admissions[length(admissions)]*los[length(los)]/365))
+    occupancy<- c(occupancy, (occupancy_fixed/100))
   }
   
   plot_data<-data.frame(
@@ -499,7 +506,7 @@ ui <- page_navbar(
   
 ## Panel 2: Future beds nav panel ---------------------------------------------------------  
 nav_panel(
-  "Future beds calculator",
+  "Future Beds Calculator",
   class = "panel-one",
   
   layout_sidebar(
@@ -1157,6 +1164,10 @@ server <- function(input, output, session) {
   
   
   output$admissions2<-renderPlotly({
+    
+    if(input$bed_occupancy==100){
+      input$bed_occupancy==99.99999999999999
+    }
     
     plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
     
