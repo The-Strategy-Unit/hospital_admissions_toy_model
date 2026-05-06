@@ -233,11 +233,11 @@ ui <- page_navbar(
   tags$div(
     class = "top-panel",
     
-    tags$a(
-      href = "#",
-      class = "top-panel-button",
-      HTML("&#9432; About")
-    ),
+  #  tags$a(
+   #   href = "#",
+   #   class = "top-panel-button",
+ #     HTML("&#9432; About")
+  #  ),
     
     tags$a(
       href = "mailto:strategy.unit@nhs.net?subject=Hospital Admission Model query",
@@ -391,7 +391,7 @@ ui <- page_navbar(
                 style = "margin: 0; padding-left: 20px;",
                 tags$li(HTML("<b>Admissions growth:</b> Annual % change")),
                 tags$li(HTML("<b>LoS change:</b> Annual % change")),
-                tags$li(HTML("<b>Target occupancy:</b> Desired level"))
+                tags$li(HTML("<b>Target bed occupancy:</b> Desired level"))
               ),
               p(em("Vertical line = transition point"), style = "margin: 6px 0 0 0;")
             ),
@@ -435,7 +435,7 @@ ui <- page_navbar(
                 
                 div(
                   style = "background-color: #f4f4f4; padding: 7px 8px;",
-                  p(HTML("<b>Target occupancy:</b> 75–95%"), style = "margin: 0;"),
+                  p(HTML("<b>Target bed occupancy:</b> 75–95%"), style = "margin: 0;"),
                   p(style = "font-size: 0.75rem; margin: 0;", "85% ≈ typical planning level")
                 )
               )
@@ -579,7 +579,7 @@ nav_panel(
       
         hr(style = "margin: 8px 0;"),
         
-        h5("TARGET OCCUPANCY", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
+        h5("TARGET BED OCCUPANCY", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
       
       div(
         style = "display:flex; justify-content:space-between;",
@@ -589,7 +589,7 @@ nav_panel(
       sliderInput(
         "target_occupancy",
         label = NULL,
-        min = 0,
+        min = 75,
         max = 100,
         value = 80,
         step = 0.1
@@ -803,7 +803,7 @@ nav_panel(
         
         hr(style = "margin: 8px 0;"),
         
-        h5("TARGET OCCUPANCY", style = "font-size: 0.95rem; margin: 6px 0;"),
+        h5("TARGET BED OCCUPANCY", style = "font-size: 0.95rem; margin: 6px 0;"),
         
         div(
           style = "display:flex; justify-content:space-between; font-size:0.8rem;",
@@ -814,7 +814,7 @@ nav_panel(
         sliderInput(
           "bed_occupancy",
           NULL,
-          min = 0,
+          min = 75,
           max = 100,
           value = 85,
           step = 0.5,
@@ -838,7 +838,7 @@ nav_panel(
             font-size: 0.75rem;
             line-height: 1.15;
           ",
-          "Admissions capacity is calculated from the selected beds, LoS and target occupancy assumptions."
+          "Admissions capacity is calculated from the selected beds, LoS and target bed occupancy assumptions."
         )
       )
     ),
@@ -860,7 +860,7 @@ nav_panel(
         ",
         div(HTML("<b>What this is:</b> A backwards-looking planning view that starts with a fixed number of beds and estimates what level of admissions could be supported.")),
         div(HTML("<b>Why it is useful:</b> Helps test capacity-constrained scenarios where bed numbers are fixed or cannot grow enough to match demand.")),
-        div(HTML("<b>How to use it:</b> Adjust fixed beds, LoS and target occupancy in the sidebar, then compare the resulting projected admissions capacity and bed pressure over time."))
+        div(HTML("<b>How to use it:</b> Adjust fixed beds, LoS and target bed occupancy in the sidebar, then compare the resulting projected admissions capacity and bed pressure over time."))
       ),
       
       layout_columns(
@@ -883,7 +883,7 @@ nav_panel(
         ),
         
         card(
-          card_header(HTML("Fixed Beds &nbsp; &#9432;")),
+          card_header(HTML("Beds &nbsp; &#9432;")),
           card_body(
             (plotlyOutput("beds2")),
             padding = 10,
@@ -950,7 +950,7 @@ nav_panel(
   )
 ),
 
-## Panel 4: Assumptions and Methods -----------------------------------------------------
+## Panel 4: Methodology -----------------------------------------------------
 nav_panel(
   "Assumptions and Method",
   
@@ -960,7 +960,7 @@ nav_panel(
     card(
       card_header("Model Overview"),
       div(
-        style = "padding: 16px;",
+        style = "padding: 4px;",
         p("This tool models the relationship between bed capacity, patient admissions, length of stay (LoS), and occupancy rates."),
         
         div(
@@ -976,70 +976,102 @@ nav_panel(
         
         p("Parameters:"),
         tags$ul(
-          tags$li("Admissions: Patients per week"),
-          tags$li("Length of Stay: Average days in hospital"),
-          tags$li("Beds: Total capacity"),
-          tags$li("Occupancy: % of beds occupied")
+          tags$li("Admissions: Number of hospital admissions per year"),
+          tags$li("Length of stay: Average number of days in hospital for each admission"),
+          tags$li("Beds: Number of available beds (ANNUAL AVERAGE?)"),
+          tags$li("Target bed occupancy: % of available beds that are occupied at a given time")
+        ),
+        tags$ul(
+          tags$li("Change in number of admissions: Predicted % annual change in the number of hospital admissions"),
+          tags$li("Change in average length of stay: Predicted % annual change in length of stay"),
+          tags$li("Change in number of beds: Predicted % of annual growth in the number of available beds")
         )
       )
+      
     ),
     
-    layout_columns(
+    #layout_columns(
       card(
-        card_header("Data and Definitions"),
+        card_header("Data"),
         div(
-          style = "padding: 16px;",
+          style = "padding: 4px;",
           div(
-            style = "
-              border: 1px solid #686f73;
-              padding: 12px;
-              margin-bottom: 10px;
-            ",
-            p("Default Values"),
-            p("• Beds Baseline (2025): 145687 beds"),
-            p("• Admissions: 150/week"),
-            p("• LoS: 5.5 days"),
-            p("• Target: 85%")
+        #    style = "
+        #     border: 1px solid #686f73;
+        #      padding: 12px;
+        #      margin-bottom: 10px;
+        #    ",
+            p("The historic annual number of admissions and average length of stays between 1994 and 2025 were derived from the Hospital Episode Statistics dataset"),
+            p("The historic bed occupancy was taken from the NHS England Bed Availability and Occupancy (KH03) Collection?????."),
+            p("The scenario assumptions (Do nothing, Planned and Ambitious) use potential changes in admissions based on  NHP work???. It is assumed length of stay doesn't change and the target bed occupancy is set at 85%, which is generally considered a safe maximum for bed occupancy.")
           ),
           
-          div(
-            style = "
-              border: 1px solid #686f73;
-              padding: 12px;
-            ",
-            p("Time Period"),
-            p("Weekly admissions")
-          )
+       #   div(
+       #     style = "
+      #        border: 1px solid #686f73;
+       #       padding: 12px;
+       #     ",
+       #     p("Time Period"),
+        #    p("Weekly admissions")
+       #   )
         )
       ),
       
       card(
         card_header("Assumptions and Limitations"),
         div(
-          style = "padding: 16px;",
-          div(
-            style = "
-              border: 1px solid #686f73;
-              min-height: 18px;
-              margin-bottom: 10px;
-            "
-          ),
-          p(em("For strategic planning only, not operational decisions."))
+          style = "padding: 4px;",
+         # div(
+         #   style = "
+         #     border: 1px solid #686f73;
+         #     min-height: 18px;
+         #     margin-bottom: 10px;
+         #   "
+        #  ),
+          p(strong("This tool is designed for strategic planning only, and not for operational decisions."))
         )
-      ),
+      #),
       
-      col_widths = c(6, 6)
+      #col_widths = c(6, 6)
     ),
     
     card(
+      class = "toy-model-links",
+      style = "margin-bottom: 10px; height: 15%;",
       card_header("References"),
-      div(
-        style = "padding: 16px;",
-        p("• NHS England: Bed Occupancy Guidance"),
-        p("• Strategy Unit: Capacity and Demand Modelling"),
-        p("• The Nuffield Trust: Hospital Bed Numbers")
-      )
-    )
+      card_body(
+        style = "padding: 10px 12px 8px 12px;",
+        div(
+          style = "display: flex; gap: 10px; align-items: flex-start;",
+          tags$span(
+            style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
+          div(
+            
+            tags$ul(
+              style = "margin: 0; padding-left: 20px;",
+              
+              tags$li(
+                tags$a(
+                  "NHS England: Bed Availability and Occupancy",
+                  href = "https://www.england.nhs.uk/statistics/statistical-work-areas/bed-availability-and-occupancy/",
+                  target = "_blank"
+                )),
+              
+              tags$li(
+                tags$a(
+                  "Strategy Unit: New Hospitals Programme Capacity and Demand Modelling",
+                  href = "https://www.strategyunitwm.nhs.uk/news/transforming-hospital-planning-open-source-demand-and-capacity-model",
+                  target = "_blank"
+                )),
+              
+              tags$li(
+                tags$a(
+                  "The Nuffield Trust: Hospital Bed Occupancy",
+                  href = "https://www.nuffieldtrust.org.uk/resource/hospital-bed-occupancy",
+                  target = "_blank"
+                ))
+            ))))),
+    
   )
 )
 
