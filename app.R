@@ -157,6 +157,7 @@ baseline_beds<-1000
 ##UI General
 ui <- page_navbar(
   title = "Hospital Admission Tool",
+  position = "fixed-top", 
   id = "nav",
   bg = "#2c2825",
   theme = bs_theme(
@@ -173,6 +174,7 @@ ui <- page_navbar(
       padding-top: 6px;
       padding-bottom: 6px;
     }
+    
 
     /* Alignment of title + tabs */
     .navbar-brand,
@@ -228,6 +230,14 @@ ui <- page_navbar(
     color: #0a58ca;
     }
   ")),
+  
+  tags$head(
+    tags$style(HTML("
+    body { 
+      padding-top: 60px !important; 
+    }
+  "))
+  ),
   
   # Top-right buttons + logo ---------------------------------------------------
   tags$div(
