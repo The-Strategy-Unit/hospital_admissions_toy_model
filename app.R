@@ -394,7 +394,7 @@ ui <- page_navbar(
                   style = "margin: 0; padding-left: 20px;",
                   tags$li("Four trend charts are displayed: Number of admissions, Average length of stay, Number of beds and Target bed occupancy."),
                   tags$li("On each chart a solid black lines gives the historic trends and a red dotted line indicates the projected trends from 2026-2035 (based on the selected assumptions)."),
-                  tags$li("In the Future Beds Calculator the admissions chart shows 3 dotted grey lines that give the projected values for the 3 preset scenarios."),
+                  tags$li("In the Future Beds Calculator the admissions and beds charts show 3 dotted grey lines that give the projected values for the 3 preset scenarios."),
                   tags$li("Adjust the sliders to watch trends change in real time.")
                 )
               )
@@ -573,7 +573,7 @@ nav_panel(
       
       layout_columns(
         card(
-          card_header(HTML("Number of Admissions &nbsp; &#9432;")),
+          card_header(HTML("Number of Admissions")),
           card_body(
             (plotlyOutput("admissions")),
             padding = 10,
@@ -584,7 +584,7 @@ nav_panel(
         ),
         
         card(
-          card_header(HTML("Average Length of Stay (days) &nbsp; &#9432;")),
+          card_header(HTML("Average Length of Stay (days)")),
           card_body(
             (plotlyOutput("los")),
             padding = 10,
@@ -593,7 +593,7 @@ nav_panel(
         ),
         
         card(
-          card_header(HTML("Beds Required &nbsp; &#9432;")),
+          card_header(HTML("Beds Required")),
           card_body(
             (plotlyOutput("beds")),
             padding = 10,
@@ -602,7 +602,7 @@ nav_panel(
         ),
         
         card(
-          card_header(HTML("Bed Occupancy Rate &nbsp; &#9432;")),
+          card_header(HTML("Bed Occupancy Rate")),
           card_body(
             (plotlyOutput("occupancy")),
             padding = 10,
@@ -792,7 +792,7 @@ nav_panel(
       
       layout_columns(
         card(
-          card_header(HTML("Supported Admissions &nbsp; &#9432;")),
+          card_header(HTML("Supported Admissions")),
           card_body(
             (plotlyOutput("admissions2")),
             padding = 10,
@@ -801,7 +801,7 @@ nav_panel(
         ),
         
         card(
-          card_header(HTML("Length of Stay &nbsp; &#9432;")),
+          card_header(HTML("Average Length of Stay")),
           card_body(
             (plotlyOutput("los2")),
             padding = 10,
@@ -810,7 +810,7 @@ nav_panel(
         ),
         
         card(
-          card_header(HTML("Beds &nbsp; &#9432;")),
+          card_header(HTML("Number of Beds")),
           card_body(
             (plotlyOutput("beds2")),
             padding = 10,
@@ -819,7 +819,7 @@ nav_panel(
         ),
         
         card(
-          card_header(HTML("Occupancy Rate &nbsp; &#9432;")),
+          card_header(HTML("Bed Occupancy Rate")),
           card_body(
             (plotlyOutput("occupancy2")),
             padding = 10,
