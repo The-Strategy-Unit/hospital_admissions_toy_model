@@ -268,7 +268,7 @@ ui <- page_navbar(
       ",
         h2("Hospital Admissions Analysis Tool", style = "margin: 0 0 6px 0;"),
         p(
-          "This interactive tool helps you explore NHS hospital admissions data from 1994–2025 and project future scenarios through 2035 based on customisable assumptions about admissions growth, length of stay, and bed occupancy rates.",
+          "This interactive tool helps you explore future NHS hospital admissions and bed requirements based on customisable assumptions about changes in admissions/available beds, length of stay, and bed occupancy.",
           style = "margin: 0;"
         )
       ),
@@ -480,15 +480,15 @@ ui <- page_navbar(
       ),
       
       ### Data source 
-      card(
-        style = "margin-bottom: 10px;",
-        card_header("Data Source & Methodology"),
-        card_body(
-          style = "padding: 10px 12px;",
-          p("Historical data (1994–2025) from NHS England. Projections apply user-defined growth assumptions.", style = "margin: 0 0 6px 0;"),
-          p(HTML('See <b>"Assumptions and Method"</b> tab for detail.'), style = "margin: 0;")
-        )
-      ),
+   #   card(
+    #    style = "margin-bottom: 10px;",
+    #    card_header("Data Source & Methodology"),
+    #    card_body(
+     #     style = "padding: 10px 12px;",
+     #     p("Historical data (1994–2025) from NHS England. Projections apply user-defined growth assumptions.", style = "margin: 0 0 6px 0;"),
+     #     p(HTML('See <b>"Assumptions and Method"</b> tab for detail.'), style = "margin: 0;")
+     #   )
+     # ),
       
       ### Call to action 
       div(
@@ -499,7 +499,8 @@ ui <- page_navbar(
         margin: 10px 0;
       ",
         h4("Ready to Get Started?", style = "margin: 0 0 6px 0;"),
-        p(HTML('Go to <b>"Future beds calculator"</b> and adjust assumptions.'), style = "margin: 0;")
+        p(HTML('Go to <b>"Future Beds Calculator"</b> and adjust assumptions to predict the number of beds required to meet future changes in admissions.'), style = "margin: 0;"),
+        p(HTML('Go to <b>"Future Admissions Calculator"</b> and adjust assumptions to predict the number of admissions that could be supported by future growth in available beds.'), style = "margin: 0;")
       )
     )
   ),
@@ -952,7 +953,7 @@ nav_panel(
 
 ## Panel 4: Methodology -----------------------------------------------------
 nav_panel(
-  "Assumptions and Method",
+  "Methodology",
   
   div(
     style = "width: 88vw; max-width: none; margin: 0 auto;",
