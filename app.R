@@ -116,15 +116,15 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
   if (!is.null(scenario_1_values)) {
     p <- p + geom_line(data = scenario_1_values, 
                        aes(x = year, y = .data[[output_type]], 
-                           text = paste0("Do nothing<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
+                           text = paste0("Do nothing<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 2))), 
                        colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)+ 
       geom_line(data = scenario_2_values, 
                 aes(x = year, y = .data[[output_type]], 
-                    text = paste0("Planned<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
+                    text = paste0("Planned<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 2))), 
                 colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)+ 
       geom_line(data = scenario_3_values, 
                 aes(x = year, y = .data[[output_type]], 
-                    text = paste0("Ambitious<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
+                    text = paste0("Ambitious<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 2))), 
                 colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)
   }
   
