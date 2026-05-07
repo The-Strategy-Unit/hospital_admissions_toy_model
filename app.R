@@ -18,7 +18,7 @@ options(scipen=999)
 
 # Data-------------------------------------------------------------------------
 
-data<-read_excel("data/Collating the data 3.xlsx")
+data<-read_excel("data/Collating the data.xlsx")
 from_93<-data[7:38,]
   
 # Functions--------------------------------------------------------------------
