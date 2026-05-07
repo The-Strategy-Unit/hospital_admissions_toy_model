@@ -480,7 +480,7 @@ nav_panel(
         placement = "right"),
       
       div(style = "display:flex; justify-content:space-between; margin-top: 10px;",
-        strong("Annual Change",style = "font-size: 0.8rem; font-weight: 600;")
+        strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
         ),
       
       sliderInput(
@@ -497,7 +497,7 @@ nav_panel(
       
       div(
         style = "display:flex; justify-content:space-between;",
-        strong("Annual Change",style = "font-size: 0.8rem; font-weight: 600;")
+        strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
       ),
       
       sliderInput(
@@ -521,7 +521,7 @@ nav_panel(
       
       div(
         style = "display:flex; justify-content:space-between;",
-        strong("Fixed Value",style = "font-size: 0.8rem; font-weight: 600;")
+        strong("Fixed Value:",style = "font-size: 0.8rem; font-weight: 600;")
       ),
       
       sliderInput(
@@ -657,20 +657,20 @@ nav_panel(
         
         h5("BED SUPPLY", style = "font-size: 0.95rem; margin: 6px 0;"),
         
-        p(
-          paste("Baseline (2025):", baseline_beds),
-          style = "font-size: 0.8rem; margin-bottom: 4px;"
-        ),
+      #  p(
+     #    paste("Baseline (2025):", baseline_beds),
+      #    style = "font-size: 0.8rem; margin-bottom: 4px;"
+      #  ),
         
         div(
           style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-          strong("Fixed beds"),
-          span("1000")
+          strong("Annual Change (%):")
+      #    span("1000")
         ),
         
         sliderInput("bedday_growth", 
-                    label="Annual Growth (%):", 
-                    min = 0, 
+                    label=NULL, 
+                    min = -5, 
                     max =5,  
                     value=0, 
                     step=0.1),
@@ -682,7 +682,7 @@ nav_panel(
         
         div(
           style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-          strong("Annual Change"),
+          strong("Annual Change (%):"),
           span("0%")
         ),
         
@@ -702,7 +702,7 @@ nav_panel(
         
         div(
           style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-          strong("Fixed Value"),
+          strong("Fixed Value:"),
           span("85%")
         ),
         
