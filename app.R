@@ -452,9 +452,10 @@ nav_panel(
       title = NULL,
       id = "sidebar_future_beds",
       width = "300px",
+      open = "always",
       
       div(
-        style = "margin-top: -18px;",
+        style = "margin-top: 0px;",
         
         h3("Future Assumptions",
           style = "font-size: 1.2rem; margin: 0 0 6px 0;"),
@@ -637,12 +638,13 @@ nav_panel(
       title = NULL,
       id = "sidebar_fixed_beds",
       width = "300px",
+      open = "always",
       
       div(
-        style = "margin-top: -18px;",
+        style = "margin-top: 0px;",
         
         h3(
-          "Future Admissions Calculator",
+          "Future Assumptions",
           style = "font-size: 1.2rem; margin: 0 0 6px 0;"
         ),
         
