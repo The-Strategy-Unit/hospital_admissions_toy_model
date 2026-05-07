@@ -475,7 +475,7 @@ nav_panel(
         style = "margin-top: 0px;",
         
         h3("Future Assumptions",
-          style = "font-size: 1.2rem; margin: 0 0 6px 0;"),
+           style = "font-size: 1.2rem; margin: 0 0 6px 0;"),
         
         hr(style = "margin: 6px 0;"),
         
@@ -485,86 +485,85 @@ nav_panel(
         hr(style = "margin: 6px 0;"),
         
         h5("ADMISSIONS", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
-      
-      tooltip(
-        selectInput(
-          "preset",
-          label = span(
-            "Select Scenario or adjust slider:",
-            style = "font-size: 0.85rem;"
-          ), 
-                    choices = c("Do nothing", "Planned", "Ambitious")), # don't think we need custom as can overwrite a preset
-        "Choose a preset scenario or adjust sliders to customise assumptions",
-        placement = "right"),
-      
-      div(style = "display:flex; justify-content:space-between; margin-top: 10px;",
-        strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
+        
+        tooltip(
+          selectInput(
+            "preset",
+            label = span(
+              "Select Scenario or adjust slider:",
+              style = "font-size: 0.85rem;"
+            ), 
+            choices = c("Do nothing", "Planned", "Ambitious")), # don't think we need custom as can overwrite a preset
+          "Choose a preset scenario or adjust sliders to customise assumptions",
+          placement = "right"),
+        
+        div(style = "display:flex; justify-content:space-between; margin-top: 10px;",
+            strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
         ),
-      
-      sliderInput(
-        "admissions_change",
-        label = NULL, min = -5, max = 5, value = 0, step = 0.1),
-      
-      div(style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-        span("2026: 16967214"),
-        span("2035: 16967214") ),
-      
-  hr(style = "margin: 8px 0;"),
+        
+        sliderInput(
+          "admissions_change",
+          label = NULL, min = -5, max = 5, value = 0, step = 0.1),
+        
+        div(style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+            span("2026: 16967214"),
+            span("2035: 16967214") ),
+        
+        hr(style = "margin: 8px 0;"),
         
         h5("LENGTH OF STAY", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
-      
-      div(
-        style = "display:flex; justify-content:space-between;",
-        strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
-      ),
-      
-      sliderInput(
-        "los_change",
-        label = NULL,
-        min = -5,
-        max = 5,
-        value = 0,
-        step = 0.1
-      ),
-      
-      div(
-        style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-        span("2026: 3.12 days"),
-        span("2035: 3.12 days")
-      ),
-      
+        
+        div(
+          style = "display:flex; justify-content:space-between;",
+          strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
+        ),
+        
+        sliderInput(
+          "los_change",
+          label = NULL,
+          min = -5,
+          max = 5,
+          value = 0,
+          step = 0.1
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+          span("2026: 3.12 days"),
+          span("2035: 3.12 days")
+        ),
+        
         hr(style = "margin: 8px 0;"),
         
         h5("TARGET BED OCCUPANCY", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
-      
-      div(
-        style = "display:flex; justify-content:space-between;",
-        strong("Fixed Value:",style = "font-size: 0.8rem; font-weight: 600;")
-      ),
-      
-      sliderInput(
-        "target_occupancy",
-        label = NULL,
-        min = 75,
-        max = 100,
-        value = 80,
-        step = 0.1
-      ),
-      
-           div(
+        
+        div(
+          style = "display:flex; justify-content:space-between;",
+          strong("Fixed Value:",style = "font-size: 0.8rem; font-weight: 600;")
+        ),
+        
+        sliderInput(
+          "target_occupancy",
+          label = NULL,
+          min = 75,
+          max = 100,
+          value = 80,
+          step = 0.1
+        ),
+        
+        div(
           style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
           span("0%"),
           span("100%")
         ),
-         
-      actionButton(
-        "reset_scenario", 
-        "Reset Selected Scenario", 
-        class = "btn-primary w-100",
-        style = "margin-top: 10px;"
-      ),
-      
-    
+        
+        actionButton(
+          "reset_scenario", 
+          "Reset Selected Scenario", 
+          class = "btn-primary w-100",
+          style = "margin-top: 10px;"
+        ),
+        
         div(
           style = "
             border: 1px solid #f9bf07;
@@ -600,16 +599,22 @@ nav_panel(
         div(HTML("<b>How to use it:</b> Adjust the sidebar inputs and compare the projected direction and 2035 values."))
       ),
       
-      layout_columns(
+      ### Chart and interpretation layout
+      div(
+        style = "
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          grid-template-rows: 29vh 40vh;
+          gap: 8px;
+        ",
+        
         card(
           card_header(HTML("Number of Admissions")),
           card_body(
             (plotlyOutput("admissions")),
             padding = 10,
-            style = "height: 33vh; overflow-y: auto;"
+            style = "height: 100%; overflow-y: auto;"
           )
-         
-         
         ),
         
         card(
@@ -617,16 +622,7 @@ nav_panel(
           card_body(
             (plotlyOutput("los")),
             padding = 10,
-            style = "height: 33vh; overflow-y: auto;"
-          )
-        ),
-        
-        card(
-          card_header(HTML("Beds Required")),
-          card_body(
-            (plotlyOutput("beds")),
-            padding = 10,
-            style = "height: 33vh; overflow-y: auto;"
+            style = "height: 100%; overflow-y: auto;"
           )
         ),
         
@@ -635,13 +631,46 @@ nav_panel(
           card_body(
             (plotlyOutput("occupancy")),
             padding = 10,
-            style = "height: 33vh; overflow-y: auto;"
+            style = "height: 100%; overflow-y: auto;"
           )
         ),
         
-        col_widths = c(6, 6, 6, 6)
+        card(
+          style = "grid-column: 1 / span 2;",
+          card_header(HTML("Beds Required")),
+          card_body(
+            (plotlyOutput("beds")),
+            padding = 10,
+            style = "height: 100%; overflow-y: auto;"
+          )
+        ),
+        
+        div(
+          style = "
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: 8px;
+          ",
+          
+          card(
+            card_header(HTML("Interpretation")),
+            card_body(
+              p("Add interpretation text here."),
+              padding = 10,
+              style = "height: 100%; overflow-y: auto;"
+            )
+          ),
+          
+          card(
+            card_header(HTML("Historical / Your Selection Impact")),
+            card_body(
+              p("Add historical and selected-scenario impact text here."),
+              padding = 10,
+              style = "height: 100%; overflow-y: auto;"
+            )
+          )
+        )
       )
-
     )
   )
 ),
@@ -676,15 +705,15 @@ nav_panel(
         
         h5("BED SUPPLY", style = "font-size: 0.95rem; margin: 6px 0;"),
         
-      #  p(
-     #    paste("Baseline (2025):", baseline_beds),
-      #    style = "font-size: 0.8rem; margin-bottom: 4px;"
-      #  ),
+        #  p(
+        #    paste("Baseline (2025):", baseline_beds),
+        #    style = "font-size: 0.8rem; margin-bottom: 4px;"
+        #  ),
         
         div(
           style = "display:flex; justify-content:space-between; font-size:0.8rem;",
           strong("Annual Change (%):")
-      #    span("1000")
+          #    span("1000")
         ),
         
         sliderInput("bedday_growth", 
@@ -734,7 +763,7 @@ nav_panel(
           step = 0.5,
           width = "100%"
         ),
-
+        
         
         actionButton(
           "reset_baseline", 
@@ -777,13 +806,21 @@ nav_panel(
         div(HTML("<b>How to use it:</b> Adjust fixed beds, LoS and target bed occupancy in the sidebar, then compare the resulting projected admissions capacity and bed pressure over time."))
       ),
       
-      layout_columns(
+      ### Chart and interpretation layout
+      div(
+        style = "
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          grid-template-rows: 29vh 40vh;
+          gap: 8px;
+        ",
+        
         card(
-          card_header(HTML("Supported Admissions")),
+          card_header(HTML("Number of Beds")),
           card_body(
-            (plotlyOutput("admissions2")),
+            (plotlyOutput("beds2")),
             padding = 10,
-            style = "height: 33vh; overflow-y: auto;"
+            style = "height: 100%; overflow-y: auto;"
           )
         ),
         
@@ -792,16 +829,7 @@ nav_panel(
           card_body(
             (plotlyOutput("los2")),
             padding = 10,
-            style = "height: 33vh; overflow-y: auto;"
-          )
-        ),
-        
-        card(
-          card_header(HTML("Number of Beds")),
-          card_body(
-            (plotlyOutput("beds2")),
-            padding = 10,
-            style = "height: 33vh; overflow-y: auto;"
+            style = "height: 100%; overflow-y: auto;"
           )
         ),
         
@@ -810,55 +838,89 @@ nav_panel(
           card_body(
             (plotlyOutput("occupancy2")),
             padding = 10,
-            style = "height: 33vh; overflow-y: auto;"
+            style = "height: 100%; overflow-y: auto;"
           )
         ),
         
-        col_widths = c(6, 6, 6, 6)
+        card(
+          style = "grid-column: 1 / span 2;",
+          card_header(HTML("Supported Admissions")),
+          card_body(
+            (plotlyOutput("admissions2")),
+            padding = 10,
+            style = "height: 100%; overflow-y: auto;"
+          )
+        ),
+        
+        div(
+          style = "
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: 8px;
+          ",
+          
+          card(
+            card_header(HTML("Interpretation")),
+            card_body(
+              p("Add interpretation text here."),
+              padding = 10,
+              style = "height: 100%; overflow-y: auto;"
+            )
+          ),
+          
+          card(
+            card_header(HTML("Historical / Your Selection Impact")),
+            card_body(
+              p("Add historical and selected-scenario impact text here."),
+              padding = 10,
+              style = "height: 100%; overflow-y: auto;"
+            )
+          )
+        )
       ),
       
-    #  card(
-    #    card_header("Key Metrics (2035 Projected)"),
-    #    
-    #    div(
-    #      style = "
-    #        border: 2px solid #f9bf07;
-    #        background-color: #fff8e1;
-    #        padding: 6px 10px;
-    #        margin: 8px;
-    #        font-size: 0.75rem;
-    #        line-height: 1.15;
-    #      ",
-    #      "These are the modelled 2035 values based on the fixed bed assumptions set in the sidebar."
-    #    ),
-    #    
-    #    layout_columns(
-     #     card(
-     #       style = "padding: 6px;",
-     #       div("Supported admissions", style = "font-size: 0.75rem;"),
-     #       strong("Add value")
-     #     ),
-          
-     #     card(
-     #       style = "padding: 6px;",
-     #       div("LoS", style = "font-size: 0.75rem;"),
-     #       strong("Add value")
-     #     ),
-          
-     #     card(
-     #       style = "padding: 6px;",
-     #       div("Fixed beds", style = "font-size: 0.75rem;"),
-     #       strong("Add value")
-     #     ),
-          
-     #     card(
+      #  card(
+      #    card_header("Key Metrics (2035 Projected)"),
+      #    
+      #    div(
+      #      style = "
+      #        border: 2px solid #f9bf07;
+      #        background-color: #fff8e1;
+      #        padding: 6px 10px;
+      #        margin: 8px;
+      #        font-size: 0.75rem;
+      #        line-height: 1.15;
+      #      ",
+      #      "These are the modelled 2035 values based on the fixed bed assumptions set in the sidebar."
+      #    ),
+      #    
+      #    layout_columns(
+      #     card(
+      #       style = "padding: 6px;",
+      #       div("Supported admissions", style = "font-size: 0.75rem;"),
+      #       strong("Add value")
+      #     ),
+      
+      #     card(
+      #       style = "padding: 6px;",
+      #       div("LoS", style = "font-size: 0.75rem;"),
+      #       strong("Add value")
+      #     ),
+      
+      #     card(
+      #       style = "padding: 6px;",
+      #       div("Fixed beds", style = "font-size: 0.75rem;"),
+      #       strong("Add value")
+      #     ),
+      
+      #     card(
       #      style = "padding: 6px;",
-     #       div("Occupancy", style = "font-size: 0.75rem;"),
-     #       strong("Add value")
-     #     ),
-          
-     #     col_widths = c(3, 3, 3, 3)
-     #   )
+      #       div("Occupancy", style = "font-size: 0.75rem;"),
+      #       strong("Add value")
+      #     ),
+      
+      #     col_widths = c(3, 3, 3, 3)
+      #   )
       #)
     )
   )
