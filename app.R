@@ -981,15 +981,15 @@ server <- function(input, output, session) {
   
   observeEvent(input$preset, {
     if (input$preset == "Do nothing") {
-      updateSliderInput(session, "admissions_change", value = 2.8)
-      updateSliderInput(session, "los_change", value = 0)
-      updateSliderInput(session, "target_occupancy", value = 85)
-    } else if (input$preset == "Planned") {
       updateSliderInput(session, "admissions_change", value = 1.9)
       updateSliderInput(session, "los_change", value = 0)
       updateSliderInput(session, "target_occupancy", value = 85)
+    } else if (input$preset == "Planned") {
+      updateSliderInput(session, "admissions_change", value = 1.1)
+      updateSliderInput(session, "los_change", value = 0)
+      updateSliderInput(session, "target_occupancy", value = 85)
     } else if (input$preset == "Ambitious") {
-      updateSliderInput(session, "admissions_change", value = 0.9)
+      updateSliderInput(session, "admissions_change", value = 0.2)
       updateSliderInput(session, "los_change", value = 0)
       updateSliderInput(session, "target_occupancy", value = 85)
     }
@@ -998,15 +998,15 @@ server <- function(input, output, session) {
   
   observeEvent(input$reset_scenario, {
     if (input$preset == "Do nothing") {
-      updateSliderInput(session, "admissions_change", value = 2.8)
-      updateSliderInput(session, "los_change", value = 0)
-      updateSliderInput(session, "target_occupancy", value = 85)
-    } else if (input$preset == "Planned") {
       updateSliderInput(session, "admissions_change", value = 1.9)
       updateSliderInput(session, "los_change", value = 0)
       updateSliderInput(session, "target_occupancy", value = 85)
+    } else if (input$preset == "Planned") {
+      updateSliderInput(session, "admissions_change", value = 1.1)
+      updateSliderInput(session, "los_change", value = 0)
+      updateSliderInput(session, "target_occupancy", value = 85)
     } else if (input$preset == "Ambitious") {
-      updateSliderInput(session, "admissions_change", value = 0.9)
+      updateSliderInput(session, "admissions_change", value = 0.2)
       updateSliderInput(session, "los_change", value = 0)
       updateSliderInput(session, "target_occupancy", value = 85)
     }
@@ -1025,9 +1025,9 @@ server <- function(input, output, session) {
   output$admissions<-renderPlotly({
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    do_nothing<-future_beds_model(from_93, 2.8 , 0, 85)
-    planned<-future_beds_model(from_93, 1.9, 0, 85)
-    ambitious<-future_beds_model(from_93, 0.9, 0, 85)
+    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
+    planned<-future_beds_model(from_93, 1.1, 0, 85)
+    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     
     plotting_function(plot_data,
@@ -1042,9 +1042,9 @@ server <- function(input, output, session) {
   output$los<-renderPlotly({
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    do_nothing<-future_beds_model(from_93, 2.8 , 0, 85)
-    planned<-future_beds_model(from_93, 1.9, 0, 85)
-    ambitious<-future_beds_model(from_93, 0.9, 0, 85)
+    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
+    planned<-future_beds_model(from_93, 1.1, 0, 85)
+    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     plotting_function(plot_data,
                       do_nothing,
@@ -1058,9 +1058,9 @@ server <- function(input, output, session) {
   output$beds<-renderPlotly({
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    do_nothing<-future_beds_model(from_93, 2.8 , 0, 85)
-    planned<-future_beds_model(from_93, 1.9, 0, 85)
-    ambitious<-future_beds_model(from_93, 0.9, 0, 85)
+    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
+    planned<-future_beds_model(from_93, 1.1, 0, 85)
+    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     plotting_function(plot_data,
                       do_nothing,
@@ -1075,9 +1075,9 @@ server <- function(input, output, session) {
   output$occupancy<-renderPlotly({
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    do_nothing<-future_beds_model(from_93, 2.8 , 0, 85)
-    planned<-future_beds_model(from_93, 1.9, 0, 85)
-    ambitious<-future_beds_model(from_93, 0.9, 0, 85)
+    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
+    planned<-future_beds_model(from_93, 1.1, 0, 85)
+    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     plotting_function(plot_data,
                       do_nothing,
