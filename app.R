@@ -866,7 +866,8 @@ nav_panel(
       div(
         style = "padding: 4px;",
         p("This tool models the relationship between bed capacity, patient admissions, length of stay (LoS), and occupancy rates."),
-        
+        p("We use well known theory from the M/M/infinity queueing model to derive the number of beds required to meet target occupancy given assumed admission and length of stay scenarios. This model assumes unconstrained capacity, Poisson admissions and exponential lengths of stay. Viewing the system as unconstrained allows us to examine the occupancy distribution and set the number of beds equal to the target quantile of occupancy."),
+        p("The main result in use is that for an M/M/infinity system the expected number in the system follows a Poisson distribution with mean equal to the arrival rate multiplied by the average length of stay:"),
         div(
           style = "
             border: 2px solid #5881c1;
@@ -875,20 +876,21 @@ nav_panel(
             margin: 10px 0 16px 0;
             font-family: monospace;
           ",
-          "Add in correct calculation"
+          "λ = Arrival rate (admissions per day) * μ = Average length of stay (days) = Expected number of patients in the system E_NIS"
         ),
+        p("we can therefore derive the number of beds required to meet a target occupancy level (p) as the p quantile of a Poisson distribution with mean E_NIS."),
         
         p("Parameters:"),
         tags$ul(
-          tags$li("Admissions: Number of hospital admissions per year"),
-          tags$li("Length of stay: Average number of days in hospital for each admission"),
-          tags$li("Beds: Number of available beds (ANNUAL AVERAGE?)"),
-          tags$li("Target bed occupancy: % of available beds that are occupied at a given time")
+          tags$li("Admissions: Number of hospital admissions per year (converted to daily rate for the model)."),
+          tags$li("Length of stay: Average number of days in hospital for each admission."),
+          tags$li("Beds: Number of available beds at year end (to fit with historical data)."),
+          tags$li("Target bed occupancy: % of available beds that are occupied at a given time.")
         ),
         tags$ul(
-          tags$li("Change in number of admissions: Predicted % annual change in the number of hospital admissions"),
-          tags$li("Change in average length of stay: Predicted % annual change in length of stay"),
-          tags$li("Change in number of beds: Predicted % of annual growth in the number of available beds")
+          tags$li("Change in number of admissions: Assumed % annual change in the number of hospital admissions"),
+          tags$li("Change in average length of stay: Assumed % annual change in length of stay"),
+          tags$li("Change in number of beds: Assumed % annual growth in the number of available beds")
         )
       )
       
@@ -905,9 +907,9 @@ nav_panel(
         #      padding: 12px;
         #      margin-bottom: 10px;
         #    ",
-            p("The historic annual number of admissions and average length of stays between 1994 and 2025 were derived from the Hospital Episode Statistics dataset"),
-            p("The historic bed occupancy was taken from the NHS England Bed Availability and Occupancy (KH03) Collection?????."),
-            p("The scenario assumptions (Do nothing, Planned and Ambitious) use potential changes in admissions based on  NHP work???. It is assumed length of stay doesn't change and the target bed occupancy is set at 85%, which is generally considered the optimal bed occupancy.")
+            p("The historic annual number of admissions and average length of stays between 1994 and 2025 were derived from the Hospital Episode Statistics dataset."),
+            p("The historic number of beds and bed occupancy was taken from the NHS England Bed Availability and Occupancy (KH03) Collection. Day and overnight beds were combined and the number of beds was taken from Q4 each year."),
+            p("The preset admission scenarios (Do nothing, Planned and Ambitious) were derived using The Strategy Unit's NHP Model. Details can be found in the Future Demand for Community Care report (see references).")
           ),
           
        #   div(
@@ -932,7 +934,13 @@ nav_panel(
          #     margin-bottom: 10px;
          #   "
         #  ),
-          p(strong("This tool is designed for strategic planning only, and not for operational decisions."))
+          tags$ul(
+           tags$li("Admissions per day are calculated by dividing annual admissions by 365, assuming a constant rate throughout the year. This ignores seasonal variation."),
+           tags$li("Average LoS was estimated using beddays from HES under the assumption that same day admissions take on average 0.2 of a day (5 hours)."),
+           tags$li("The historical number of beds was taken from Q4 each year, which may not reflect the average number of beds across the year."),
+           tags$li("The historical occpancy is calculated as the historic beddays divided by the number of available beddays given the number of beds. This assumes that bed occupancy is constant across the year and does not reflect seasonal variation. It also doesn't align exactly with the occupancy reported in the NHS England Bed Availability and Occupancy (KH03) Collection."),
+          ),
+          p(strong("This tool is designed for intuition building only, and not for strategic planning or operational decisions."))
         )
       #),
       
@@ -967,13 +975,20 @@ nav_panel(
                   href = "https://www.strategyunitwm.nhs.uk/news/transforming-hospital-planning-open-source-demand-and-capacity-model",
                   target = "_blank"
                 )),
-              
+
               tags$li(
                 tags$a(
-                  "The Nuffield Trust: Hospital Bed Occupancy",
-                  href = "https://www.nuffieldtrust.org.uk/resource/hospital-bed-occupancy",
+                  "Strategy Unit: Future Demand for Community Care",
+                  href = "https://www.strategyunitwm.nhs.uk/publications/missing-element-shifting-care",
                   target = "_blank"
-                ))
+              )),
+              
+              #tags$li(
+              #  tags$a(
+              #    "The Nuffield Trust: Hospital Bed Occupancy",
+              #    href = "https://www.nuffieldtrust.org.uk/resource/hospital-bed-occupancy",
+              #    target = "_blank"
+              #  ))
             ))))),
     
   )
