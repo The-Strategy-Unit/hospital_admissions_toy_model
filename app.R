@@ -106,7 +106,7 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
   
   # Initial plot
   p <- ggplot(data = plot_data, aes(x = year, y = .data[[output_type]], 
-                                    text = paste0("Year: ", year, "<br>", y_axis_label, ": ", round(.data[[output_type]], 1)))) +
+                                    text = paste0("Year: ", year, "<br>", y_axis_label, ": ", round(.data[[output_type]], 2)))) +
     geom_vline(xintercept = 2025, colour = "#5881c1" , linetype = "dashed") +
     su_theme() +
     labs(title=NULL, subtitle=NULL, y = y_axis_label, x = "Year") +
@@ -480,7 +480,7 @@ nav_panel(
         placement = "right"),
       
       div(style = "display:flex; justify-content:space-between; margin-top: 10px;",
-        strong("Annual Change",style = "font-size: 0.8rem; font-weight: 600;")
+        strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
         ),
       
       sliderInput(
@@ -497,7 +497,7 @@ nav_panel(
       
       div(
         style = "display:flex; justify-content:space-between;",
-        strong("Annual Change",style = "font-size: 0.8rem; font-weight: 600;")
+        strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
       ),
       
       sliderInput(
@@ -521,7 +521,7 @@ nav_panel(
       
       div(
         style = "display:flex; justify-content:space-between;",
-        strong("Fixed Value",style = "font-size: 0.8rem; font-weight: 600;")
+        strong("Fixed Value:",style = "font-size: 0.8rem; font-weight: 600;")
       ),
       
       sliderInput(
@@ -657,20 +657,20 @@ nav_panel(
         
         h5("BED SUPPLY", style = "font-size: 0.95rem; margin: 6px 0;"),
         
-        p(
-          paste("Baseline (2025):", baseline_beds),
-          style = "font-size: 0.8rem; margin-bottom: 4px;"
-        ),
+      #  p(
+     #    paste("Baseline (2025):", baseline_beds),
+      #    style = "font-size: 0.8rem; margin-bottom: 4px;"
+      #  ),
         
         div(
           style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-          strong("Fixed beds"),
-          span("1000")
+          strong("Annual Change (%):")
+      #    span("1000")
         ),
         
         sliderInput("bedday_growth", 
-                    label="Annual Growth (%):", 
-                    min = 0, 
+                    label=NULL, 
+                    min = -5, 
                     max =5,  
                     value=0, 
                     step=0.1),
@@ -682,7 +682,7 @@ nav_panel(
         
         div(
           style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-          strong("Annual Change"),
+          strong("Annual Change (%):"),
           span("0%")
         ),
         
@@ -702,7 +702,7 @@ nav_panel(
         
         div(
           style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-          strong("Fixed Value"),
+          strong("Fixed Value:"),
           span("85%")
         ),
         
@@ -981,15 +981,15 @@ server <- function(input, output, session) {
   
   observeEvent(input$preset, {
     if (input$preset == "Do nothing") {
-      updateSliderInput(session, "admissions_change", value = 2.8)
-      updateSliderInput(session, "los_change", value = 0)
-      updateSliderInput(session, "target_occupancy", value = 85)
-    } else if (input$preset == "Planned") {
       updateSliderInput(session, "admissions_change", value = 1.9)
       updateSliderInput(session, "los_change", value = 0)
       updateSliderInput(session, "target_occupancy", value = 85)
+    } else if (input$preset == "Planned") {
+      updateSliderInput(session, "admissions_change", value = 1.1)
+      updateSliderInput(session, "los_change", value = 0)
+      updateSliderInput(session, "target_occupancy", value = 85)
     } else if (input$preset == "Ambitious") {
-      updateSliderInput(session, "admissions_change", value = 0.9)
+      updateSliderInput(session, "admissions_change", value = 0.2)
       updateSliderInput(session, "los_change", value = 0)
       updateSliderInput(session, "target_occupancy", value = 85)
     }
@@ -998,15 +998,15 @@ server <- function(input, output, session) {
   
   observeEvent(input$reset_scenario, {
     if (input$preset == "Do nothing") {
-      updateSliderInput(session, "admissions_change", value = 2.8)
-      updateSliderInput(session, "los_change", value = 0)
-      updateSliderInput(session, "target_occupancy", value = 85)
-    } else if (input$preset == "Planned") {
       updateSliderInput(session, "admissions_change", value = 1.9)
       updateSliderInput(session, "los_change", value = 0)
       updateSliderInput(session, "target_occupancy", value = 85)
+    } else if (input$preset == "Planned") {
+      updateSliderInput(session, "admissions_change", value = 1.1)
+      updateSliderInput(session, "los_change", value = 0)
+      updateSliderInput(session, "target_occupancy", value = 85)
     } else if (input$preset == "Ambitious") {
-      updateSliderInput(session, "admissions_change", value = 0.9)
+      updateSliderInput(session, "admissions_change", value = 0.2)
       updateSliderInput(session, "los_change", value = 0)
       updateSliderInput(session, "target_occupancy", value = 85)
     }
@@ -1025,9 +1025,9 @@ server <- function(input, output, session) {
   output$admissions<-renderPlotly({
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    do_nothing<-future_beds_model(from_93, 2.8 , 0, 85)
-    planned<-future_beds_model(from_93, 1.9, 0, 85)
-    ambitious<-future_beds_model(from_93, 0.9, 0, 85)
+    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
+    planned<-future_beds_model(from_93, 1.1, 0, 85)
+    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     
     plotting_function(plot_data,
@@ -1042,14 +1042,14 @@ server <- function(input, output, session) {
   output$los<-renderPlotly({
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    do_nothing<-future_beds_model(from_93, 2.8 , 0, 85)
-    planned<-future_beds_model(from_93, 1.9, 0, 85)
-    ambitious<-future_beds_model(from_93, 0.9, 0, 85)
+    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
+    planned<-future_beds_model(from_93, 1.1, 0, 85)
+    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     plotting_function(plot_data,
-                      do_nothing,
-                      planned,
-                      ambitious,
+                      NULL,
+                      NULL,
+                      NULL,
                       "los", 
                       "Length of Stay (days)")
     
@@ -1058,14 +1058,14 @@ server <- function(input, output, session) {
   output$beds<-renderPlotly({
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    do_nothing<-future_beds_model(from_93, 2.8 , 0, 85)
-    planned<-future_beds_model(from_93, 1.9, 0, 85)
-    ambitious<-future_beds_model(from_93, 0.9, 0, 85)
+    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
+    planned<-future_beds_model(from_93, 1.1, 0, 85)
+    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     plotting_function(plot_data,
-                      do_nothing,
-                      planned,
-                      ambitious,
+                      NULL,
+                      NULL,
+                      NULL,
                       "beds",
                       "Beds")
     
@@ -1075,14 +1075,14 @@ server <- function(input, output, session) {
   output$occupancy<-renderPlotly({
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    do_nothing<-future_beds_model(from_93, 2.8 , 0, 85)
-    planned<-future_beds_model(from_93, 1.9, 0, 85)
-    ambitious<-future_beds_model(from_93, 0.9, 0, 85)
+    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
+    planned<-future_beds_model(from_93, 1.1, 0, 85)
+    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     plotting_function(plot_data,
-                      do_nothing,
-                      planned,
-                      ambitious,
+                      NULL,
+                      NULL,
+                      NULL,
                       "occupancy", 
                       "Bed Occupancy (%)")
     
@@ -1097,11 +1097,14 @@ server <- function(input, output, session) {
     }
     
     plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
+    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
+    planned<-future_beds_model(from_93, 1.1, 0, 85)
+    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     plotting_function(plot_data,
-                      NULL,
-                      NULL,
-                      NULL,
+                      do_nothing,
+                      planned,
+                      ambitious,
                       "admissions", 
                       "Admissions (millions)")
     
