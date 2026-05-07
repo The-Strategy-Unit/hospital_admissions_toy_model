@@ -18,7 +18,7 @@ options(scipen=999)
 
 # Data-------------------------------------------------------------------------
 
-data<-read_excel("data/Collating the data.xlsx")
+data<-read_excel("data/Collating the data 3.xlsx")
 from_93<-data[7:38,]
   
 # Functions--------------------------------------------------------------------
@@ -85,7 +85,7 @@ if(occupancy_fixed_level==100){
     admissions <- c(admissions,admissions[length(admissions)] +  admissions[length(admissions)] *admissions_yearly_percentage_change/100)
     los <- c(los , los[length(los)] + los[length(los)]*los_yearly_percentage_change/100 )
     beddays <- c(beddays , admissions[length(admissions)]*los[length(los)])
-    beds <- c(beds, qpois((occupancy_fixed/100), admissions[length(admissions)]*los[length(los)]/365))
+    beds <- c(beds, qpois((occupancy_fixed/100), (admissions[length(admissions)]/365)*los[length(los)]))
     occupancy<- c(occupancy, (occupancy_fixed/100))
   }
   
@@ -276,9 +276,9 @@ ui <- page_navbar(
         padding: 16px 22px;
         margin: 10px 0 10px 0;
       ",
-        h2("Hospital Admissions Analysis Tool", style = "margin: 0 0 6px 0;"),
+        h2("Hospital Admissions Tool", style = "margin: 0 0 6px 0;"),
         p(
-          "This interactive tool helps you explore future NHS hospital admissions or bed requirements based on customisable assumptions about changes in admissions/available beds, length of stay, and bed occupancy.",
+          "This interactive tool allows exploration of the relationship between hospital admissions, length of stay (LoS), bed occupancy and available beds.",
           style = "margin: 0;"
         )
       ),
@@ -298,15 +298,19 @@ ui <- page_navbar(
               ),
               div(
                 p(
-                  "This tool uses historic NHS inpatient data and projects future scenarios based on your assumptions. It helps you understand:",
+                  "Historically reduction in LoS has allowed for reduction in bed capacity despite growing admissions. However, there is a limit to the amount LoS can reduce, and if admissions continue to grow bed capacity must also to maintain system performance.",
+                  style = "margin: 0 0 6px 0;"
+                ),
+                p(
+                  "This app allows the user to build intuition by:",
                   style = "margin: 0 0 6px 0;"
                 ),
                 tags$ul(
                   style = "margin: 0; padding-left: 20px;",
-                  tags$li("How admissions, available beds, average length of stay and bed occupancy have changed over the past 30+ years (1994–2025)."),
+                  tags$li("Viewing how admissions, available beds, average length of stay and bed occupancy have changed over the past 30+ years (1994–2025)."),
                   tags$li("How changes in admissions could affect future bed requirements (Future Beds Calculator)."),
                   tags$li("How many admissions could be supported by future growth in bed capacity (Future Admissions Calculator)."),
-                  tags$li("Relationship between admissions, bed capacity, length of stay and bed occupancy.")
+                  #tags$li("Relationship between admissions, bed capacity, length of stay and bed occupancy.")
                   
                 )
               )
@@ -378,14 +382,18 @@ ui <- page_navbar(
               tags$span(style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
               div(
                 h5("STEP 1: Adjust assumptions", style = "margin: 0 0 4px 0;"),
-                p("Use the sliders on the sidebar to set you input assumptions:"),
-                tags$ul(
-                  style = "margin: 0; padding-left: 20px;",
-                  tags$li("Annual % change in admissions/bed capacity over the next 10 years (2026-2035)."),
-                  tags$li("The Future Bed Calculator gives 3 preset scenarios for admission growth, or the sliders can be adjusted to input your own value."),
-                  tags$li("Annual % change in length of stay over the next 10 years (2026-2035)."),
-                  tags$li("Target bed occupancy (%) you want to maintain.")
-                )
+                p("Use the sliders on the sidebar to set your input assumptions. The model will automatically update the charts based on your selections."),
+                p("In the future beds calculator the user inputs their own assumptions about the future growth of admissions, length of stay and set target bed occupancy to be maintained across the next 10 years (2026-2035)."),
+                p("In the future admissions calculator the user inputs their own assumptions of how bed capacity and length of stay will change to see how many admissions could be supported under a given occupancy target."),
+                #p("Sliders control the following:"),
+                #tags$ul(
+                #  style = "margin: 0; padding-left: 20px;",
+                #  tags$li("Annual % change in admissions/bed capacity over the next 10 years (2026-2035)."),
+                #  #tags$li("The Future Bed Calculator gives 3 preset scenarios for admission growth, or the sliders can be adjusted to input your own value."),
+                #  tags$li("Annual % change in length of stay over the next 10 years (2026-2035)."),
+                #  tags$li("Annual % change in bed capacity over the next 10 years (2026-2035)."),
+                #  tags$li("Target bed occupancy (%) you want to maintain.")
+                #)
               )
             ),
             
@@ -399,14 +407,15 @@ ui <- page_navbar(
         ",
               tags$span(style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
               div(
-                h5("Step 2: Explore Results", style = "margin: 0 0 4px 0;"),
+                h5("Step 2: Explore Projections", style = "margin: 0 0 4px 0;"),
+                p("Four trend charts are displayed on each calculator tab illustrating number of admissions, average length of stay, number of beds and target bed occupancy over time. Charts allow a user to:"),
                 tags$ul(
                   style = "margin: 0; padding-left: 20px;",
-                  tags$li("Four trend charts are displayed: Number of admissions, Average length of stay, Number of beds and Target bed occupancy."),
-                  tags$li("On each chart a solid black lines gives the historic trends and a red dotted line indicates the projected trends from 2026-2035 (based on the selected assumptions)."),
-                  tags$li("In the Future Beds Calculator the admissions and beds charts show 3 dotted grey lines that give the projected values for the 3 preset scenarios."),
-                  tags$li("Adjust the sliders to watch trends change in real time."),
-                  tags$li("Hover over the chart lines to read off the values. Actual values for 2025 and projected values for 2035 are given on the sidebar.")
+                  #tags$li("Number of admissions, Average length of stay, Number of beds and Target bed occupancy."),
+                  tags$li("View historic trends (solid black line) and projected trends (red dotted line) from 2026-2035 (based on the selected assumptions)."),
+                  tags$li("View pre-set admission scenarios (3 dotted grey lines) under do nothing, planned and ambitious admission strategies."),
+                  #tags$li("Adjust the sliders to watch trends change in real time."),
+                  tags$li("Hover over the chart lines to read off yearly values. Actual values for 2025 and projected values for 2035 are given on the sidebar.")
                 )
               )
             )
