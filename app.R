@@ -38,7 +38,11 @@ future_admissions_model<-function(from_93, beds_yearly_percentage_change, los_ye
   beds<-from_93$Beds
   los<-from_93$avgLoS
   occupancy<-from_93$`occupancy`
-
+  
+  if(occupancy_fixed_level==100){
+    occupancy_fixed<-99.999999999999
+  }else{ 
+    occupancy_fixed<-occupancy_fixed_level}
   
   for(i in 1:(length(years)-length(from_93$Year))){
     ## adds one entry to each array during each loop
@@ -46,9 +50,9 @@ future_admissions_model<-function(from_93, beds_yearly_percentage_change, los_ye
     beddays <- c(beddays , admissions[length(admissions)]*los[length(los)])
     ## Using MMinf as model to work out # beds to reach set performance
     beds <- c(beds, beds[length(beds)] + beds[length(beds)]*beds_yearly_percentage_change/100)
-    occupancy<- c(occupancy, (occupancy_fixed_level/100))
+    occupancy<- c(occupancy, (occupancy_fixed/100))
     # now solve for admissions
-    admissions <- c(admissions,optim(par = c(18742360),fn = solve_for_admissions  , LoS = los[length(los)], occupancy = occupancy[length(occupancy)], beds = beds[length(beds)], method="Brent",,lower=15000000,upper=26000000)$par)
+    admissions <- c(admissions,optim(par = c(18742360),fn = solve_for_admissions  , LoS = los[length(los)], occupancy = occupancy[length(occupancy)], beds = beds[length(beds)], method="Brent",lower=15000000,upper=26000000)$par)
   }
   
   plot_data<-data.frame(
@@ -102,29 +106,33 @@ if(occupancy_fixed_level==100){
 }
 
 ## Plotting function
-plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, scenario_3_values, output_type, y_axis_label) {
+plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, scenario_3_values, output_type, y_axis_label, y_axis_max = NULL) {
+  
+  if(is.null(y_axis_max)){
+    y_axis_max <- max(plot_data[[output_type]], na.rm = TRUE) * 1.05
+  }
   
   # Initial plot
   p <- ggplot(data = plot_data, aes(x = year, y = .data[[output_type]], 
-                                    text = paste0("Year: ", year, "<br>", y_axis_label, ": ", round(.data[[output_type]], 2)))) +
+                                    text = paste0("Year: ", year, "<br>", y_axis_label, ": ", round(.data[[output_type]], 1)))) +
     geom_vline(xintercept = 2025, colour = "#5881c1" , linetype = "dashed") +
     su_theme() +
     labs(title=NULL, subtitle=NULL, y = y_axis_label, x = "Year") +
-    scale_y_continuous(limits = c(0, NA))
+    scale_y_continuous(limits = c(0, y_axis_max))
   
   # Add Scenario plots if needed
   if (!is.null(scenario_1_values)) {
     p <- p + geom_line(data = scenario_1_values, 
                        aes(x = year, y = .data[[output_type]], 
-                           text = paste0("Do nothing<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 2))), 
+                           text = paste0("Do nothing<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
                        colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)+ 
       geom_line(data = scenario_2_values, 
                 aes(x = year, y = .data[[output_type]], 
-                    text = paste0("Planned<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 2))), 
+                    text = paste0("Planned<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
                 colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)+ 
       geom_line(data = scenario_3_values, 
                 aes(x = year, y = .data[[output_type]], 
-                    text = paste0("Ambitious<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 2))), 
+                    text = paste0("Ambitious<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
                 colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)
   }
   
@@ -136,18 +144,18 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
                          linetype = "dotted", 
                          group = 1)+
     geom_line(data = subset(plot_data, as.numeric(year) <= 2025),
-                     aes(x = year, y = .data[[output_type]]),
-                     colour = "black", 
-                     linewidth = 0.5, 
-                     linetype = "solid", 
-                     group = 1)
-
+              aes(x = year, y = .data[[output_type]]),
+              colour = "black", 
+              linewidth = 0.5, 
+              linetype = "solid", 
+              group = 1)
+  
   
   ggplotly(p, tooltip = "text")|>
     layout(
-    margin = list(t = 20, b = 10, l = 55, r =10), # Top, Bottom, Left, Right
-    pad = 0
-  )
+      margin = list(t = 20, b = 10, l = 55, r =10), # Top, Bottom, Left, Right
+      pad = 0
+    )
 }
 
 baseline_beds<-1000
@@ -1029,13 +1037,17 @@ server <- function(input, output, session) {
     planned<-future_beds_model(from_93, 1.9, 0, 85)
     ambitious<-future_beds_model(from_93, 0.9, 0, 85)
     
+    axis_max_data<-future_beds_model(from_93, 5, input$los_change, input$target_occupancy)
+    y_axis_max<-max(axis_max_data$admissions, na.rm = TRUE) * 1.05
+    
     
     plotting_function(plot_data,
                       do_nothing,
                       planned,
                       ambitious,
                       "admissions", 
-                      "Admissions (millions)")
+                      "Admissions (millions)",
+                      y_axis_max)
     
   })
   
@@ -1046,12 +1058,16 @@ server <- function(input, output, session) {
     planned<-future_beds_model(from_93, 1.9, 0, 85)
     ambitious<-future_beds_model(from_93, 0.9, 0, 85)
     
+    axis_max_data<-future_beds_model(from_93, input$admissions_change, 5, input$target_occupancy)
+    y_axis_max<-max(axis_max_data$los, na.rm = TRUE) * 1.05
+    
     plotting_function(plot_data,
                       do_nothing,
                       planned,
                       ambitious,
                       "los", 
-                      "Length of Stay (days)")
+                      "Length of Stay (days)",
+                      y_axis_max)
     
   })
   
@@ -1062,12 +1078,16 @@ server <- function(input, output, session) {
     planned<-future_beds_model(from_93, 1.9, 0, 85)
     ambitious<-future_beds_model(from_93, 0.9, 0, 85)
     
+    axis_max_data<-future_beds_model(from_93, 5, 5, 75)
+    y_axis_max<-max(axis_max_data$beds, na.rm = TRUE) * 1.05
+    
     plotting_function(plot_data,
                       do_nothing,
                       planned,
                       ambitious,
                       "beds",
-                      "Beds")
+                      "Beds",
+                      y_axis_max)
     
   })
   
@@ -1079,12 +1099,15 @@ server <- function(input, output, session) {
     planned<-future_beds_model(from_93, 1.9, 0, 85)
     ambitious<-future_beds_model(from_93, 0.9, 0, 85)
     
+    y_axis_max<-100
+    
     plotting_function(plot_data,
                       do_nothing,
                       planned,
                       ambitious,
                       "occupancy", 
-                      "Bed Occupancy (%)")
+                      "Bed Occupancy (%)",
+                      y_axis_max)
     
   })
   
@@ -1092,18 +1115,18 @@ server <- function(input, output, session) {
   
   output$admissions2<-renderPlotly({
     
-    if(input$bed_occupancy==100){
-      input$bed_occupancy==99.99999999999999
-    }
-    
     plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
+    
+    axis_max_data<-future_admissions_model(from_93, 5, -5, 100)
+    y_axis_max<-max(axis_max_data$admissions, na.rm = TRUE) * 1.05
     
     plotting_function(plot_data,
                       NULL,
                       NULL,
                       NULL,
                       "admissions", 
-                      "Admissions (millions)")
+                      "Admissions (millions)",
+                      y_axis_max)
     
   })
   
@@ -1111,12 +1134,16 @@ server <- function(input, output, session) {
     
     plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
     
+    axis_max_data<-future_admissions_model(from_93, input$bedday_growth, 5, input$bed_occupancy)
+    y_axis_max<-max(axis_max_data$los, na.rm = TRUE) * 1.05
+    
     plotting_function(plot_data,
                       NULL,
                       NULL,
                       NULL,
                       "los", 
-                      "Length of Stay (days)")
+                      "Length of Stay (days)",
+                      y_axis_max)
     
   })
   
@@ -1124,12 +1151,16 @@ server <- function(input, output, session) {
     
     plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
     
+    axis_max_data<-future_admissions_model(from_93, 5, input$los_change2, input$bed_occupancy)
+    y_axis_max<-max(axis_max_data$beds, na.rm = TRUE) * 1.05
+    
     plotting_function(plot_data,
                       NULL,
                       NULL,
                       NULL,
                       "beds", 
-                      "Beds")
+                      "Beds",
+                      y_axis_max)
     
   })
   
@@ -1138,12 +1169,15 @@ server <- function(input, output, session) {
     
     plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
     
+    y_axis_max<-100
+    
     plotting_function(plot_data,
                       NULL,
                       NULL,
                       NULL,
                       "occupancy", 
-                      "Bed Occupancy (%)")
+                      "Bed Occupancy (%)",
+                      y_axis_max)
     
   })
   
