@@ -106,7 +106,7 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
   
   # Initial plot
   p <- ggplot(data = plot_data, aes(x = year, y = .data[[output_type]], 
-                                    text = paste0("Year: ", year, "<br>", y_axis_label, ": ", round(.data[[output_type]], 1)))) +
+                                    text = paste0("Year: ", year, "<br>", y_axis_label, ": ", round(.data[[output_type]], 2)))) +
     geom_vline(xintercept = 2025, colour = "#5881c1" , linetype = "dashed") +
     su_theme() +
     labs(title=NULL, subtitle=NULL, y = y_axis_label, x = "Year") +
