@@ -1047,9 +1047,9 @@ server <- function(input, output, session) {
     ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     plotting_function(plot_data,
-                      do_nothing,
-                      planned,
-                      ambitious,
+                      NULL,
+                      NULL,
+                      NULL,
                       "los", 
                       "Length of Stay (days)")
     
@@ -1063,9 +1063,9 @@ server <- function(input, output, session) {
     ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     plotting_function(plot_data,
-                      do_nothing,
-                      planned,
-                      ambitious,
+                      NULL,
+                      NULL,
+                      NULL,
                       "beds",
                       "Beds")
     
@@ -1080,9 +1080,9 @@ server <- function(input, output, session) {
     ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     plotting_function(plot_data,
-                      do_nothing,
-                      planned,
-                      ambitious,
+                      NULL,
+                      NULL,
+                      NULL,
                       "occupancy", 
                       "Bed Occupancy (%)")
     
