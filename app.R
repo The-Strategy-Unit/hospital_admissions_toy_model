@@ -1097,11 +1097,14 @@ server <- function(input, output, session) {
     }
     
     plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
+    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
+    planned<-future_beds_model(from_93, 1.1, 0, 85)
+    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     plotting_function(plot_data,
-                      NULL,
-                      NULL,
-                      NULL,
+                      do_nothing,
+                      planned,
+                      ambitious,
                       "admissions", 
                       "Admissions (millions)")
     
