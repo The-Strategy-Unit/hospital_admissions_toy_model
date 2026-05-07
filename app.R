@@ -637,7 +637,14 @@ nav_panel(
         
         card(
           style = "grid-column: 1 / span 2;",
-          card_header(HTML("Beds Required")),
+          card_header(
+            HTML("Beds Required"),
+            style = "
+    background-color: #fff8e1;
+    border-bottom: 1px solid #f9bf07;
+    font-weight: 600;
+  "
+          ),
           card_body(
             (plotlyOutput("beds")),
             padding = 10,
@@ -844,7 +851,14 @@ nav_panel(
         
         card(
           style = "grid-column: 1 / span 2;",
-          card_header(HTML("Supported Admissions")),
+          card_header(
+            HTML("Supported Admissions"),
+            style = "
+    background-color: #fff8e1;
+    border-bottom: 1px solid #f9bf07;
+    font-weight: 600;
+  "
+          ),
           card_body(
             (plotlyOutput("admissions2")),
             padding = 10,
