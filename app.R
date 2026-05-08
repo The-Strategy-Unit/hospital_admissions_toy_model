@@ -509,7 +509,6 @@ nav_panel(
        #     span("2026: 16967214"),
        #     span("2035: 16967214") ),
        
-       #Make value under slider dynamic
        div(
          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
          #span(paste0("2025: ", round(from_93$`All admissions`[from_93$Year == 2025], 0))),
@@ -551,7 +550,6 @@ nav_panel(
         #  span("2035: 3.12 days")
         # ),
        
-       #Make value under slider dynamic
        div(
          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
          span(paste0("2025: ", round(from_93$avgLoS[from_93$Year == 2025], 2), " days")),
@@ -576,11 +574,17 @@ nav_panel(
           step = 0.1
         ),
         
-        div(
-          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
-          span("0%"),
-          span("100%")
-        ),
+        #div(
+        #  style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
+        #  span("0%"),
+        #  span("100%")
+        #),
+       
+       div(
+         style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+         span(paste0("2025: ", round(from_93$occupancy[from_93$Year == 2025] * 100, 1), "%")),
+         span(textOutput("future_beds_occupancy_2035", inline = TRUE))
+       ),
         
         actionButton(
           "reset_scenario", 
@@ -759,7 +763,6 @@ nav_panel(
           step = 0.1
         ),
         
-        #Add value under slider
         div(
           style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
           span(
@@ -794,7 +797,6 @@ nav_panel(
           width = "100%"
         ),
         
-        #Add LOS slider value
         div(
           style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
           span(paste0("2025: ", round(from_93$avgLoS[from_93$Year == 2025], 2), " days")),
@@ -818,6 +820,12 @@ nav_panel(
           value = 85,
           step = 0.5,
           width = "100%"
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+          span(paste0("2025: ", round(from_93$occupancy[from_93$Year == 2025] * 100, 1), "%")),
+          span(textOutput("future_admissions_occupancy_2035", inline = TRUE))
         ),
         
         actionButton(
@@ -1352,6 +1360,14 @@ server <- function(input, output, session) {
     los_2035 <- plot_data$los[plot_data$year == 2035]
     
     paste0("2035: ", round(los_2035, 2), " days")
+  })
+  
+  output$future_beds_occupancy_2035 <- renderText({
+    paste0("2026-2035: ", round(input$target_occupancy, 1), "%")
+  })
+  
+  output$future_admissions_occupancy_2035 <- renderText({
+    paste0("2026-2035: ", round(input$bed_occupancy, 1), "%")
   })
   
   
