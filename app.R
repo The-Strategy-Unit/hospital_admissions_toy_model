@@ -821,7 +821,7 @@ ui <- page_navbar(
               style = "height: 100%;",
               card_header(HTML("Scenario Interpretation")),
               card_body(
-                p("A yearly change of x% to admissions and y% to LoS means z extra beds required by 2035 under a target occupancy of w%."),
+                uiOutput("future_beds_interpretation"),
                 padding = 10,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
@@ -1048,7 +1048,7 @@ ui <- page_navbar(
               style = "height: 100%;",
               card_header(HTML("Scenario Interpretation")),
               card_body(
-                p("A yearly change of x% to bed supply and y% to LoS means z admissions could be supported by 2035 under a target occupancy of w%."),
+                uiOutput("future_admissions_interpretation"),
                 padding = 10,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
@@ -1484,6 +1484,94 @@ server <- function(input, output, session) {
     paste0("2026-2035: ", round(input$bed_occupancy, 1), "%")
   })
   
+  # Adding changing values to interpretation cards
+  
+  output$future_beds_interpretation <- renderUI({
+    
+    plot_data <- future_beds_model(
+      from_93,
+      input$admissions_change,
+      input$los_change,
+      input$target_occupancy
+    )
+    
+    beds_2025 <- plot_data$beds[plot_data$year == 2025]
+    beds_2035 <- plot_data$beds[plot_data$year == 2035]
+    beds_change <- beds_2035 - beds_2025
+    
+    beds_change_text <- ifelse(
+      beds_change >= 0,
+      paste0(
+        format(round(beds_change, 0), big.mark = ",", scientific = FALSE),
+        " extra beds"
+      ),
+      paste0(
+        format(abs(round(beds_change, 0)), big.mark = ",", scientific = FALSE),
+        " fewer beds"
+      )
+    )
+    
+    p(
+      "A yearly change of ",
+      tags$span(
+        paste0(round(input$admissions_change, 1), "%"),
+        style = "font-weight: 700; color: #ec6555;"
+      ),
+      " to admissions and ",
+      tags$span(
+        paste0(round(input$los_change, 1), "%"),
+        style = "font-weight: 700; color: #ec6555;"
+      ),
+      " to LoS means ",
+      tags$span(
+        beds_change_text,
+        style = "font-weight: 700; color: #ec6555;"
+      ),
+      " required by 2035 under a target occupancy of ",
+      tags$span(
+        paste0(round(input$target_occupancy, 1), "%"),
+        style = "font-weight: 700; color: #ec6555;"
+      ),
+      "."
+    )
+  })
+  
+  
+  output$future_admissions_interpretation <- renderUI({
+    
+    plot_data <- future_admissions_model(
+      from_93,
+      input$bedday_growth,
+      input$los_change2,
+      input$bed_occupancy
+    )
+    
+    admissions_2035 <- plot_data$admissions[plot_data$year == 2035]
+    
+    p(
+      "A yearly change of ",
+      tags$span(
+        paste0(round(input$bedday_growth, 1), "%"),
+        style = "font-weight: 700; color: #ec6555;"
+      ),
+      " to bed supply and ",
+      tags$span(
+        paste0(round(input$los_change2, 1), "%"),
+        style = "font-weight: 700; color: #ec6555;"
+      ),
+      " to LoS means ",
+      tags$span(
+        paste0(round(admissions_2035, 1), " million admissions"),
+        style = "font-weight: 700; color: #ec6555;"
+      ),
+      " could be supported by 2035 under a target occupancy of ",
+      tags$span(
+        paste0(round(input$bed_occupancy, 1), "%"),
+        style = "font-weight: 700; color: #ec6555;"
+      ),
+      "."
+    )
+  })
   
   
 }
