@@ -505,9 +505,27 @@ nav_panel(
           "admissions_change",
           label = NULL, min = -5, max = 5, value = 0, step = 0.1),
         
-        div(style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-            span("2026: 16967214"),
-            span("2035: 16967214") ),
+       # div(style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+       #     span("2026: 16967214"),
+       #     span("2035: 16967214") ),
+       
+       #Make value under slider dynamic
+       div(
+         style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+         #span(paste0("2025: ", round(from_93$`All admissions`[from_93$Year == 2025], 0))),
+         #Add commas: 
+         span(
+           paste0(
+             "2025: ",
+             format(
+               round(from_93$`All admissions`[from_93$Year == 2025], 0),
+               big.mark = ",",
+               scientific = FALSE
+             )
+           )
+         ),
+         span(textOutput("future_beds_admissions_2035", inline = TRUE))
+       ),
         
         hr(style = "margin: 8px 0;"),
         
@@ -527,11 +545,18 @@ nav_panel(
           step = 0.1
         ),
         
-        div(
-          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-          span("2026: 3.12 days"),
-          span("2035: 3.12 days")
-        ),
+        #div(
+        #  style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+        #  span("2026: 3.12 days"),
+        #  span("2035: 3.12 days")
+        # ),
+       
+       #Make value under slider dynamic
+       div(
+         style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+         span(paste0("2025: ", round(from_93$avgLoS[from_93$Year == 2025], 2), " days")),
+         span(textOutput("future_beds_los_2035", inline = TRUE))
+       ),
         
         hr(style = "margin: 8px 0;"),
         
@@ -734,6 +759,22 @@ nav_panel(
           step = 0.1
         ),
         
+        #Add value under slider
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+          span(
+            paste0(
+              "2025: ",
+              format(
+                round(from_93$Beds[from_93$Year == 2025], 0),
+                big.mark = ",",
+                scientific = FALSE
+              )
+            )
+          ),
+          span(textOutput("future_admissions_beds_2035", inline = TRUE))
+        ),
+        
         hr(style = "margin: 8px 0;"),
         
         h5("LENGTH OF STAY", style = "font-size: 0.95rem; margin: 6px 0;"),
@@ -751,6 +792,13 @@ nav_panel(
           value = 0,
           step = 0.1,
           width = "100%"
+        ),
+        
+        #Add LOS slider value
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+          span(paste0("2025: ", round(from_93$avgLoS[from_93$Year == 2025], 2), " days")),
+          span(textOutput("future_admissions_los_2035", inline = TRUE))
         ),
         
         hr(style = "margin: 8px 0;"),
@@ -1233,6 +1281,77 @@ server <- function(input, output, session) {
                       "Bed Occupancy (%)",
                       y_axis_max)
     
+  })
+  
+  #Adding changing values to sidebars
+  output$future_beds_admissions_2035 <- renderText({
+    
+    plot_data <- future_beds_model(
+      from_93,
+      input$admissions_change,
+      input$los_change,
+      input$target_occupancy
+    )
+    
+    admissions_2035 <- plot_data$admissions[plot_data$year == 2035] * 1000000
+    
+    paste0(
+      "2035: ",
+      format(
+        round(admissions_2035, 0),
+        big.mark = ",",
+        scientific = FALSE
+      )
+    )
+  })
+  
+  output$future_beds_los_2035 <- renderText({
+    
+    plot_data <- future_beds_model(
+      from_93,
+      input$admissions_change,
+      input$los_change,
+      input$target_occupancy
+    )
+    
+    los_2035 <- plot_data$los[plot_data$year == 2035]
+    
+    paste0("2035: ", round(los_2035, 2), " days")
+  })
+  
+  output$future_admissions_beds_2035 <- renderText({
+    
+    plot_data <- future_admissions_model(
+      from_93,
+      input$bedday_growth,
+      input$los_change2,
+      input$bed_occupancy
+    )
+    
+    beds_2035 <- plot_data$beds[plot_data$year == 2035]
+    
+    paste0(
+      "2035: ",
+      format(
+        round(beds_2035, 0),
+        big.mark = ",",
+        scientific = FALSE
+      )
+    )
+  })
+  
+  output$future_admissions_los_2035 <- renderText({
+    
+    plot_data <- future_admissions_model(
+      from_93,
+      input$bedday_growth,
+      input$los_change2,
+      input$bed_occupancy
+    )
+    
+    los_2035 <- plot_data$los[plot_data$year == 2035]
+    
+    paste0("2035: ", round(los_2035, 2), " days")
   })
   
   
