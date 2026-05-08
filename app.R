@@ -112,6 +112,24 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
     y_axis_max <- max(plot_data[[output_type]], na.rm = TRUE) * 1.05
   }
   
+  # Heather adding historic and future average chart labels
+  historical_average <- mean(plot_data[[output_type]][plot_data$year <= 2025], na.rm = TRUE)
+  future_average <- mean(plot_data[[output_type]][plot_data$year > 2025], na.rm = TRUE)
+  
+  if (output_type == "occupancy") {
+    historical_label <- paste0("Historic Avg: ", round(historical_average, 1), "%")
+    future_label <- paste0("Future: ", round(future_average, 1), "%")
+  } else if (output_type == "admissions") {
+    historical_label <- paste0("Historic Avg: ", round(historical_average, 1), "m")
+    future_label <- paste0("Future: ", round(future_average, 1), "m")
+  } else if (output_type == "los") {
+    historical_label <- paste0("Historic Avg: ", round(historical_average, 2), " days")
+    future_label <- paste0("Future: ", round(future_average, 2), " days")
+  } else {
+    historical_label <- paste0("Historic Avg: ", format(round(historical_average, 0), big.mark = ",", scientific = FALSE))
+    future_label <- paste0("Future: ", format(round(future_average, 0), big.mark = ",", scientific = FALSE))
+  }
+  
   # Initial plot
   p <- ggplot(data = plot_data, aes(x = year, y = .data[[output_type]], 
                                     text = paste0("Year: ", year, "<br>", y_axis_label, ": ", round(.data[[output_type]], 1)))) +
@@ -151,10 +169,36 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
               group = 1)
   
   
+  #ggplotly(p, tooltip = "text")|>
+  #  layout(
+  #    margin = list(t = 20, b = 10, l = 55, r =10), # Top, Bottom, Left, Right
+  #    pad = 0
+  #  )
+  
   ggplotly(p, tooltip = "text")|>
     layout(
       margin = list(t = 20, b = 10, l = 55, r =10), # Top, Bottom, Left, Right
-      pad = 0
+      pad = 0,
+      annotations = list(
+        list(
+          x = 2024.4,
+          y = y_axis_max * 0.05,
+          text = historical_label,
+          showarrow = FALSE,
+          xanchor = "right",
+          yanchor = "middle",
+          font = list(size = 11, color = "#686f73")
+        ),
+        list(
+          x = 2025.6,
+          y = y_axis_max * 0.05,
+          text = future_label,
+          showarrow = FALSE,
+          xanchor = "left",
+          yanchor = "middle",
+          font = list(size = 11, color = "#686f73")
+        )
+      )
     )
 }
 
