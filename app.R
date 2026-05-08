@@ -1549,12 +1549,12 @@ server <- function(input, output, session) {
     admissions_2025 <- plot_data$admissions[plot_data$year == 2025]
     admissions_2035 <- plot_data$admissions[plot_data$year == 2035]
     
-    additional_admissions <- admissions_2035 - admissions_2025
+    admissions_change <- admissions_2035 - admissions_2025
     
-    additional_admissions_text <- ifelse(
-      additional_admissions >= 0,
-      paste0(round(additional_admissions, 1), " million additional admissions"),
-      paste0(round(abs(additional_admissions), 1), " million fewer admissions")
+    admissions_change_text <- ifelse(
+      admissions_change >= 0,
+      paste0(round(admissions_change, 1), " million additional admissions"),
+      paste0(round(abs(admissions_change), 1), " million fewer admissions")
     )
     
     p(
@@ -1570,7 +1570,7 @@ server <- function(input, output, session) {
       ),
       " to LoS means ",
       tags$span(
-        additional_admissions_text,
+        admissions_change_text,
         style = "font-weight: 700; color: #ec6555;"
       ),
       " could be supported by 2035 under a target occupancy of ",
