@@ -108,10 +108,6 @@ future_beds_model<-function(from_93, admissions_yearly_percentage_change, los_ye
 ## Plotting function
 plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, scenario_3_values, output_type, y_axis_label, y_axis_max = NULL) {
   
-  if(is.null(y_axis_max)){
-    y_axis_max <- max(plot_data[[output_type]], na.rm = TRUE) * 1.05
-  }
-  
   # Heather adding historic and future average annual % change chart labels
   
   annual_percentage_change <- function(data, output_type, start_year, end_year) {
@@ -148,6 +144,31 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
     2035
   )
   
+  # Heather adding historic trend continuation line
+  
+  historic_trend_data <- data.frame(
+    year = 2025:2035
+  )
+  
+  historic_2025_value <- plot_data[[output_type]][plot_data$year == 2025]
+  
+  historic_trend_data[[output_type]] <- historic_2025_value *
+    (1 + historical_avg_annual_change / 100)^(historic_trend_data$year - 2025)
+  
+  if(is.null(y_axis_max)){
+    y_axis_max <- max(
+      plot_data[[output_type]],
+      historic_trend_data[[output_type]],
+      na.rm = TRUE
+    ) * 1.05
+  } else {
+    y_axis_max <- max(
+      y_axis_max,
+      max(historic_trend_data[[output_type]], na.rm = TRUE) * 1.05,
+      na.rm = TRUE
+    )
+  }
+  
   historical_label <- paste0(
     "Historic avg<br>% change: ",
     round(historical_avg_annual_change, 1),
@@ -169,28 +190,45 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
     scale_y_continuous(limits = c(0, y_axis_max))
   
   # Add Scenario plots if needed
-  if (!is.null(scenario_1_values)) {
-    p <- p + geom_line(data = scenario_1_values, 
-                       aes(x = year, y = .data[[output_type]], 
-                           text = paste0("Do nothing<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
-                       colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)+ 
-      geom_line(data = scenario_2_values, 
-                aes(x = year, y = .data[[output_type]], 
-                    text = paste0("Planned<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
-                colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)+ 
-      geom_line(data = scenario_3_values, 
-                aes(x = year, y = .data[[output_type]], 
-                    text = paste0("Ambitious<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
-                colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)
-  }
+  #  if (!is.null(scenario_1_values)) {
+  #    p <- p + geom_line(data = scenario_1_values, 
+  #                       aes(x = year, y = .data[[output_type]], 
+  #                           text = paste0("Do nothing<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
+  #                       colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)+ 
+  #      geom_line(data = scenario_2_values, 
+  #                aes(x = year, y = .data[[output_type]], 
+  #                    text = paste0("Planned<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
+  #                colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)+ 
+  #      geom_line(data = scenario_3_values, 
+  #                aes(x = year, y = .data[[output_type]], 
+  #                    text = paste0("Ambitious<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
+  #                colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)
+  # }
   
   # Add the main line last so it sits on top
-  p <- p +     geom_line(data = subset(plot_data, as.numeric(year) >= 2025),
-                         aes(x = year, y = .data[[output_type]]),
-                         colour = "#ec6555", 
-                         linewidth = 0.5, 
-                         linetype = "dotted", 
-                         group = 1)+
+  p <- p +     
+    geom_line(
+      data = historic_trend_data,
+      aes(
+        x = year,
+        y = .data[[output_type]],
+        text = paste0(
+          "Historic trend continued<br>",
+          "Year: ", year,
+          "<br>", y_axis_label, ": ", round(.data[[output_type]], 1)
+        )
+      ),
+      colour = "#b2b7b9",
+      linewidth = 0.6,
+      linetype = "dotted",
+      group = 1
+    ) +
+    geom_line(data = subset(plot_data, as.numeric(year) >= 2025),
+              aes(x = year, y = .data[[output_type]]),
+              colour = "#ec6555", 
+              linewidth = 0.6, 
+              linetype = "dotted", 
+              group = 1)+
     geom_line(data = subset(plot_data, as.numeric(year) <= 2025),
               aes(x = year, y = .data[[output_type]]),
               colour = "black", 
