@@ -533,6 +533,7 @@ ui <- page_navbar(
     )
   ),
   
+<<<<<<< trends_labels_on_charts
   ## Panel 2: Future beds nav panel ---------------------------------------------------------  
   nav_panel(
     "Future Beds Calculator",
@@ -544,6 +545,141 @@ ui <- page_navbar(
         id = "sidebar_future_beds",
         width = "300px",
         open = "always",
+=======
+## Panel 2: Future beds nav panel ---------------------------------------------------------  
+nav_panel(
+  "Future Beds Calculator",
+  class = "panel-one",
+  
+  layout_sidebar(
+    sidebar = sidebar(
+      title = NULL,
+      id = "sidebar_future_beds",
+      width = "300px",
+      open = "always",
+      
+      div(
+        style = "margin-top: 0px;",
+        
+        h3("Future Assumptions",
+           style = "font-size: 1.2rem; margin: 0 0 6px 0;"),
+        
+        hr(style = "margin: 6px 0;"),
+        
+        p("Adjust inputs for the next 10 years.",
+          style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"),
+        
+        hr(style = "margin: 6px 0;"),
+        
+        h5("ADMISSIONS", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
+        
+        tooltip(
+          selectInput(
+            "preset",
+            label = span(
+              "Select Scenario or adjust slider:",
+              style = "font-size: 0.85rem;"
+            ), 
+            choices = c("Do nothing", "Planned", "Ambitious")), # don't think we need custom as can overwrite a preset
+          "Choose a preset scenario or adjust sliders to customise assumptions",
+          placement = "right"),
+        
+        div(style = "display:flex; justify-content:space-between; margin-top: 10px;",
+            strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
+        ),
+        
+        sliderInput(
+          "admissions_change",
+          label = NULL, min = -5, max = 5, value = 0, step = 0.1),
+        
+       # div(style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+       #     span("2026: 16967214"),
+       #     span("2035: 16967214") ),
+       
+       div(
+         style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+         #span(paste0("2025: ", round(from_93$`All admissions`[from_93$Year == 2025], 0))),
+         #Add commas: 
+         span(
+           paste0(
+             "2025: ",
+             format(
+               round(from_93$`All admissions`[from_93$Year == 2025], 0),
+               big.mark = ",",
+               scientific = FALSE
+             )
+           )
+         ),
+         span(textOutput("future_beds_admissions_2035", inline = TRUE))
+       ),
+        
+        hr(style = "margin: 8px 0;"),
+        
+        h5("LENGTH OF STAY", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
+        
+        div(
+          style = "display:flex; justify-content:space-between;",
+          strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
+        ),
+        
+        sliderInput(
+          "los_change",
+          label = NULL,
+          min = -5,
+          max = 5,
+          value = 0,
+          step = 0.1
+        ),
+        
+        #div(
+        #  style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+        #  span("2026: 3.12 days"),
+        #  span("2035: 3.12 days")
+        # ),
+       
+       div(
+         style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+         span(paste0("2025: ", round(from_93$avgLoS[from_93$Year == 2025], 2), " days")),
+         span(textOutput("future_beds_los_2035", inline = TRUE))
+       ),
+        
+        hr(style = "margin: 8px 0;"),
+        
+        h5("TARGET BED OCCUPANCY", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
+        
+        div(
+          style = "display:flex; justify-content:space-between;",
+          strong("Fixed Value:",style = "font-size: 0.8rem; font-weight: 600;")
+        ),
+        
+        sliderInput(
+          "target_occupancy",
+          label = NULL,
+          min = 75,
+          max = 100,
+          value = 80,
+          step = 0.1
+        ),
+        
+        #div(
+        #  style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
+        #  span("0%"),
+        #  span("100%")
+        #),
+       
+       div(
+         style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+         span(paste0("2025: ", round(from_93$occupancy[from_93$Year == 2025] * 100, 1), "%")),
+         span(textOutput("future_beds_occupancy_2035", inline = TRUE))
+       ),
+        
+        actionButton(
+          "reset_scenario", 
+          "Reset Selected Scenario", 
+          class = "btn-primary w-100",
+          style = "margin-top: 10px;"
+        ),
+>>>>>>> main
         
         div(
           style = "margin-top: 0px;",
@@ -851,6 +987,7 @@ ui <- page_navbar(
             ),
             span(textOutput("future_admissions_beds_2035", inline = TRUE))
           ),
+<<<<<<< trends_labels_on_charts
           
           hr(style = "margin: 8px 0;"),
           
@@ -911,6 +1048,70 @@ ui <- page_navbar(
           
           div(
             style = "
+=======
+          span(textOutput("future_admissions_beds_2035", inline = TRUE))
+        ),
+        
+        hr(style = "margin: 8px 0;"),
+        
+        h5("LENGTH OF STAY", style = "font-size: 0.95rem; margin: 6px 0;"),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.8rem;",
+          strong("Annual Change (%):")
+        ),
+        
+        sliderInput(
+          "los_change2",
+          NULL,
+          min = -5,
+          max = 5,
+          value = 0,
+          step = 0.1,
+          width = "100%"
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+          span(paste0("2025: ", round(from_93$avgLoS[from_93$Year == 2025], 2), " days")),
+          span(textOutput("future_admissions_los_2035", inline = TRUE))
+        ),
+        
+        hr(style = "margin: 8px 0;"),
+        
+        h5("TARGET BED OCCUPANCY", style = "font-size: 0.95rem; margin: 6px 0;"),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.8rem;",
+          strong("Fixed Value:")
+        ),
+        
+        sliderInput(
+          "bed_occupancy",
+          NULL,
+          min = 75,
+          max = 100,
+          value = 85,
+          step = 0.5,
+          width = "100%"
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+          span(paste0("2025: ", round(from_93$occupancy[from_93$Year == 2025] * 100, 1), "%")),
+          span(textOutput("future_admissions_occupancy_2035", inline = TRUE))
+        ),
+        
+        actionButton(
+          "reset_baseline", 
+          "↻ Reset to Baseline", 
+          class = "btn-primary w-100",
+          style = "margin-top: 8px; font-size: 0.8rem; padding: 6px;"
+        ),
+        
+        div(
+          style = "
+>>>>>>> main
             border: 1px solid #f9bf07;
             background-color: #fff8e1;
             padding: 8px;
