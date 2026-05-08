@@ -770,19 +770,20 @@ ui <- page_navbar(
             
             card(
               style = "height: 100%;",
-              card_header(HTML("Interpretation")),
+              card_header(HTML("Scenario Context")),
               card_body(
-                p("Add interpretation text here."),
-                padding = 10,
+                p("Historically reductions in LoS have allowed continual reductions in the number of beds, despite rising admissions."),
+                p("Here we consider the impact of future admission and LoS scenarios on the number of beds."),
+                padding = 5,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
             ),
             
             card(
               style = "height: 100%;",
-              card_header(HTML("Historical / Your Selection Impact")),
+              card_header(HTML("Scenario Interpretation")),
               card_body(
-                p("Add historical and selected-scenario impact text here."),
+                p("A yearly change of x% to admissions and y% to LoS means z extra beds required by 2035 under a target occupancy of w%."),
                 padding = 10,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
@@ -996,19 +997,20 @@ ui <- page_navbar(
             
             card(
               style = "height: 100%;",
-              card_header(HTML("Interpretation")),
+              card_header(HTML("Scenario Context")),
               card_body(
-                p("Add interpretation text here."),
-                padding = 10,
+                p("Historically reductions in LoS have allowed continual reductions in the number of beds, despite rising admissions."),
+                p("Here we consider the impact of future planned bed supply and LoS scenarios on the number of admissions that could be supported."),
+                padding = 5,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
             ),
             
             card(
               style = "height: 100%;",
-              card_header(HTML("Historical / Your Selection Impact")),
+              card_header(HTML("Scenario Interpretation")),
               card_body(
-                p("Add historical and selected-scenario impact text here."),
+                p("A yearly change of x% to bed supply and y% to LoS means z admissions could be supported by 2035 under a target occupancy of w%."),
                 padding = 10,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
