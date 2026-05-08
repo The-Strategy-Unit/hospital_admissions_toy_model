@@ -1573,7 +1573,7 @@ server <- function(input, output, session) {
         admissions_change_text,
         style = "font-weight: 700; color: #ec6555;"
       ),
-      " could be supported by 2035 under a target occupancy of ",
+      " supported per year by 2035 under a target occupancy of ",
       tags$span(
         paste0(round(input$bed_occupancy, 1), "%"),
         style = "font-weight: 700; color: #ec6555;"
