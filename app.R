@@ -20,7 +20,7 @@ options(scipen=999)
 
 data<-read_excel("data/Collating the data.xlsx")
 from_93<-data[7:38,]
-
+  
 # Functions--------------------------------------------------------------------
 
 ## Solve for admissions
@@ -79,10 +79,10 @@ future_beds_model<-function(from_93, admissions_yearly_percentage_change, los_ye
   los<-from_93$avgLoS
   occupancy<-from_93$`occupancy`
   
-  if(occupancy_fixed_level==100){
-    occupancy_fixed<-99.999999999999
-  }else{ 
-    occupancy_fixed<-occupancy_fixed_level}
+if(occupancy_fixed_level==100){
+  occupancy_fixed<-99.999999999999
+}else{ 
+  occupancy_fixed<-occupancy_fixed_level}
   
   
   for(i in 1:(length(years)-length(from_93$Year))){
@@ -111,54 +111,6 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
   if(is.null(y_axis_max)){
     y_axis_max <- max(plot_data[[output_type]], na.rm = TRUE) * 1.05
   }
-  
-  # Heather adding historic and future average annual % change chart labels
-  
-  annual_percentage_change <- function(data, output_type, start_year, end_year) {
-    
-    start_value <- data[[output_type]][data$year == start_year]
-    end_value <- data[[output_type]][data$year == end_year]
-    number_of_years <- end_year - start_year
-    
-    if (
-      length(start_value) == 0 ||
-      length(end_value) == 0 ||
-      is.na(start_value) ||
-      is.na(end_value) ||
-      start_value <= 0 ||
-      end_value <= 0
-    ) {
-      return(NA)
-    }
-    
-    ((end_value / start_value)^(1 / number_of_years) - 1) * 100
-  }
-  
-  historical_avg_annual_change <- annual_percentage_change(
-    plot_data,
-    output_type,
-    min(plot_data$year[plot_data$year <= 2025], na.rm = TRUE),
-    2025
-  )
-  
-  future_avg_annual_change <- annual_percentage_change(
-    plot_data,
-    output_type,
-    2025,
-    2035
-  )
-  
-  historical_label <- paste0(
-    "Historic avg<br>% change: ",
-    round(historical_avg_annual_change, 1),
-    "%"
-  )
-  
-  future_label <- paste0(
-    "Future avg<br>% change: ",
-    round(future_avg_annual_change, 1),
-    "%"
-  )
   
   # Initial plot
   p <- ggplot(data = plot_data, aes(x = year, y = .data[[output_type]], 
@@ -199,36 +151,10 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
               group = 1)
   
   
-  #ggplotly(p, tooltip = "text")|>
-  #  layout(
-  #    margin = list(t = 20, b = 10, l = 55, r =10), # Top, Bottom, Left, Right
-  #    pad = 0
-  #  )
-  
   ggplotly(p, tooltip = "text")|>
     layout(
       margin = list(t = 20, b = 10, l = 55, r =10), # Top, Bottom, Left, Right
-      pad = 0,
-      annotations = list(
-        list(
-          x = 2024.4,
-          y = y_axis_max * 0.10,
-          text = historical_label,
-          showarrow = FALSE,
-          xanchor = "right",
-          yanchor = "middle",
-          font = list(size = 11, color = "#686f73")
-        ),
-        list(
-          x = 2025.6,
-          y = y_axis_max * 0.10,
-          text = future_label,
-          showarrow = FALSE,
-          xanchor = "left",
-          yanchor = "middle",
-          font = list(size = 11, color = "#686f73")
-        )
-      )
+      pad = 0
     )
 }
 
@@ -325,11 +251,11 @@ ui <- page_navbar(
   tags$div(
     class = "top-panel",
     
-    #  tags$a(
-    #   href = "#",
-    #   class = "top-panel-button",
-    #     HTML("&#9432; About")
-    #  ),
+  #  tags$a(
+   #   href = "#",
+   #   class = "top-panel-button",
+ #     HTML("&#9432; About")
+  #  ),
     
     tags$a(
       href = "mailto:strategy.unit@nhs.net?subject=Hospital Admission Model query",
@@ -342,8 +268,8 @@ ui <- page_navbar(
       tags$img(src = "tsu_logo_yellow_screen_transparent.png")
     )
   ),
-  
-  ## Panel 1: Explainer ---------------------------------------------------------
+
+## Panel 1: Explainer ---------------------------------------------------------
   nav_panel(
     "Explainer",
     
@@ -445,7 +371,7 @@ ui <- page_navbar(
         
         col_widths = c(8, 4)
       ),
-      
+    
       ### How to use 
       card(
         style = "margin-bottom: 10px;",
@@ -502,21 +428,21 @@ ui <- page_navbar(
               )
             )
             
-            
+
           )
         )
       ),
       
       ### Data source 
-      #   card(
-      #    style = "margin-bottom: 10px;",
-      #    card_header("Data Source & Methodology"),
-      #    card_body(
-      #     style = "padding: 10px 12px;",
-      #     p("Historical data (1994–2025) from NHS England. Projections apply user-defined growth assumptions.", style = "margin: 0 0 6px 0;"),
-      #     p(HTML('See <b>"Assumptions and Method"</b> tab for detail.'), style = "margin: 0;")
-      #   )
-      # ),
+   #   card(
+    #    style = "margin-bottom: 10px;",
+    #    card_header("Data Source & Methodology"),
+    #    card_body(
+     #     style = "padding: 10px 12px;",
+     #     p("Historical data (1994–2025) from NHS England. Projections apply user-defined growth assumptions.", style = "margin: 0 0 6px 0;"),
+     #     p(HTML('See <b>"Assumptions and Method"</b> tab for detail.'), style = "margin: 0;")
+     #   )
+     # ),
       
       ### Call to action 
       div(
@@ -533,19 +459,6 @@ ui <- page_navbar(
     )
   ),
   
-<<<<<<< trends_labels_on_charts
-  ## Panel 2: Future beds nav panel ---------------------------------------------------------  
-  nav_panel(
-    "Future Beds Calculator",
-    class = "panel-one",
-    
-    layout_sidebar(
-      sidebar = sidebar(
-        title = NULL,
-        id = "sidebar_future_beds",
-        width = "300px",
-        open = "always",
-=======
 ## Panel 2: Future beds nav panel ---------------------------------------------------------  
 nav_panel(
   "Future Beds Calculator",
@@ -679,132 +592,9 @@ nav_panel(
           class = "btn-primary w-100",
           style = "margin-top: 10px;"
         ),
->>>>>>> main
         
         div(
-          style = "margin-top: 0px;",
-          
-          h3("Future Assumptions",
-             style = "font-size: 1.2rem; margin: 0 0 6px 0;"),
-          
-          hr(style = "margin: 6px 0;"),
-          
-          p("Adjust inputs for the next 10 years.",
-            style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"),
-          
-          hr(style = "margin: 6px 0;"),
-          
-          h5("ADMISSIONS", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
-          
-          tooltip(
-            selectInput(
-              "preset",
-              label = span(
-                "Select Scenario or adjust slider:",
-                style = "font-size: 0.85rem;"
-              ), 
-              choices = c("Do nothing", "Planned", "Ambitious")), # don't think we need custom as can overwrite a preset
-            "Choose a preset scenario or adjust sliders to customise assumptions",
-            placement = "right"),
-          
-          div(style = "display:flex; justify-content:space-between; margin-top: 10px;",
-              strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
-          ),
-          
-          sliderInput(
-            "admissions_change",
-            label = NULL, min = -5, max = 5, value = 0, step = 0.1),
-          
-          # div(style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-          #     span("2026: 16967214"),
-          #     span("2035: 16967214") ),
-          
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-            #span(paste0("2025: ", round(from_93$`All admissions`[from_93$Year == 2025], 0))),
-            #Add commas: 
-            span(
-              paste0(
-                "2025: ",
-                format(
-                  round(from_93$`All admissions`[from_93$Year == 2025], 0),
-                  big.mark = ",",
-                  scientific = FALSE
-                )
-              )
-            ),
-            span(textOutput("future_beds_admissions_2035", inline = TRUE))
-          ),
-          
-          hr(style = "margin: 8px 0;"),
-          
-          h5("LENGTH OF STAY", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
-          
-          div(
-            style = "display:flex; justify-content:space-between;",
-            strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
-          ),
-          
-          sliderInput(
-            "los_change",
-            label = NULL,
-            min = -5,
-            max = 5,
-            value = 0,
-            step = 0.1
-          ),
-          
-          #div(
-          #  style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-          #  span("2026: 3.12 days"),
-          #  span("2035: 3.12 days")
-          # ),
-          
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-            span(paste0("2025: ", round(from_93$avgLoS[from_93$Year == 2025], 2), " days")),
-            span(textOutput("future_beds_los_2035", inline = TRUE))
-          ),
-          
-          hr(style = "margin: 8px 0;"),
-          
-          h5("TARGET BED OCCUPANCY", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
-          
-          div(
-            style = "display:flex; justify-content:space-between;",
-            strong("Fixed Value:",style = "font-size: 0.8rem; font-weight: 600;")
-          ),
-          
-          sliderInput(
-            "target_occupancy",
-            label = NULL,
-            min = 75,
-            max = 100,
-            value = 80,
-            step = 0.1
-          ),
-          
-          #div(
-          #  style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
-          #  span("0%"),
-          #  span("100%")
-          #),
-          
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-            span(paste0("2025: ", round(from_93$occupancy[from_93$Year == 2025] * 100, 1), "%")),
-            span(textOutput("future_beds_occupancy_2035", inline = TRUE))
-          ),
-          
-          actionButton(
-            "reset_scenario", 
-            "Reset Selected Scenario", 
-            class = "btn-primary w-100",
-            style = "margin-top: 10px;"
-          ),
-          
-          div(
-            style = "
+          style = "
             border: 1px solid #f9bf07;
             background-color: #fff8e1;
             padding: 8px;
@@ -812,243 +602,179 @@ nav_panel(
             font-size: 0.75rem;
             line-height: 1.15;
           ",
-            "Beds required are calculated automatically from the assumptions."
-          )
+          "Beds required are calculated automatically from the assumptions."
         )
-      ),
+      )
+    ),
+    
+    div(
+      style = "padding-left: 10px;",
       
+      #h3("Admissions Analysis", style = "margin-bottom: 4px;"),
+      #hr(style = "margin: 4px 0 8px 0;"),
+      
+      # Yellow explanatory box ------------------------------------------------
+      # div(
+      #   style = "
+      #     border: 2px solid #f9bf07;
+      #     background-color: #fff8e1;
+      #     padding: 6px 10px;
+      #     margin-bottom: 8px;
+      #     font-size: 0.8rem;
+      #     line-height: 1.2;
+      #   ",
+      #   div(HTML("<b>Historical data (1994-2025)</b> shown in solid lines. <b>Predicted data (2026-2035)</b> shown in dashed lines, based on assumptions in the sidebar.")),
+      #   div(HTML("<b>What this is:</b> A headline view of admissions, LoS, beddays, beds required and occupancy over time.")),
+      #   div(HTML("<b>Why it is useful:</b> Shows how changing assumptions affects future pressure on beds.")),
+      #   div(HTML("<b>How to use it:</b> Adjust the sidebar inputs and compare the projected direction and 2035 values."))
+      # ),
+      
+      ### Chart and interpretation layout
       div(
-        style = "padding-left: 10px;",
-        
-        #h3("Admissions Analysis", style = "margin-bottom: 4px;"),
-        #hr(style = "margin: 4px 0 8px 0;"),
-        
-        # Yellow explanatory box ------------------------------------------------
-        # div(
-        #   style = "
-        #     border: 2px solid #f9bf07;
-        #     background-color: #fff8e1;
-        #     padding: 6px 10px;
-        #     margin-bottom: 8px;
-        #     font-size: 0.8rem;
-        #     line-height: 1.2;
-        #   ",
-        #   div(HTML("<b>Historical data (1994-2025)</b> shown in solid lines. <b>Predicted data (2026-2035)</b> shown in dashed lines, based on assumptions in the sidebar.")),
-        #   div(HTML("<b>What this is:</b> A headline view of admissions, LoS, beddays, beds required and occupancy over time.")),
-        #   div(HTML("<b>Why it is useful:</b> Shows how changing assumptions affects future pressure on beds.")),
-        #   div(HTML("<b>How to use it:</b> Adjust the sidebar inputs and compare the projected direction and 2035 values."))
-        # ),
-        
-        ### Chart and interpretation layout
-        div(
-          style = "
+        style = "
           display: grid;
           grid-template-columns: 1fr 1fr 1fr;
           grid-template-rows: 32vh 55vh;
           gap: 8px;
           height: 80vh;
         ",
-          
-          card(
-            style = "height: 100%;",
-            card_header(HTML("Number of Admissions")),
-            card_body(
-              plotlyOutput("admissions", height = "100%"),
-              padding = 8,
-              style = "height: calc(100% - 48px); overflow: hidden;"
-            )
-          ),
-          
-          card(
-            style = "height: 100%;",
-            card_header(HTML("Average Length of Stay (days)")),
-            card_body(
-              plotlyOutput("los", height = "100%"),
-              padding = 8,
-              style = "height: calc(100% - 48px); overflow: hidden;"
-            )
-          ),
-          
-          card(
-            style = "height: 100%;",
-            card_header(HTML("Bed Occupancy Rate")),
-            card_body(
-              plotlyOutput("occupancy", height = "100%"),
-              padding = 8,
-              style = "height: calc(100% - 48px); overflow: hidden;"
-            )
-          ),
-          
-          card(
-            style = "grid-column: 1 / span 2; height: 100%;",
-            card_header(
-              HTML("Beds Required"),
-              style = "
+        
+        card(
+          style = "height: 100%;",
+          card_header(HTML("Number of Admissions")),
+          card_body(
+            plotlyOutput("admissions", height = "100%"),
+            padding = 8,
+            style = "height: calc(100% - 48px); overflow: hidden;"
+          )
+        ),
+        
+        card(
+          style = "height: 100%;",
+          card_header(HTML("Average Length of Stay (days)")),
+          card_body(
+            plotlyOutput("los", height = "100%"),
+            padding = 8,
+            style = "height: calc(100% - 48px); overflow: hidden;"
+          )
+        ),
+        
+        card(
+          style = "height: 100%;",
+          card_header(HTML("Bed Occupancy Rate")),
+          card_body(
+            plotlyOutput("occupancy", height = "100%"),
+            padding = 8,
+            style = "height: calc(100% - 48px); overflow: hidden;"
+          )
+        ),
+        
+        card(
+          style = "grid-column: 1 / span 2; height: 100%;",
+          card_header(
+            HTML("Beds Required"),
+            style = "
               background-color: #fff8e1;
               border-bottom: 1px solid #f9bf07;
               font-weight: 600;
             "
-            ),
-            card_body(
-              plotlyOutput("beds", height = "100%"),
-              padding = 8,
-              style = "height: calc(100% - 48px); overflow: hidden;"
-            )
           ),
-          
-          div(
-            style = "
+          card_body(
+            plotlyOutput("beds", height = "100%"),
+            padding = 8,
+            style = "height: calc(100% - 48px); overflow: hidden;"
+          )
+        ),
+        
+        div(
+          style = "
             display: grid;
             grid-template-rows: 1fr 1fr;
             gap: 8px;
             height: 100%;
           ",
-            
-            card(
-              style = "height: 100%;",
-              card_header(HTML("Interpretation")),
-              card_body(
-                p("Add interpretation text here."),
-                padding = 10,
-                style = "height: calc(100% - 48px); overflow-y: auto;"
-              )
-            ),
-            
-            card(
-              style = "height: 100%;",
-              card_header(HTML("Historical / Your Selection Impact")),
-              card_body(
-                p("Add historical and selected-scenario impact text here."),
-                padding = 10,
-                style = "height: calc(100% - 48px); overflow-y: auto;"
-              )
+          
+          card(
+            style = "height: 100%;",
+            card_header(HTML("Interpretation")),
+            card_body(
+              p("Add interpretation text here."),
+              padding = 10,
+              style = "height: calc(100% - 48px); overflow-y: auto;"
+            )
+          ),
+          
+          card(
+            style = "height: 100%;",
+            card_header(HTML("Historical / Your Selection Impact")),
+            card_body(
+              p("Add historical and selected-scenario impact text here."),
+              padding = 10,
+              style = "height: calc(100% - 48px); overflow-y: auto;"
             )
           )
         )
       )
     )
-  ),
+  )
+),
+
+## Panel 3: Future Admissions Calculator nav panel ---------------------------------------
+nav_panel(
+  "Future Admissions Calculator",
   
-  ## Panel 3: Future Admissions Calculator nav panel ---------------------------------------
-  nav_panel(
-    "Future Admissions Calculator",
-    
-    layout_sidebar(
-      sidebar = sidebar(
-        title = NULL,
-        id = "sidebar_fixed_beds",
-        width = "300px",
-        open = "always",
+  layout_sidebar(
+    sidebar = sidebar(
+      title = NULL,
+      id = "sidebar_fixed_beds",
+      width = "300px",
+      open = "always",
+      
+      div(
+        style = "margin-top: 0px;",
+        
+        h3(
+          "Future Assumptions",
+          style = "font-size: 1.2rem; margin: 0 0 6px 0;"
+        ),
+        
+        hr(style = "margin: 6px 0;"),
+        
+        p(
+          "Set a fixed bed supply and test what admissions and LoS combinations would be sustainable.",
+          style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"
+        ),
+        
+        hr(style = "margin: 6px 0;"),
+        
+        h5("BED SUPPLY", style = "font-size: 0.95rem; margin: 6px 0;"),
         
         div(
-          style = "margin-top: 0px;",
-          
-          h3(
-            "Future Assumptions",
-            style = "font-size: 1.2rem; margin: 0 0 6px 0;"
-          ),
-          
-          hr(style = "margin: 6px 0;"),
-          
-          p(
-            "Set a fixed bed supply and test what admissions and LoS combinations would be sustainable.",
-            style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"
-          ),
-          
-          hr(style = "margin: 6px 0;"),
-          
-          h5("BED SUPPLY", style = "font-size: 0.95rem; margin: 6px 0;"),
-          
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-            strong("Annual Change (%):")
-          ),
-          
-          sliderInput(
-            "bedday_growth", 
-            label = NULL, 
-            min = -5, 
-            max = 5,  
-            value = 0, 
-            step = 0.1
-          ),
-          
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-            span(
-              paste0(
-                "2025: ",
-                format(
-                  round(from_93$Beds[from_93$Year == 2025], 0),
-                  big.mark = ",",
-                  scientific = FALSE
-                )
+          style = "display:flex; justify-content:space-between; font-size:0.8rem;",
+          strong("Annual Change (%):")
+        ),
+        
+        sliderInput(
+          "bedday_growth", 
+          label = NULL, 
+          min = -5, 
+          max = 5,  
+          value = 0, 
+          step = 0.1
+        ),
+        
+        div(
+          style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+          span(
+            paste0(
+              "2025: ",
+              format(
+                round(from_93$Beds[from_93$Year == 2025], 0),
+                big.mark = ",",
+                scientific = FALSE
               )
-            ),
-            span(textOutput("future_admissions_beds_2035", inline = TRUE))
+            )
           ),
-<<<<<<< trends_labels_on_charts
-          
-          hr(style = "margin: 8px 0;"),
-          
-          h5("LENGTH OF STAY", style = "font-size: 0.95rem; margin: 6px 0;"),
-          
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-            strong("Annual Change (%):")
-          ),
-          
-          sliderInput(
-            "los_change2",
-            NULL,
-            min = -5,
-            max = 5,
-            value = 0,
-            step = 0.1,
-            width = "100%"
-          ),
-          
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-            span(paste0("2025: ", round(from_93$avgLoS[from_93$Year == 2025], 2), " days")),
-            span(textOutput("future_admissions_los_2035", inline = TRUE))
-          ),
-          
-          hr(style = "margin: 8px 0;"),
-          
-          h5("TARGET BED OCCUPANCY", style = "font-size: 0.95rem; margin: 6px 0;"),
-          
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.8rem;",
-            strong("Fixed Value:")
-          ),
-          
-          sliderInput(
-            "bed_occupancy",
-            NULL,
-            min = 75,
-            max = 100,
-            value = 85,
-            step = 0.5,
-            width = "100%"
-          ),
-          
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-            span(paste0("2025: ", round(from_93$occupancy[from_93$Year == 2025] * 100, 1), "%")),
-            span(textOutput("future_admissions_occupancy_2035", inline = TRUE))
-          ),
-          
-          actionButton(
-            "reset_baseline", 
-            "↻ Reset to Baseline", 
-            class = "btn-primary w-100",
-            style = "margin-top: 8px; font-size: 0.8rem; padding: 6px;"
-          ),
-          
-          div(
-            style = "
-=======
           span(textOutput("future_admissions_beds_2035", inline = TRUE))
         ),
         
@@ -1111,7 +837,6 @@ nav_panel(
         
         div(
           style = "
->>>>>>> main
             border: 1px solid #f9bf07;
             background-color: #fff8e1;
             padding: 8px;
@@ -1119,173 +844,173 @@ nav_panel(
             font-size: 0.75rem;
             line-height: 1.15;
           ",
-            "Admissions capacity is calculated from the selected beds, LoS and target bed occupancy assumptions."
-          )
+          "Admissions capacity is calculated from the selected beds, LoS and target bed occupancy assumptions."
         )
-      ),
+      )
+    ),
+    
+    div(
+      style = "padding-left: 10px;",
       
+     # h3("Future Admissions Calculator", style = "margin-bottom: 4px;"),
+     # hr(style = "margin: 4px 0 8px 0;"),
+      
+      ### Chart and interpretation layout
       div(
-        style = "padding-left: 10px;",
-        
-        # h3("Future Admissions Calculator", style = "margin-bottom: 4px;"),
-        # hr(style = "margin: 4px 0 8px 0;"),
-        
-        ### Chart and interpretation layout
-        div(
-          style = "
+        style = "
           display: grid;
           grid-template-columns: 1fr 1fr 1fr;
           grid-template-rows: 32vh 55vh;
           gap: 8px;
           height: 80vh;
         ",
-          
-          card(
-            style = "height: 100%;",
-            card_header(HTML("Number of Beds")),
-            card_body(
-              plotlyOutput("beds2", height = "100%"),
-              padding = 8,
-              style = "height: calc(100% - 48px); overflow: hidden;"
-            )
-          ),
-          
-          card(
-            style = "height: 100%;",
-            card_header(HTML("Average Length of Stay")),
-            card_body(
-              plotlyOutput("los2", height = "100%"),
-              padding = 8,
-              style = "height: calc(100% - 48px); overflow: hidden;"
-            )
-          ),
-          
-          card(
-            style = "height: 100%;",
-            card_header(HTML("Bed Occupancy Rate")),
-            card_body(
-              plotlyOutput("occupancy2", height = "100%"),
-              padding = 8,
-              style = "height: calc(100% - 48px); overflow: hidden;"
-            )
-          ),
-          
-          card(
-            style = "grid-column: 1 / span 2; height: 100%;",
-            card_header(
-              HTML("Supported Admissions"),
-              style = "
+        
+        card(
+          style = "height: 100%;",
+          card_header(HTML("Number of Beds")),
+          card_body(
+            plotlyOutput("beds2", height = "100%"),
+            padding = 8,
+            style = "height: calc(100% - 48px); overflow: hidden;"
+          )
+        ),
+        
+        card(
+          style = "height: 100%;",
+          card_header(HTML("Average Length of Stay")),
+          card_body(
+            plotlyOutput("los2", height = "100%"),
+            padding = 8,
+            style = "height: calc(100% - 48px); overflow: hidden;"
+          )
+        ),
+        
+        card(
+          style = "height: 100%;",
+          card_header(HTML("Bed Occupancy Rate")),
+          card_body(
+            plotlyOutput("occupancy2", height = "100%"),
+            padding = 8,
+            style = "height: calc(100% - 48px); overflow: hidden;"
+          )
+        ),
+        
+        card(
+          style = "grid-column: 1 / span 2; height: 100%;",
+          card_header(
+            HTML("Supported Admissions"),
+            style = "
               background-color: #fff8e1;
               border-bottom: 1px solid #f9bf07;
               font-weight: 600;
             "
-            ),
-            card_body(
-              plotlyOutput("admissions2", height = "100%"),
-              padding = 8,
-              style = "height: calc(100% - 48px); overflow: hidden;"
-            )
           ),
-          
-          div(
-            style = "
+          card_body(
+            plotlyOutput("admissions2", height = "100%"),
+            padding = 8,
+            style = "height: calc(100% - 48px); overflow: hidden;"
+          )
+        ),
+        
+        div(
+          style = "
             display: grid;
             grid-template-rows: 1fr 1fr;
             gap: 8px;
             height: 100%;
           ",
-            
-            card(
-              style = "height: 100%;",
-              card_header(HTML("Interpretation")),
-              card_body(
-                p("Add interpretation text here."),
-                padding = 10,
-                style = "height: calc(100% - 48px); overflow-y: auto;"
-              )
-            ),
-            
-            card(
-              style = "height: 100%;",
-              card_header(HTML("Historical / Your Selection Impact")),
-              card_body(
-                p("Add historical and selected-scenario impact text here."),
-                padding = 10,
-                style = "height: calc(100% - 48px); overflow-y: auto;"
-              )
+          
+          card(
+            style = "height: 100%;",
+            card_header(HTML("Interpretation")),
+            card_body(
+              p("Add interpretation text here."),
+              padding = 10,
+              style = "height: calc(100% - 48px); overflow-y: auto;"
+            )
+          ),
+          
+          card(
+            style = "height: 100%;",
+            card_header(HTML("Historical / Your Selection Impact")),
+            card_body(
+              p("Add historical and selected-scenario impact text here."),
+              padding = 10,
+              style = "height: calc(100% - 48px); overflow-y: auto;"
             )
           )
         )
       )
     )
-  ),
+  )
+),
+
+## Panel 4: Methodology -----------------------------------------------------
+nav_panel(
+  "Methodology",
   
-  ## Panel 4: Methodology -----------------------------------------------------
-  nav_panel(
-    "Methodology",
+  div(
+    style = "width: 88vw; max-width: none; margin: 0 auto;",
     
-    div(
-      style = "width: 88vw; max-width: none; margin: 0 auto;",
-      
-      card(
-        card_header("Model Overview"),
+    card(
+      card_header("Model Overview"),
+      div(
+        style = "padding: 4px;",
+        p("This tool models the relationship between bed capacity, patient admissions, length of stay (LoS), and occupancy rates."),
+        p("We use well known theory from the M/M/infinity queueing model to derive the number of beds required to meet target occupancy given assumed admission and length of stay scenarios. This model assumes unconstrained capacity, Poisson admissions and exponential lengths of stay. Viewing the system as unconstrained allows us to examine the occupancy distribution and set the number of beds equal to the target quantile of occupancy."),
+        p("The main result in use is that for an M/M/infinity system the expected number in the system follows a Poisson distribution with mean equal to the arrival rate multiplied by the average length of stay:"),
         div(
-          style = "padding: 4px;",
-          p("This tool models the relationship between bed capacity, patient admissions, length of stay (LoS), and occupancy rates."),
-          p("We use well known theory from the M/M/infinity queueing model to derive the number of beds required to meet target occupancy given assumed admission and length of stay scenarios. This model assumes unconstrained capacity, Poisson admissions and exponential lengths of stay. Viewing the system as unconstrained allows us to examine the occupancy distribution and set the number of beds equal to the target quantile of occupancy."),
-          p("The main result in use is that for an M/M/infinity system the expected number in the system follows a Poisson distribution with mean equal to the arrival rate multiplied by the average length of stay:"),
-          div(
-            style = "
+          style = "
             border: 2px solid #5881c1;
             background-color: #f4f4f4;
             padding: 12px;
             margin: 10px 0 16px 0;
             font-family: monospace;
           ",
-            "λ = Arrival rate (admissions per day) * μ = Average length of stay (days) = Expected number of patients in the system E_NIS"
-          ),
-          p("we can therefore derive the number of beds required to meet a target occupancy level (p) as the p quantile of a Poisson distribution with mean E_NIS."),
-          
-          p("Parameters:"),
-          tags$ul(
-            tags$li("Admissions: Number of hospital admissions per year (converted to daily rate for the model)."),
-            tags$li("Length of stay: Average number of days in hospital for each admission."),
-            tags$li("Beds: Number of available beds at year end (to fit with historical data)."),
-            tags$li("Target bed occupancy: % of available beds that are occupied at a given time.")
-          ),
-          tags$ul(
-            tags$li("Change in number of admissions: Assumed % annual change in the number of hospital admissions"),
-            tags$li("Change in average length of stay: Assumed % annual change in length of stay"),
-            tags$li("Change in number of beds: Assumed % annual growth in the number of available beds")
-          )
-        )
+          "λ = Arrival rate (admissions per day) * μ = Average length of stay (days) = Expected number of patients in the system E_NIS"
+        ),
+        p("we can therefore derive the number of beds required to meet a target occupancy level (p) as the p quantile of a Poisson distribution with mean E_NIS."),
         
-      ),
+        p("Parameters:"),
+        tags$ul(
+          tags$li("Admissions: Number of hospital admissions per year (converted to daily rate for the model)."),
+          tags$li("Length of stay: Average number of days in hospital for each admission."),
+          tags$li("Beds: Number of available beds at year end (to fit with historical data)."),
+          tags$li("Target bed occupancy: % of available beds that are occupied at a given time.")
+        ),
+        tags$ul(
+          tags$li("Change in number of admissions: Assumed % annual change in the number of hospital admissions"),
+          tags$li("Change in average length of stay: Assumed % annual change in length of stay"),
+          tags$li("Change in number of beds: Assumed % annual growth in the number of available beds")
+        )
+      )
       
-      #layout_columns(
+    ),
+    
+    #layout_columns(
       card(
         card_header("Data"),
         div(
           style = "padding: 4px;",
           div(
-            #    style = "
-            #     border: 1px solid #686f73;
-            #      padding: 12px;
-            #      margin-bottom: 10px;
-            #    ",
+        #    style = "
+        #     border: 1px solid #686f73;
+        #      padding: 12px;
+        #      margin-bottom: 10px;
+        #    ",
             p("The historic annual number of admissions and average length of stays between 1994 and 2025 were derived from the Hospital Episode Statistics dataset."),
             p("The historic number of beds and bed occupancy was taken from the NHS England Bed Availability and Occupancy (KH03) Collection. Day and overnight beds were combined and the number of beds was taken from Q4 each year."),
             p("The preset admission scenarios (Do nothing, Planned and Ambitious) were derived using The Strategy Unit's NHP Model. Details can be found in the Future Demand for Community Care report (see references).")
           ),
           
-          #   div(
-          #     style = "
-          #        border: 1px solid #686f73;
-          #       padding: 12px;
-          #     ",
-          #     p("Time Period"),
-          #    p("Weekly admissions")
-          #   )
+       #   div(
+       #     style = "
+      #        border: 1px solid #686f73;
+       #       padding: 12px;
+       #     ",
+       #     p("Time Period"),
+        #    p("Weekly admissions")
+       #   )
         )
       ),
       
@@ -1293,73 +1018,73 @@ nav_panel(
         card_header("Assumptions and Limitations"),
         div(
           style = "padding: 4px;",
-          # div(
-          #   style = "
-          #     border: 1px solid #686f73;
-          #     min-height: 18px;
-          #     margin-bottom: 10px;
-          #   "
-          #  ),
+         # div(
+         #   style = "
+         #     border: 1px solid #686f73;
+         #     min-height: 18px;
+         #     margin-bottom: 10px;
+         #   "
+        #  ),
           tags$ul(
-            tags$li("Admissions per day are calculated by dividing annual admissions by 365, assuming a constant rate throughout the year. This ignores seasonal variation."),
-            tags$li("Average LoS was estimated using beddays from HES under the assumption that same day admissions take on average 0.2 of a day (5 hours)."),
-            tags$li("The historical number of beds was taken from Q4 each year, which may not reflect the average number of beds across the year."),
-            tags$li("The historical occpancy is calculated as the historic beddays divided by the number of available beddays given the number of beds. This assumes that bed occupancy is constant across the year and does not reflect seasonal variation. It also doesn't align exactly with the occupancy reported in the NHS England Bed Availability and Occupancy (KH03) Collection."),
+           tags$li("Admissions per day are calculated by dividing annual admissions by 365, assuming a constant rate throughout the year. This ignores seasonal variation."),
+           tags$li("Average LoS was estimated using beddays from HES under the assumption that same day admissions take on average 0.2 of a day (5 hours)."),
+           tags$li("The historical number of beds was taken from Q4 each year, which may not reflect the average number of beds across the year."),
+           tags$li("The historical occpancy is calculated as the historic beddays divided by the number of available beddays given the number of beds. This assumes that bed occupancy is constant across the year and does not reflect seasonal variation. It also doesn't align exactly with the occupancy reported in the NHS England Bed Availability and Occupancy (KH03) Collection."),
           ),
           p(strong("This tool is designed for intuition building only, and not for strategic planning or operational decisions."))
         )
-        #),
-        
-        #col_widths = c(6, 6)
-      ),
+      #),
       
-      card(
-        class = "toy-model-links",
-        style = "margin-bottom: 10px; height: 15%;",
-        card_header("References"),
-        card_body(
-          style = "padding: 10px 12px 8px 12px;",
+      #col_widths = c(6, 6)
+    ),
+    
+    card(
+      class = "toy-model-links",
+      style = "margin-bottom: 10px; height: 15%;",
+      card_header("References"),
+      card_body(
+        style = "padding: 10px 12px 8px 12px;",
+        div(
+          style = "display: flex; gap: 10px; align-items: flex-start;",
+          tags$span(
+            style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
           div(
-            style = "display: flex; gap: 10px; align-items: flex-start;",
-            tags$span(
-              style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
-            div(
+            
+            tags$ul(
+              style = "margin: 0; padding-left: 20px;",
               
-              tags$ul(
-                style = "margin: 0; padding-left: 20px;",
-                
-                tags$li(
-                  tags$a(
-                    "NHS England: Bed Availability and Occupancy",
-                    href = "https://www.england.nhs.uk/statistics/statistical-work-areas/bed-availability-and-occupancy/",
-                    target = "_blank"
-                  )),
-                
-                tags$li(
-                  tags$a(
-                    "Strategy Unit: New Hospitals Programme Capacity and Demand Modelling",
-                    href = "https://www.strategyunitwm.nhs.uk/news/transforming-hospital-planning-open-source-demand-and-capacity-model",
-                    target = "_blank"
-                  )),
-                
-                tags$li(
-                  tags$a(
-                    "Strategy Unit: Future Demand for Community Care",
-                    href = "https://www.strategyunitwm.nhs.uk/publications/missing-element-shifting-care",
-                    target = "_blank"
-                  )),
-                
-                #tags$li(
-                #  tags$a(
-                #    "The Nuffield Trust: Hospital Bed Occupancy",
-                #    href = "https://www.nuffieldtrust.org.uk/resource/hospital-bed-occupancy",
-                #    target = "_blank"
-                #  ))
-              ))))),
-      
-    )
+              tags$li(
+                tags$a(
+                  "NHS England: Bed Availability and Occupancy",
+                  href = "https://www.england.nhs.uk/statistics/statistical-work-areas/bed-availability-and-occupancy/",
+                  target = "_blank"
+                )),
+              
+              tags$li(
+                tags$a(
+                  "Strategy Unit: New Hospitals Programme Capacity and Demand Modelling",
+                  href = "https://www.strategyunitwm.nhs.uk/news/transforming-hospital-planning-open-source-demand-and-capacity-model",
+                  target = "_blank"
+                )),
+
+              tags$li(
+                tags$a(
+                  "Strategy Unit: Future Demand for Community Care",
+                  href = "https://www.strategyunitwm.nhs.uk/publications/missing-element-shifting-care",
+                  target = "_blank"
+              )),
+              
+              #tags$li(
+              #  tags$a(
+              #    "The Nuffield Trust: Hospital Bed Occupancy",
+              #    href = "https://www.nuffieldtrust.org.uk/resource/hospital-bed-occupancy",
+              #    target = "_blank"
+              #  ))
+            ))))),
+    
   )
-  
+)
+
 )
 
 
