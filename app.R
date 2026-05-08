@@ -112,23 +112,53 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
     y_axis_max <- max(plot_data[[output_type]], na.rm = TRUE) * 1.05
   }
   
-  # Heather adding historic and future average chart labels
-  historical_average <- mean(plot_data[[output_type]][plot_data$year <= 2025], na.rm = TRUE)
-  future_average <- mean(plot_data[[output_type]][plot_data$year > 2025], na.rm = TRUE)
+  # Heather adding historic and future average annual % change chart labels
   
-  if (output_type == "occupancy") {
-    historical_label <- paste0("Historic Avg: ", round(historical_average, 1), "%")
-    future_label <- paste0("Future: ", round(future_average, 1), "%")
-  } else if (output_type == "admissions") {
-    historical_label <- paste0("Historic Avg: ", round(historical_average, 1), "m")
-    future_label <- paste0("Future: ", round(future_average, 1), "m")
-  } else if (output_type == "los") {
-    historical_label <- paste0("Historic Avg: ", round(historical_average, 2), " days")
-    future_label <- paste0("Future: ", round(future_average, 2), " days")
-  } else {
-    historical_label <- paste0("Historic Avg: ", format(round(historical_average, 0), big.mark = ",", scientific = FALSE))
-    future_label <- paste0("Future: ", format(round(future_average, 0), big.mark = ",", scientific = FALSE))
+  annual_percentage_change <- function(data, output_type, start_year, end_year) {
+    
+    start_value <- data[[output_type]][data$year == start_year]
+    end_value <- data[[output_type]][data$year == end_year]
+    number_of_years <- end_year - start_year
+    
+    if (
+      length(start_value) == 0 ||
+      length(end_value) == 0 ||
+      is.na(start_value) ||
+      is.na(end_value) ||
+      start_value <= 0 ||
+      end_value <= 0
+    ) {
+      return(NA)
+    }
+    
+    ((end_value / start_value)^(1 / number_of_years) - 1) * 100
   }
+  
+  historical_avg_annual_change <- annual_percentage_change(
+    plot_data,
+    output_type,
+    min(plot_data$year[plot_data$year <= 2025], na.rm = TRUE),
+    2025
+  )
+  
+  future_avg_annual_change <- annual_percentage_change(
+    plot_data,
+    output_type,
+    2025,
+    2035
+  )
+  
+  historical_label <- paste0(
+    "Historic avg<br>% change: ",
+    round(historical_avg_annual_change, 1),
+    "%"
+  )
+  
+  future_label <- paste0(
+    "Future avg<br>% change: ",
+    round(future_avg_annual_change, 1),
+    "%"
+  )
   
   # Initial plot
   p <- ggplot(data = plot_data, aes(x = year, y = .data[[output_type]], 
@@ -182,7 +212,7 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
       annotations = list(
         list(
           x = 2024.4,
-          y = y_axis_max * 0.05,
+          y = y_axis_max * 0.10,
           text = historical_label,
           showarrow = FALSE,
           xanchor = "right",
@@ -191,7 +221,7 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
         ),
         list(
           x = 2025.6,
-          y = y_axis_max * 0.05,
+          y = y_axis_max * 0.10,
           text = future_label,
           showarrow = FALSE,
           xanchor = "left",
