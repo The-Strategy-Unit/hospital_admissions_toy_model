@@ -581,8 +581,8 @@ nav_panel(
     div(
       style = "padding-left: 10px;",
       
-      h3("Admissions Analysis", style = "margin-bottom: 4px;"),
-      hr(style = "margin: 4px 0 8px 0;"),
+      #h3("Admissions Analysis", style = "margin-bottom: 4px;"),
+      #hr(style = "margin: 4px 0 8px 0;"),
       
       # Yellow explanatory box ------------------------------------------------
       # div(
@@ -605,7 +605,7 @@ nav_panel(
         style = "
           display: grid;
           grid-template-columns: 1fr 1fr 1fr;
-          grid-template-rows: 28vh 52vh;
+          grid-template-rows: 32vh 55vh;
           gap: 8px;
           height: 80vh;
         ",
@@ -796,15 +796,15 @@ nav_panel(
     div(
       style = "padding-left: 10px;",
       
-      h3("Future Admissions Calculator", style = "margin-bottom: 4px;"),
-      hr(style = "margin: 4px 0 8px 0;"),
+     # h3("Future Admissions Calculator", style = "margin-bottom: 4px;"),
+     # hr(style = "margin: 4px 0 8px 0;"),
       
       ### Chart and interpretation layout
       div(
         style = "
           display: grid;
           grid-template-columns: 1fr 1fr 1fr;
-          grid-template-rows: 28vh 52vh;
+          grid-template-rows: 32vh 55vh;
           gap: 8px;
           height: 80vh;
         ",
