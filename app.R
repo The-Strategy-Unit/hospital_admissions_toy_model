@@ -21,6 +21,15 @@ options(scipen=999)
 data<-read_excel("data/Collating the data.xlsx")
 from_93<-data[7:38,]
 
+# Formatting data----------------------------------------------------------------
+historic_trends<-from_93|>
+  rename(admissions=`All admissions`)|>
+  rename(los=`avgLoS`)|>
+  rename(beds=Beds)|>
+  select(admissions, los, beds, occupancy)|>
+  summarise(across(everything(),  ~ ((last(.) / first(.))^(1 / n()) - 1) * 100))|>
+  mutate(across(where(is.numeric), round, digits = 2))
+
 # Functions--------------------------------------------------------------------
 
 ## Solve for admissions
@@ -269,8 +278,6 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
       )
     )
 }
-
-baseline_beds<-1000
 
 
 #UI ----------------------------------------------------------------------------
@@ -598,16 +605,16 @@ ui <- page_navbar(
           
           h5("ADMISSIONS", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
           
-          tooltip(
-            selectInput(
-              "preset",
-              label = span(
-                "Select Scenario or adjust slider:",
-                style = "font-size: 0.85rem;"
-              ), 
-              choices = c("Do nothing", "Planned", "Ambitious")), # don't think we need custom as can overwrite a preset
-            "Choose a preset scenario or adjust sliders to customise assumptions",
-            placement = "right"),
+        #  tooltip(
+        #    selectInput(
+         #     "preset",
+        #      label = span(
+        #        "Select Scenario or adjust slider:",
+        #        style = "font-size: 0.85rem;"
+        #      ), 
+        #      choices = c("Do nothing", "Planned", "Ambitious")), # don't think we need custom as can overwrite a preset
+        #    "Choose a preset scenario or adjust sliders to customise assumptions",
+        #   placement = "right"),
           
           div(style = "display:flex; justify-content:space-between; margin-top: 10px;",
               strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
@@ -615,7 +622,7 @@ ui <- page_navbar(
           
           sliderInput(
             "admissions_change",
-            label = NULL, min = -5, max = 5, value = 0, step = 0.1),
+            label = NULL, min = -5, max = 5, value = historic_trends$admissions, step = 0.1),
           
           # div(style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
           #     span("2026: 16967214"),
@@ -652,7 +659,7 @@ ui <- page_navbar(
             label = NULL,
             min = -5,
             max = 5,
-            value = 0,
+            value = historic_trends$los,
             step = 0.1
           ),
           
@@ -682,7 +689,7 @@ ui <- page_navbar(
             label = NULL,
             min = 75,
             max = 100,
-            value = 80,
+            value = 88.9,
             step = 0.1
           ),
           
@@ -700,7 +707,7 @@ ui <- page_navbar(
           
           actionButton(
             "reset_scenario", 
-            "Reset Selected Scenario", 
+            "Reset to Historic Projections", 
             class = "btn-primary w-100",
             style = "margin-top: 10px;"
           ),
@@ -872,7 +879,7 @@ ui <- page_navbar(
             label = NULL, 
             min = -5, 
             max = 5,  
-            value = 0, 
+            value = historic_trends$beds, 
             step = 0.1
           ),
           
@@ -905,7 +912,7 @@ ui <- page_navbar(
             NULL,
             min = -5,
             max = 5,
-            value = 0,
+            value = historic_trends$los,
             step = 0.1,
             width = "100%"
           ),
@@ -930,7 +937,7 @@ ui <- page_navbar(
             NULL,
             min = 75,
             max = 100,
-            value = 85,
+            value = 88.9,
             step = 0.5,
             width = "100%"
           ),
@@ -1208,43 +1215,17 @@ ui <- page_navbar(
 
 server <- function(input, output, session) {
   
-  observeEvent(input$preset, {
-    if (input$preset == "Do nothing") {
-      updateSliderInput(session, "admissions_change", value = 1.9)
-      updateSliderInput(session, "los_change", value = 0)
-      updateSliderInput(session, "target_occupancy", value = 85)
-    } else if (input$preset == "Planned") {
-      updateSliderInput(session, "admissions_change", value = 1.1)
-      updateSliderInput(session, "los_change", value = 0)
-      updateSliderInput(session, "target_occupancy", value = 85)
-    } else if (input$preset == "Ambitious") {
-      updateSliderInput(session, "admissions_change", value = 0.2)
-      updateSliderInput(session, "los_change", value = 0)
-      updateSliderInput(session, "target_occupancy", value = 85)
-    }
-  })
-  
   
   observeEvent(input$reset_scenario, {
-    if (input$preset == "Do nothing") {
-      updateSliderInput(session, "admissions_change", value = 1.9)
-      updateSliderInput(session, "los_change", value = 0)
-      updateSliderInput(session, "target_occupancy", value = 85)
-    } else if (input$preset == "Planned") {
-      updateSliderInput(session, "admissions_change", value = 1.1)
-      updateSliderInput(session, "los_change", value = 0)
-      updateSliderInput(session, "target_occupancy", value = 85)
-    } else if (input$preset == "Ambitious") {
-      updateSliderInput(session, "admissions_change", value = 0.2)
-      updateSliderInput(session, "los_change", value = 0)
-      updateSliderInput(session, "target_occupancy", value = 85)
-    }
+      updateSliderInput(session, "admissions_change", value = historic_trends$admissions)
+      updateSliderInput(session, "los_change", value = historic_trends$los)
+      updateSliderInput(session, "target_occupancy", value = 88.9)
   })
   
   observeEvent(input$reset_baseline, {
-    updateSliderInput(session, "bedday_growth", value = 0) 
-    updateSliderInput(session, "los_change2", value = 0) 
-    updateSliderInput(session, "bed_occupancy", value = 85) 
+    updateSliderInput(session, "bedday_growth", value = historic_trends$beds) 
+    updateSliderInput(session, "los_change2", value = historic_trends$los) 
+    updateSliderInput(session, "bed_occupancy", value = 88.9) 
   })
   
   
@@ -1254,18 +1235,15 @@ server <- function(input, output, session) {
   output$admissions<-renderPlotly({
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
-    planned<-future_beds_model(from_93, 1.1, 0, 85)
-    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     axis_max_data<-future_beds_model(from_93, 5, input$los_change, input$target_occupancy)
     y_axis_max<-max(axis_max_data$admissions, na.rm = TRUE) * 1.05
     
     
     plotting_function(plot_data,
-                      do_nothing,
-                      planned,
-                      ambitious,
+                      NULL,
+                      NULL,
+                      NULL,
                       "admissions", 
                       "Admissions (millions)",
                       y_axis_max)
@@ -1275,9 +1253,6 @@ server <- function(input, output, session) {
   output$los<-renderPlotly({
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
-    planned<-future_beds_model(from_93, 1.1, 0, 85)
-    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     axis_max_data<-future_beds_model(from_93, input$admissions_change, 5, input$target_occupancy)
     y_axis_max<-max(axis_max_data$los, na.rm = TRUE) * 1.05
@@ -1295,9 +1270,6 @@ server <- function(input, output, session) {
   output$beds<-renderPlotly({
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
-    planned<-future_beds_model(from_93, 1.1, 0, 85)
-    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     axis_max_data<-future_beds_model(from_93, 5, 5, 75)
     y_axis_max<-max(axis_max_data$beds, na.rm = TRUE) * 1.05
@@ -1316,9 +1288,6 @@ server <- function(input, output, session) {
   output$occupancy<-renderPlotly({
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
-    planned<-future_beds_model(from_93, 1.1, 0, 85)
-    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     y_axis_max<-100
     
@@ -1337,9 +1306,6 @@ server <- function(input, output, session) {
   output$admissions2<-renderPlotly({
     
     plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
-    do_nothing<-future_beds_model(from_93, 1.9 , 0, 85)
-    planned<-future_beds_model(from_93, 1.1, 0, 85)
-    ambitious<-future_beds_model(from_93, 0.2, 0, 85)
     
     axis_max_data<-future_admissions_model(from_93, 5, -5, 100)
     y_axis_max<-max(axis_max_data$admissions, na.rm = TRUE) * 1.05
