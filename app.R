@@ -13,6 +13,7 @@ library(readxl)
 library(ggplot2)
 library(StrategyUnitTheme)
 library(plotly)
+library(dplyr)
 
 options(scipen=999)
 
