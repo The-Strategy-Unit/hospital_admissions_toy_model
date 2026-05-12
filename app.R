@@ -69,7 +69,7 @@ future_admissions_model<-function(from_93, beds_yearly_percentage_change, los_ye
     year = as.numeric(unlist(years)), 
     admissions = (unlist(admissions))/1000000,
     los = unlist(los), 
-    beds = round(unlist(beds),0),
+    beds = round(unlist(beds),0)/1000,
     occupancy = (unlist(occupancy))*100
   )
   
@@ -107,7 +107,7 @@ future_beds_model<-function(from_93, admissions_yearly_percentage_change, los_ye
     year = as.numeric(unlist(years)), 
     admissions = (unlist(admissions))/1000000,
     los = unlist(los), 
-    beds = round(unlist(beds),0),
+    beds = round(unlist(beds),0)/1000,
     occupancy = (unlist(occupancy))*100
   )
   
@@ -165,19 +165,28 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
   historic_trend_data[[output_type]] <- historic_2025_value *
     (1 + historical_avg_annual_change / 100)^(historic_trend_data$year - 2025)
   
-  if(is.null(y_axis_max)){
-    y_axis_max <- max(
-      plot_data[[output_type]],
-      historic_trend_data[[output_type]],
-      na.rm = TRUE
-    ) * 1.05
-  } else {
-    y_axis_max <- max(
-      y_axis_max,
-      max(historic_trend_data[[output_type]], na.rm = TRUE) * 1.05,
-      na.rm = TRUE
-    )
+  y_axis_min <- min(
+    plot_data[[output_type]],
+    historic_trend_data[[output_type]],
+    na.rm = TRUE
+  )
+  
+  y_axis_max <- max(
+    plot_data[[output_type]],
+    historic_trend_data[[output_type]],
+    na.rm = TRUE
+  )
+  
+  y_axis_range <- y_axis_max - y_axis_min
+  
+  if(y_axis_range == 0){
+    y_axis_range <- y_axis_max * 0.1
   }
+  
+  y_axis_min <- y_axis_min - (y_axis_range * 0.08)
+  y_axis_max <- y_axis_max + (y_axis_range * 0.08)
+  
+  y_label_position <- y_axis_min + ((y_axis_max - y_axis_min) * 0.10)
   
   historical_label <- paste0(
     "Historic avg<br>% change: ",
@@ -196,8 +205,8 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
                                     text = paste0("Year: ", year, "<br>", y_axis_label, ": ", round(.data[[output_type]], 1)))) +
     geom_vline(xintercept = 2025, colour = "#5881c1" , linetype = "dashed") +
     su_theme() +
-    labs(title=NULL, subtitle=NULL, y = y_axis_label, x = "Year") +
-    scale_y_continuous(limits = c(0, y_axis_max))
+    labs(title=NULL, subtitle=NULL, y = NULL, x = "Year") +
+    scale_y_continuous(limits = c(y_axis_min, y_axis_max))
   
   # Add Scenario plots if needed
   #  if (!is.null(scenario_1_values)) {
@@ -254,11 +263,17 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
   
   ggplotly(p, tooltip = "text")|>
     layout(
-      margin = list(t = 20, b = 10, l = 55, r =10, pad = 0), # Top, Bottom, Left, Right
+      margin = list(t = 20, b = 10, l = 30, r = 8, pad = 0),
+      
+      yaxis = list(
+        title = "",
+        automargin = FALSE,
+        fixedrange = FALSE
+      ),
       annotations = list(
         list(
           x = 2024.4,
-          y = y_axis_max * 0.10,
+          y = y_label_position,
           text = historical_label,
           showarrow = FALSE,
           xanchor = "right",
@@ -267,7 +282,7 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
         ),
         list(
           x = 2025.6,
-          y = y_axis_max * 0.10,
+          y = y_label_position,
           text = future_label,
           showarrow = FALSE,
           xanchor = "left",
@@ -277,7 +292,6 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
       )
     )
 }
-
 
 #UI ----------------------------------------------------------------------------
 ##UI General
@@ -629,7 +643,7 @@ ui <- page_navbar(
           
           card(
             style = "height: 100%;",
-            card_header(HTML("Number of Admissions")),
+            card_header(HTML("Number of Admissions (millions)")),
             card_body(
               plotlyOutput("admissions", height = "100%"),
               padding = 8,
@@ -649,7 +663,7 @@ ui <- page_navbar(
           
           card(
             style = "height: 100%;",
-            card_header(HTML("Bed Occupancy Rate")),
+            card_header(HTML("Bed Occupancy Rate (%)")),
             card_body(
               plotlyOutput("occupancy", height = "100%"),
               padding = 8,
@@ -660,7 +674,7 @@ ui <- page_navbar(
           card(
             style = "grid-column: 1 / span 2; height: 100%;",
             card_header(
-              HTML("Beds Required"),
+              HTML("Beds Required (thousands)"),
               style = "
               background-color: #fff8e1;
               border-bottom: 1px solid #f9bf07;
@@ -856,7 +870,7 @@ ui <- page_navbar(
           
           card(
             style = "height: 100%;",
-            card_header(HTML("Number of Beds")),
+            card_header(HTML("Number of Beds (thousands)")),
             card_body(
               plotlyOutput("beds2", height = "100%"),
               padding = 8,
@@ -866,7 +880,7 @@ ui <- page_navbar(
           
           card(
             style = "height: 100%;",
-            card_header(HTML("Average Length of Stay")),
+            card_header(HTML("Average Length of Stay (days)")),
             card_body(
               plotlyOutput("los2", height = "100%"),
               padding = 8,
@@ -876,7 +890,7 @@ ui <- page_navbar(
           
           card(
             style = "height: 100%;",
-            card_header(HTML("Bed Occupancy Rate")),
+            card_header(HTML("Bed Occupancy Rate (%)")),
             card_body(
               plotlyOutput("occupancy2", height = "100%"),
               padding = 8,
@@ -887,7 +901,7 @@ ui <- page_navbar(
           card(
             style = "grid-column: 1 / span 2; height: 100%;",
             card_header(
-              HTML("Supported Admissions"),
+              HTML("Supported Admissions (millions)"),
               style = "
               background-color: #fff8e1;
               border-bottom: 1px solid #f9bf07;
@@ -1292,17 +1306,12 @@ server <- function(input, output, session) {
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
     
-    axis_max_data<-future_beds_model(from_93, 5, input$los_change, input$target_occupancy)
-    y_axis_max<-max(axis_max_data$admissions, na.rm = TRUE) * 1.05
-    
-    
     plotting_function(plot_data,
                       NULL,
                       NULL,
                       NULL,
                       "admissions", 
-                      "Admissions (millions)",
-                      y_axis_max)
+                      "Admissions (millions)")
     
   })
   
@@ -1310,16 +1319,12 @@ server <- function(input, output, session) {
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
     
-    axis_max_data<-future_beds_model(from_93, input$admissions_change, 5, input$target_occupancy)
-    y_axis_max<-max(axis_max_data$los, na.rm = TRUE) * 1.05
-    
     plotting_function(plot_data,
                       NULL,
                       NULL,
                       NULL,
                       "los", 
-                      "Length of Stay (days)",
-                      y_axis_max)
+                      "Length of Stay (days)")
     
   })
   
@@ -1327,16 +1332,12 @@ server <- function(input, output, session) {
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
     
-    axis_max_data<-future_beds_model(from_93, 5, 5, 75)
-    y_axis_max<-max(axis_max_data$beds, na.rm = TRUE) * 1.05
-    
     plotting_function(plot_data,
                       NULL,
                       NULL,
                       NULL,
                       "beds",
-                      "Beds",
-                      y_axis_max)
+                      "Beds (thousands)")
     
   })
   
@@ -1345,15 +1346,12 @@ server <- function(input, output, session) {
     
     plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
     
-    y_axis_max<-100
-    
     plotting_function(plot_data,
                       NULL,
                       NULL,
                       NULL,
                       "occupancy", 
-                      "Bed Occupancy (%)",
-                      y_axis_max)
+                      "Bed Occupancy (%)")
     
   })
   
@@ -1363,16 +1361,12 @@ server <- function(input, output, session) {
     
     plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
     
-    axis_max_data<-future_admissions_model(from_93, 5, -5, 100)
-    y_axis_max<-max(axis_max_data$admissions, na.rm = TRUE) * 1.05
-    
     plotting_function(plot_data,
                       do_nothing,
                       planned,
                       ambitious,
                       "admissions", 
-                      "Admissions (millions)",
-                      y_axis_max)
+                      "Admissions (millions)")
     
   })
   
@@ -1380,16 +1374,12 @@ server <- function(input, output, session) {
     
     plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
     
-    axis_max_data<-future_admissions_model(from_93, input$bedday_growth, 5, input$bed_occupancy)
-    y_axis_max<-max(axis_max_data$los, na.rm = TRUE) * 1.05
-    
     plotting_function(plot_data,
                       NULL,
                       NULL,
                       NULL,
                       "los", 
-                      "Length of Stay (days)",
-                      y_axis_max)
+                      "Length of Stay (days)")
     
   })
   
@@ -1397,16 +1387,12 @@ server <- function(input, output, session) {
     
     plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
     
-    axis_max_data<-future_admissions_model(from_93, 5, input$los_change2, input$bed_occupancy)
-    y_axis_max<-max(axis_max_data$beds, na.rm = TRUE) * 1.05
-    
     plotting_function(plot_data,
                       NULL,
                       NULL,
                       NULL,
                       "beds", 
-                      "Beds",
-                      y_axis_max)
+                      "Beds (thousands)")
     
   })
   
@@ -1415,15 +1401,12 @@ server <- function(input, output, session) {
     
     plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
     
-    y_axis_max<-100
-    
     plotting_function(plot_data,
                       NULL,
                       NULL,
                       NULL,
                       "occupancy", 
-                      "Bed Occupancy (%)",
-                      y_axis_max)
+                      "Bed Occupancy (%)")
     
   })
   
@@ -1519,7 +1502,7 @@ server <- function(input, output, session) {
     
     beds_2025 <- plot_data$beds[plot_data$year == 2025]
     beds_2035 <- plot_data$beds[plot_data$year == 2035]
-    beds_change <- beds_2035 - beds_2025
+    beds_change <- (beds_2035 - beds_2025)*1000
     
     beds_change_text <- ifelse(
       beds_change >= 0,
