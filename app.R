@@ -390,199 +390,67 @@ ui <- page_navbar(
     )
   ),
   
-  ## Panel 1: Explainer ---------------------------------------------------------
+  ## Panel 1: Landing page ---------------------------------------------------------
   nav_panel(
-    "Explainer",
+    "Overview",
     
     div(
       style = "max-width: 1400px; margin: 0 auto;",
       
-      # Top banner 
       div(
         style = "
         background-color: #f9bf07;
         border: 2px solid #2c2825;
-        padding: 16px 22px;
-        margin: 10px 0 10px 0;
+        padding: 34px 36px;
+        margin: 30px 0 18px 0;
       ",
-        h2("Hospital Admissions Tool", style = "margin: 0 0 6px 0;"),
-        p(
-          "This interactive tool allows exploration of the relationship between hospital admissions, length of stay (LoS), bed occupancy and available beds.",
-          style = "margin: 0;"
-        )
-      ),
-      
-      ### Side-by-side cards 
-      layout_columns(
         
-        card(
-          style = "margin-bottom: 10px; height: 100%;",
-          card_header("What This Tool Does"),
-          card_body(
-            style = "padding: 10px 12px 8px 12px;",
-            div(
-              style = "display: flex; gap: 10px; align-items: flex-start;",
-              tags$span(
-                style = "font-size: 20px; color: #5881c1; line-height: 1.1;"
-              ),
-              div(
-                p(
-                  "Historically reduction in LoS has allowed for reduction in bed capacity despite growing admissions. However, there is a limit to the amount LoS can reduce, and if admissions continue to grow bed capacity must also to maintain system performance.",
-                  style = "margin: 0 0 6px 0;"
-                ),
-                p(
-                  "This app allows the user to build intuition by:",
-                  style = "margin: 0 0 6px 0;"
-                ),
-                tags$ul(
-                  style = "margin: 0; padding-left: 20px;",
-                  tags$li("Viewing how admissions, available beds, average length of stay and bed occupancy have changed over the past 30+ years (1994–2025)."),
-                  tags$li("How changes in admissions could affect future bed requirements (Future Beds Calculator)."),
-                  tags$li("How many admissions could be supported by future growth in bed capacity (Future Admissions Calculator)."),
-                  #tags$li("Relationship between admissions, bed capacity, length of stay and bed occupancy.")
-                  
-                )
-              )
-            )
-          )
+        h1(
+          "Why do we need more beds now when historically bed capacity has been in decline?",
+          style = "
+          margin: 0 0 16px 0;
+          font-size: 2.2rem;
+          line-height: 1.15;
+        "
         ),
         
-        card(
-          class = "toy-model-links",
-          style = "margin-bottom: 10px; height: 100%;",
-          card_header("Toy Models"),
-          card_body(
-            style = "padding: 10px 12px 8px 12px;",
-            div(
-              style = "display: flex; gap: 10px; align-items: flex-start;",
-              tags$span(
-                style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
-              div(
-                p(
-                  "This is one of a series of toy models developed by the Strategy Unit to support decision-making, strategic planning and as a teaching aid.",
-                  style = "margin: 0 0 6px 0;"),
-                
-                tags$ul(
-                  style = "margin: 0; padding-left: 20px;",
-                  
-                  tags$li(
-                    tags$a(
-                      "How might risk stratification save money?",
-                      href = "https://connect.strategyunitwm.nhs.uk/risk_stratification_tool/",
-                      target = "_blank"
-                    )),
-                  
-                  tags$li(
-                    tags$a(
-                      "Bed pooling and occupancy",
-                      href = "https://connect.strategyunitwm.nhs.uk/bed_pool_tool/",
-                      target = "_blank"
-                    )),
-                  
-                  tags$li(
-                    tags$a(
-                      "Bottlenecks and patient flow",
-                      href = "https://exchange.iseesystems.com/public/sally-thompson/flows-and-bottlenecks-toy-model/index.html",
-                      target = "_blank"
-                    )),
-                  
-                  tags$li("'Sharing nicely'"),
-                  tags$li("Waiting list dynamics")
-                ))))),
-        
-        col_widths = c(8, 4)
-      ),
-      
-      ### How to use 
-      card(
-        style = "margin-bottom: 10px;",
-        card_header("How to Use This Tool"),
-        card_body(
-          style = "padding: 10px 12px;",
-          
-          div(
-            style = "
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      ",
-            
-            div(
-              style = "display: flex; gap: 2px; align-items: flex-start; padding: 0 16px 0 0;",
-              tags$span(style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
-              div(
-                h5("STEP 1: Adjust assumptions", style = "margin: 0 0 4px 0;"),
-                p("Use the sliders on the sidebar to set your input assumptions. The model will automatically update the charts based on your selections."),
-                p("In the future beds calculator the user inputs their own assumptions about the future growth of admissions, length of stay and set target bed occupancy to be maintained across the next 10 years (2026-2035)."),
-                p("In the future admissions calculator the user inputs their own assumptions of how bed capacity and length of stay will change to see how many admissions could be supported under a given occupancy target."),
-                #p("Sliders control the following:"),
-                #tags$ul(
-                #  style = "margin: 0; padding-left: 20px;",
-                #  tags$li("Annual % change in admissions/bed capacity over the next 10 years (2026-2035)."),
-                #  #tags$li("The Future Bed Calculator gives 3 preset scenarios for admission growth, or the sliders can be adjusted to input your own value."),
-                #  tags$li("Annual % change in length of stay over the next 10 years (2026-2035)."),
-                #  tags$li("Annual % change in bed capacity over the next 10 years (2026-2035)."),
-                #  tags$li("Target bed occupancy (%) you want to maintain.")
-                #)
-              )
-            ),
-            
-            div(
-              style = "
-          display: flex;
-          gap: 2px;
-          align-items: flex-start;
-          padding: 0 16px;
-          border-left: 1px solid #d9d9d9;
-        ",
-              tags$span(style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
-              div(
-                h5("Step 2: Explore Projections", style = "margin: 0 0 4px 0;"),
-                p("Four trend charts are displayed on each calculator tab illustrating number of admissions, average length of stay, number of beds and target bed occupancy over time. Charts allow a user to:"),
-                tags$ul(
-                  style = "margin: 0; padding-left: 20px;",
-                  #tags$li("Number of admissions, Average length of stay, Number of beds and Target bed occupancy."),
-                  tags$li("View historic trends (solid black line) and projected trends (red dotted line) from 2026-2035 (based on the selected assumptions)."),
-                  tags$li("View pre-set admission scenarios (3 dotted grey lines) under do nothing, planned and ambitious admission strategies."),
-                  #tags$li("Adjust the sliders to watch trends change in real time."),
-                  tags$li("Hover over the chart lines to read off yearly values. Actual values for 2025 and projected values for 2035 are given on the sidebar.")
-                )
-              )
-            )
-            
-            
-          )
+        p(
+          "Historically reductions in length of stay have allowed reductions in bed capacity despite rising admissions. However, there is a limit to the amount length of stay can reduce, and if admissions continue to rise then bed capacity must also grow to maintain system performance.",
+          style = "
+          margin: 0;
+          font-size: 1.15rem;
+          line-height: 1.4;
+        "
         )
       ),
       
-      ### Data source 
-      #   card(
-      #    style = "margin-bottom: 10px;",
-      #    card_header("Data Source & Methodology"),
-      #    card_body(
-      #     style = "padding: 10px 12px;",
-      #     p("Historical data (1994–2025) from NHS England. Projections apply user-defined growth assumptions.", style = "margin: 0 0 6px 0;"),
-      #     p(HTML('See <b>"Assumptions and Method"</b> tab for detail.'), style = "margin: 0;")
-      #   )
-      # ),
-      
-      ### Call to action 
-      div(
-        style = "
-        border: 2px solid #5881c1;
-        background-color: #eef4fb;
-        padding: 10px 12px;
-        margin: 10px 0;
-      ",
-        h4("Ready to Get Started?", style = "margin: 0 0 6px 0;"),
-        p(HTML('Go to <b>"Future Beds Calculator"</b> and adjust assumptions to predict the number of beds required to meet future changes in admissions.'), style = "margin: 0;"),
-        p(HTML('Go to <b>"Future Admissions Calculator"</b> and adjust assumptions to predict the number of admissions that could be supported by future growth in bed capacity.'), style = "margin: 0;")
+      card(
+        style = "margin-bottom: 10px;",
+        
+        card_header("What is the model for?"),
+        
+        card_body(
+          style = "padding: 14px 16px;",
+          
+          p(
+            "This interactive tool allows exploration of the relationship between hospital admissions, length of stay (LoS), bed occupancy and available beds.",
+            style = "margin: 0 0 8px 0;"
+          ),
+          
+          p(
+            "The tool is designed to help users build intuition around how changes in admissions and length of stay affect future bed requirements and system pressure.",
+            style = "margin: 0;"
+          )
+        )
       )
     )
   ),
   
-  ## Panel 2: Future beds nav panel ---------------------------------------------------------  
+  
+  
+  ## Panel 2: Beds nav panel ---------------------------------------------------------  
   nav_panel(
-    "Future Beds Calculator",
+    "Beds Calculator",
     class = "panel-one",
     
     layout_sidebar(
@@ -841,9 +709,9 @@ ui <- page_navbar(
     )
   ),
   
-  ## Panel 3: Future Admissions Calculator nav panel ---------------------------------------
+  ## Panel 3: Admissions Calculator nav panel ---------------------------------------
   nav_panel(
-    "Future Admissions Calculator",
+    "Admissions Calculator",
     
     layout_sidebar(
       sidebar = sidebar(
@@ -974,7 +842,7 @@ ui <- page_navbar(
       div(
         style = "padding-left: 10px;",
         
-        # h3("Future Admissions Calculator", style = "margin-bottom: 4px;"),
+        # h3("Admissions Calculator", style = "margin-bottom: 4px;"),
         # hr(style = "margin: 4px 0 8px 0;"),
         
         ### Chart and interpretation layout
@@ -1068,7 +936,197 @@ ui <- page_navbar(
     )
   ),
   
-  ## Panel 4: Methodology -----------------------------------------------------
+  ## Panel 4: Explainer ---------------------------------------------------------
+  nav_panel(
+    "Explainer",
+    
+    div(
+      style = "max-width: 1400px; margin: 0 auto;",
+      
+      # Top banner 
+      div(
+        style = "
+        background-color: #f9bf07;
+        border: 2px solid #2c2825;
+        padding: 16px 22px;
+        margin: 10px 0 10px 0;
+      ",
+        h2("Hospital Admissions Tool", style = "margin: 0 0 6px 0;"),
+        p(
+          "This interactive tool allows exploration of the relationship between hospital admissions, length of stay (LoS), bed occupancy and available beds.",
+          style = "margin: 0;"
+        )
+      ),
+      
+      ### Side-by-side cards 
+      layout_columns(
+        
+        card(
+          style = "margin-bottom: 10px; height: 100%;",
+          card_header("What This Tool Does"),
+          card_body(
+            style = "padding: 10px 12px 8px 12px;",
+            div(
+              style = "display: flex; gap: 10px; align-items: flex-start;",
+              tags$span(
+                style = "font-size: 20px; color: #5881c1; line-height: 1.1;"
+              ),
+              div(
+                p(
+                  "Historically reduction in LoS has allowed for reduction in bed capacity despite growing admissions. However, there is a limit to the amount LoS can reduce, and if admissions continue to grow bed capacity must also to maintain system performance.",
+                  style = "margin: 0 0 6px 0;"
+                ),
+                p(
+                  "This app allows the user to build intuition by:",
+                  style = "margin: 0 0 6px 0;"
+                ),
+                tags$ul(
+                  style = "margin: 0; padding-left: 20px;",
+                  tags$li("Viewing how admissions, available beds, average length of stay and bed occupancy have changed over the past 30+ years (1994–2025)."),
+                  tags$li("How changes in admissions could affect future bed requirements (Future Beds Calculator)."),
+                  tags$li("How many admissions could be supported by future growth in bed capacity (Future Admissions Calculator)."),
+                  #tags$li("Relationship between admissions, bed capacity, length of stay and bed occupancy.")
+                  
+                )
+              )
+            )
+          )
+        ),
+        
+        card(
+          class = "toy-model-links",
+          style = "margin-bottom: 10px; height: 100%;",
+          card_header("Toy Models"),
+          card_body(
+            style = "padding: 10px 12px 8px 12px;",
+            div(
+              style = "display: flex; gap: 10px; align-items: flex-start;",
+              tags$span(
+                style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
+              div(
+                p(
+                  "This is one of a series of toy models developed by the Strategy Unit to support decision-making, strategic planning and as a teaching aid.",
+                  style = "margin: 0 0 6px 0;"),
+                
+                tags$ul(
+                  style = "margin: 0; padding-left: 20px;",
+                  
+                  tags$li(
+                    tags$a(
+                      "How might risk stratification save money?",
+                      href = "https://connect.strategyunitwm.nhs.uk/risk_stratification_tool/",
+                      target = "_blank"
+                    )),
+                  
+                  tags$li(
+                    tags$a(
+                      "Bed pooling and occupancy",
+                      href = "https://connect.strategyunitwm.nhs.uk/bed_pool_tool/",
+                      target = "_blank"
+                    )),
+                  
+                  tags$li(
+                    tags$a(
+                      "Bottlenecks and patient flow",
+                      href = "https://exchange.iseesystems.com/public/sally-thompson/flows-and-bottlenecks-toy-model/index.html",
+                      target = "_blank"
+                    )),
+                  
+                  tags$li("'Sharing nicely'"),
+                  tags$li("Waiting list dynamics")
+                ))))),
+        
+        col_widths = c(8, 4)
+      ),
+      
+      ### How to use 
+      card(
+        style = "margin-bottom: 10px;",
+        card_header("How to Use This Tool"),
+        card_body(
+          style = "padding: 10px 12px;",
+          
+          div(
+            style = "
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      ",
+            
+            div(
+              style = "display: flex; gap: 2px; align-items: flex-start; padding: 0 16px 0 0;",
+              tags$span(style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
+              div(
+                h5("STEP 1: Adjust assumptions", style = "margin: 0 0 4px 0;"),
+                p("Use the sliders on the sidebar to set your input assumptions. The model will automatically update the charts based on your selections."),
+                p("In the future beds calculator the user inputs their own assumptions about the future growth of admissions, length of stay and set target bed occupancy to be maintained across the next 10 years (2026-2035)."),
+                p("In the future admissions calculator the user inputs their own assumptions of how bed capacity and length of stay will change to see how many admissions could be supported under a given occupancy target."),
+                #p("Sliders control the following:"),
+                #tags$ul(
+                #  style = "margin: 0; padding-left: 20px;",
+                #  tags$li("Annual % change in admissions/bed capacity over the next 10 years (2026-2035)."),
+                #  #tags$li("The Future Bed Calculator gives 3 preset scenarios for admission growth, or the sliders can be adjusted to input your own value."),
+                #  tags$li("Annual % change in length of stay over the next 10 years (2026-2035)."),
+                #  tags$li("Annual % change in bed capacity over the next 10 years (2026-2035)."),
+                #  tags$li("Target bed occupancy (%) you want to maintain.")
+                #)
+              )
+            ),
+            
+            div(
+              style = "
+          display: flex;
+          gap: 2px;
+          align-items: flex-start;
+          padding: 0 16px;
+          border-left: 1px solid #d9d9d9;
+        ",
+              tags$span(style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
+              div(
+                h5("Step 2: Explore Projections", style = "margin: 0 0 4px 0;"),
+                p("Four trend charts are displayed on each calculator tab illustrating number of admissions, average length of stay, number of beds and target bed occupancy over time. Charts allow a user to:"),
+                tags$ul(
+                  style = "margin: 0; padding-left: 20px;",
+                  #tags$li("Number of admissions, Average length of stay, Number of beds and Target bed occupancy."),
+                  tags$li("View historic trends (solid black line) and projected trends (red dotted line) from 2026-2035 (based on the selected assumptions)."),
+                  tags$li("View pre-set admission scenarios (3 dotted grey lines) under do nothing, planned and ambitious admission strategies."),
+                  #tags$li("Adjust the sliders to watch trends change in real time."),
+                  tags$li("Hover over the chart lines to read off yearly values. Actual values for 2025 and projected values for 2035 are given on the sidebar.")
+                )
+              )
+            )
+            
+            
+          )
+        )
+      ),
+      
+      ### Data source 
+      #   card(
+      #    style = "margin-bottom: 10px;",
+      #    card_header("Data Source & Methodology"),
+      #    card_body(
+      #     style = "padding: 10px 12px;",
+      #     p("Historical data (1994–2025) from NHS England. Projections apply user-defined growth assumptions.", style = "margin: 0 0 6px 0;"),
+      #     p(HTML('See <b>"Assumptions and Method"</b> tab for detail.'), style = "margin: 0;")
+      #   )
+      # ),
+      
+      ### Call to action 
+      div(
+        style = "
+        border: 2px solid #5881c1;
+        background-color: #eef4fb;
+        padding: 10px 12px;
+        margin: 10px 0;
+      ",
+        h4("Ready to Get Started?", style = "margin: 0 0 6px 0;"),
+        p(HTML('Go to <b>"Future Beds Calculator"</b> and adjust assumptions to predict the number of beds required to meet future changes in admissions.'), style = "margin: 0;"),
+        p(HTML('Go to <b>"Future Admissions Calculator"</b> and adjust assumptions to predict the number of admissions that could be supported by future growth in bed capacity.'), style = "margin: 0;")
+      )
+    )
+  ),
+  
+  ## Panel 5: Methodology -----------------------------------------------------
   nav_panel(
     "Methodology",
     
@@ -1209,9 +1267,6 @@ ui <- page_navbar(
   )
   
 )
-
-
-
 
 #Server interface --------------------------------------------------------------
 
