@@ -249,14 +249,12 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
   
   #ggplotly(p, tooltip = "text")|>
   #  layout(
-  #    margin = list(t = 20, b = 10, l = 55, r =10), # Top, Bottom, Left, Right
-  #    pad = 0
+  #    margin = list(t = 20, b = 10, l = 55, r =10, pad = 0), # Top, Bottom, Left, Right
   #  )
   
   ggplotly(p, tooltip = "text")|>
     layout(
-      margin = list(t = 20, b = 10, l = 55, r =10), # Top, Bottom, Left, Right
-      pad = 0,
+      margin = list(t = 20, b = 10, l = 55, r =10, pad = 0), # Top, Bottom, Left, Right
       annotations = list(
         list(
           x = 2024.4,
@@ -294,8 +292,10 @@ ui <- page_navbar(
     secondary = "#f9bf07"
   ),
   
-  # Styling --------------------------------------------------------------------
-  tags$style(HTML("
+  header = tagList(
+    
+    # Styling --------------------------------------------------------------------
+    tags$style(HTML("
       /* navbar */
     .navbar {
       min-height: 62px;
@@ -358,34 +358,35 @@ ui <- page_navbar(
     color: #0a58ca;
     }
   ")),
-  
-  tags$head(
-    tags$style(HTML("
+    
+    tags$head(
+      tags$style(HTML("
     body { 
       padding-top: 60px !important; 
     }
   "))
-  ),
-  
-  # Top-right buttons + logo ---------------------------------------------------
-  tags$div(
-    class = "top-panel",
-    
-    #  tags$a(
-    #   href = "#",
-    #   class = "top-panel-button",
-    #     HTML("&#9432; About")
-    #  ),
-    
-    tags$a(
-      href = "mailto:strategy.unit@nhs.net?subject=Hospital Admission Model query",
-      class = "top-panel-button",
-      HTML("&#9993; Contact")
     ),
     
+    # Top-right buttons + logo ---------------------------------------------------
     tags$div(
-      class = "logo",
-      tags$img(src = "tsu_logo_yellow_screen_transparent.png")
+      class = "top-panel",
+      
+      #  tags$a(
+      #   href = "#",
+      #   class = "top-panel-button",
+      #     HTML("&#9432; About")
+      #  ),
+      
+      tags$a(
+        href = "mailto:strategy.unit@nhs.net?subject=Hospital Admission Model query",
+        class = "top-panel-button",
+        HTML("&#9993; Contact")
+      ),
+      
+      tags$div(
+        class = "logo",
+        tags$img(src = "tsu_logo_yellow_screen_transparent.png")
+      )
     )
   ),
   
