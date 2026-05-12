@@ -392,7 +392,7 @@ ui <- page_navbar(
   
   ## Panel 1: Landing page ---------------------------------------------------------
   nav_panel(
-    "Overview",
+    "Intro",
     
     div(
       style = "max-width: 1400px; margin: 0 auto;",
@@ -408,45 +408,44 @@ ui <- page_navbar(
         h1(
           "Why do we need more beds now when historically bed capacity has been in decline?",
           style = "
-          margin: 0 0 16px 0;
+          margin: 0;
           font-size: 2.2rem;
           line-height: 1.15;
-        "
-        ),
-        
-        p(
-          "Historically reductions in length of stay have allowed reductions in bed capacity despite rising admissions. However, there is a limit to the amount length of stay can reduce, and if admissions continue to rise then bed capacity must also grow to maintain system performance.",
-          style = "
-          margin: 0;
-          font-size: 1.15rem;
-          line-height: 1.4;
         "
         )
       ),
       
       card(
         style = "margin-bottom: 10px;",
-        
-        card_header("What is the model for?"),
-        
+        card_header("What This Tool Does"),
         card_body(
-          style = "padding: 14px 16px;",
-          
-          p(
-            "This interactive tool allows exploration of the relationship between hospital admissions, length of stay (LoS), bed occupancy and available beds.",
-            style = "margin: 0 0 8px 0;"
-          ),
-          
-          p(
-            "The tool is designed to help users build intuition around how changes in admissions and length of stay affect future bed requirements and system pressure.",
-            style = "margin: 0;"
+          style = "padding: 10px 12px 8px 12px;",
+          div(
+            style = "display: flex; gap: 10px; align-items: flex-start;",
+            tags$span(
+              style = "font-size: 20px; color: #5881c1; line-height: 1.1;"
+            ),
+            div(
+              p(
+                "Historically reduction in LoS has allowed for reduction in bed capacity despite growing admissions. However, there is a limit to the amount LoS can reduce, and if admissions continue to grow bed capacity must also to maintain system performance.",
+                style = "margin: 0 0 6px 0;"
+              ),
+              p(
+                "This app allows the user to build intuition by:",
+                style = "margin: 0 0 6px 0;"
+              ),
+              tags$ul(
+                style = "margin: 0; padding-left: 20px;",
+                tags$li("Viewing how admissions, available beds, average length of stay and bed occupancy have changed over the past 30+ years (1994–2025)."),
+                tags$li("How changes in admissions could affect future bed requirements (Future Beds Calculator)."),
+                tags$li("How many admissions could be supported by future growth in bed capacity (Future Admissions Calculator).")
+              )
+            )
           )
         )
       )
     )
   ),
-  
-  
   
   ## Panel 2: Beds nav panel ---------------------------------------------------------  
   nav_panel(
