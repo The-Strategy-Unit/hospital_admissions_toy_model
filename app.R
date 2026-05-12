@@ -184,18 +184,18 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
   }
   
   y_axis_min <- y_axis_min - (y_axis_range * 0.08)
-  y_axis_max <- y_axis_max + (y_axis_range * 0.08)
+  y_axis_max <- y_axis_max + (y_axis_range * 0.25)
   
-  y_label_position <- y_axis_min + ((y_axis_max - y_axis_min) * 0.10)
+  y_label_position <- y_axis_min + ((y_axis_max - y_axis_min) * 0.95)
   
   historical_label <- paste0(
-    "Historic avg<br>% change: ",
+    "Historic avg %<br>change: ",
     round(historical_avg_annual_change, 1),
     "%"
   )
   
   future_label <- paste0(
-    "Future avg<br>% change: ",
+    "Future avg %<br>change: ",
     round(future_avg_annual_change, 1),
     "%"
   )
@@ -278,7 +278,7 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
           showarrow = FALSE,
           xanchor = "right",
           yanchor = "middle",
-          font = list(size = 11, color = "#686f73")
+          font = list(size = 14, color = "black")
         ),
         list(
           x = 2025.6,
@@ -287,7 +287,7 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
           showarrow = FALSE,
           xanchor = "left",
           yanchor = "middle",
-          font = list(size = 11, color = "#686f73")
+          font = list(size = 14, color = "black")
         )
       )
     )
