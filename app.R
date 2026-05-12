@@ -253,7 +253,8 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
               colour = "black", 
               linewidth = 0.5, 
               linetype = "solid", 
-              group = 1)
+              group = 1,
+              check.aes = FALSE)
   
   
   #ggplotly(p, tooltip = "text")|>
