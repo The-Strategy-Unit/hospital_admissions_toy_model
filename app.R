@@ -1301,11 +1301,11 @@ server <- function(input, output, session) {
     change <- selected_value - default_value
     
     if(change > 0.00001){
-      return(list(icon = "▲", colour = "#238b45", change = change))
+      return(list(icon = "▲", colour = "#ec6555", change = change))
     }
     
     if(change < -0.00001){
-      return(list(icon = "▼", colour = "#ec6555", change = change))
+      return(list(icon = "▼", colour = "#238b45", change = change))
     }
     
     return(list(icon = "=", colour = "#686f73", change = change))
