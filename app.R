@@ -691,27 +691,17 @@ ui <- page_navbar(
           div(
             style = "
             display: grid;
-            grid-template-rows: 1fr 1fr;
+            grid-template-rows: 1fr;
             gap: 8px;
             height: 100%;
           ",
             
             card(
               style = "height: 100%;",
-              card_header(HTML("Scenario Context")),
-              card_body(
-                p("Historically reductions in LoS have allowed continual reductions in the number of beds, despite rising admissions."),
-                p("Here we consider the impact of future admission and LoS scenarios on the number of beds."),
-                padding = 5,
-                style = "height: calc(100% - 48px); overflow-y: auto;"
-              )
-            ),
-            
-            card(
-              style = "height: 100%;",
               card_header(HTML("Scenario Interpretation")),
               card_body(
-                uiOutput("future_beds_interpretation"),
+                #p("Historically reductions in LoS have allowed continual reductions in the number of beds, despite rising admissions."),
+                p("Here we consider the impact of future admission and LoS scenarios on the number of beds."),uiOutput("future_beds_interpretation"),
                 padding = 10,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
@@ -918,27 +908,17 @@ ui <- page_navbar(
           div(
             style = "
             display: grid;
-            grid-template-rows: 1fr 1fr;
+            grid-template-rows: 1fr;
             gap: 8px;
             height: 100%;
           ",
             
             card(
               style = "height: 100%;",
-              card_header(HTML("Scenario Context")),
-              card_body(
-                p("Historically reductions in LoS have allowed continual reductions in the number of beds, despite rising admissions."),
-                p("Here we consider the impact of future planned bed supply and LoS scenarios on the number of admissions that could be supported."),
-                padding = 10,
-                style = "height: calc(100% - 48px); overflow-y: auto;"
-              )
-            ),
-            
-            card(
-              style = "height: 100%;",
               card_header(HTML("Scenario Interpretation")),
               card_body(
-                uiOutput("future_admissions_interpretation"),
+                #p("Historically reductions in LoS have allowed continual reductions in the number of beds, despite rising admissions."),
+                p("Here we consider the impact of future planned bed supply and LoS scenarios on the number of admissions that could be supported."),uiOutput("future_admissions_interpretation"),
                 padding = 10,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
