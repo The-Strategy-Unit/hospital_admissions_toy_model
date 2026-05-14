@@ -253,8 +253,7 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
               colour = "black", 
               linewidth = 0.5, 
               linetype = "solid", 
-              group = 1,
-              check.aes = FALSE)
+              group = 1)
   
   
   #ggplotly(p, tooltip = "text")|>
@@ -489,16 +488,16 @@ ui <- page_navbar(
           
           h5("ADMISSIONS", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
           
-        #  tooltip(
-        #    selectInput(
-         #     "preset",
-        #      label = span(
-        #        "Select Scenario or adjust slider:",
-        #        style = "font-size: 0.85rem;"
-        #      ), 
-        #      choices = c("Do nothing", "Planned", "Ambitious")), # don't think we need custom as can overwrite a preset
-        #    "Choose a preset scenario or adjust sliders to customise assumptions",
-        #   placement = "right"),
+          #  tooltip(
+          #    selectInput(
+          #     "preset",
+          #      label = span(
+          #        "Select Scenario or adjust slider:",
+          #        style = "font-size: 0.85rem;"
+          #      ), 
+          #      choices = c("Do nothing", "Planned", "Ambitious")), # don't think we need custom as can overwrite a preset
+          #    "Choose a preset scenario or adjust sliders to customise assumptions",
+          #   placement = "right"),
           
           div(style = "display:flex; justify-content:space-between; margin-top: 10px;",
               strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
@@ -644,7 +643,7 @@ ui <- page_navbar(
           
           card(
             style = "height: 100%;",
-            card_header(HTML("Number of Admissions (millions)")),
+            card_header(uiOutput("admissions_header")),
             card_body(
               plotlyOutput("admissions", height = "100%"),
               padding = 8,
@@ -654,7 +653,7 @@ ui <- page_navbar(
           
           card(
             style = "height: 100%;",
-            card_header(HTML("Average Length of Stay (days)")),
+            card_header(uiOutput("los_header")),
             card_body(
               plotlyOutput("los", height = "100%"),
               padding = 8,
@@ -664,7 +663,7 @@ ui <- page_navbar(
           
           card(
             style = "height: 100%;",
-            card_header(HTML("Bed Occupancy Rate (%)")),
+            card_header(uiOutput("occupancy_header")),
             card_body(
               plotlyOutput("occupancy", height = "100%"),
               padding = 8,
@@ -675,7 +674,7 @@ ui <- page_navbar(
           card(
             style = "grid-column: 1 / span 2; height: 100%;",
             card_header(
-              HTML("Beds Required (thousands)"),
+              uiOutput("beds_header"),
               style = "
               background-color: #fff8e1;
               border-bottom: 1px solid #f9bf07;
@@ -871,7 +870,7 @@ ui <- page_navbar(
           
           card(
             style = "height: 100%;",
-            card_header(HTML("Number of Beds (thousands)")),
+            card_header(uiOutput("beds2_header")),
             card_body(
               plotlyOutput("beds2", height = "100%"),
               padding = 8,
@@ -881,7 +880,7 @@ ui <- page_navbar(
           
           card(
             style = "height: 100%;",
-            card_header(HTML("Average Length of Stay (days)")),
+            card_header(uiOutput("los2_header")),
             card_body(
               plotlyOutput("los2", height = "100%"),
               padding = 8,
@@ -891,7 +890,7 @@ ui <- page_navbar(
           
           card(
             style = "height: 100%;",
-            card_header(HTML("Bed Occupancy Rate (%)")),
+            card_header(uiOutput("occupancy2_header")),
             card_body(
               plotlyOutput("occupancy2", height = "100%"),
               padding = 8,
@@ -902,7 +901,7 @@ ui <- page_navbar(
           card(
             style = "grid-column: 1 / span 2; height: 100%;",
             card_header(
-              HTML("Supported Admissions (millions)"),
+              uiOutput("admissions2_header"),
               style = "
               background-color: #fff8e1;
               border-bottom: 1px solid #f9bf07;
@@ -930,7 +929,7 @@ ui <- page_navbar(
               card_body(
                 p("Historically reductions in LoS have allowed continual reductions in the number of beds, despite rising admissions."),
                 p("Here we consider the impact of future planned bed supply and LoS scenarios on the number of admissions that could be supported."),
-                padding = 5,
+                padding = 10,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
             ),
@@ -1282,15 +1281,16 @@ ui <- page_navbar(
   
 )
 
+
 #Server interface --------------------------------------------------------------
 
 server <- function(input, output, session) {
   
   
   observeEvent(input$reset_scenario, {
-      updateSliderInput(session, "admissions_change", value = historic_trends$admissions)
-      updateSliderInput(session, "los_change", value = historic_trends$los)
-      updateSliderInput(session, "target_occupancy", value = 88.9)
+    updateSliderInput(session, "admissions_change", value = historic_trends$admissions)
+    updateSliderInput(session, "los_change", value = historic_trends$los)
+    updateSliderInput(session, "target_occupancy", value = 88.9)
   })
   
   observeEvent(input$reset_baseline, {
@@ -1299,6 +1299,140 @@ server <- function(input, output, session) {
     updateSliderInput(session, "bed_occupancy", value = 88.9) 
   })
   
+  format_indicator_value <- function(value, suffix = "", digits = 1) {
+    paste0(round(value, digits), suffix)
+  }
+  
+  get_indicator_direction <- function(default_value, selected_value) {
+    
+    change <- selected_value - default_value
+    
+    if(change > 0.00001){
+      return(list(icon = "▲", colour = "#238b45", change = change))
+    }
+    
+    if(change < -0.00001){
+      return(list(icon = "▼", colour = "#ec6555", change = change))
+    }
+    
+    return(list(icon = "=", colour = "#5881c1", change = change))
+  }
+  
+  make_compare_badge <- function(default_value, selected_value, suffix = "", digits = 1) {
+    
+    direction <- get_indicator_direction(default_value, selected_value)
+    
+    HTML(paste0(
+      "<span style='color:#2c2825; font-weight:700;'>",
+      format_indicator_value(default_value, suffix, digits),
+      "</span>",
+      "<span style='color:#2c2825; font-weight:700; font-size:1.5em; line-height:0; vertical-align:-0.12em;'> &rarr; </span>",
+      "<span style='color:", direction$colour, "; font-weight:900;'>",
+      direction$icon,
+      " ",
+      format_indicator_value(selected_value, suffix, digits),
+      "</span>"
+    ))
+  }
+  
+  make_change_badge <- function(default_value, selected_value, suffix = "", digits = 1) {
+    
+    direction <- get_indicator_direction(default_value, selected_value)
+    change <- selected_value - default_value
+    
+    HTML(paste0(
+      "<span style='color:", direction$colour, "; font-weight:900;'>",
+      direction$icon,
+      " ",
+      ifelse(change > 0, "+", ""),
+      round(change, digits),
+      suffix,
+      "</span>"
+    ))
+  }
+  
+  make_chart_header <- function(title, badge) {
+    
+    div(
+      style = "
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        gap: 10px;
+      ",
+      span(title, style = "font-weight: 600;"),
+      span(
+        badge,
+        style = "
+          font-weight: 700;
+          font-size: 0.95rem;
+          white-space: nowrap;
+        "
+      )
+    )
+  }
+  
+  make_metric_block <- function(default_value,
+                                selected_value,
+                                label,
+                                suffix = "",
+                                digits = 1,
+                                show_change = TRUE) {
+    
+    direction <- get_indicator_direction(default_value, selected_value)
+    
+    div(
+      style = "
+      text-align: center;
+      flex: 1;
+    ",
+      
+      if(show_change){
+        div(
+          style = paste0(
+            "font-size:1.8rem;",
+            "font-weight:800;",
+            "color:", direction$colour, ";",
+            "line-height:1;",
+            "margin-bottom:6px;"
+          ),
+          HTML(
+            paste0(
+              direction$icon,
+              " ",
+              round(direction$change, 1),
+              "%"
+            )
+          )
+        )
+      },
+      
+      div(
+        HTML(paste0(
+          "<span style='font-weight:700;'>",
+          format_indicator_value(default_value, suffix, digits),
+          "</span>",
+          " <span style='font-size:1.5em; vertical-align:-0.08em;'>&rarr;</span> ",
+          "<span style='font-weight:800; color:", direction$colour, ";'>",
+          direction$icon,
+          " ",
+          format_indicator_value(selected_value, suffix, digits),
+          "</span>"
+        )),
+        style = "line-height: 1.1;"
+      ),
+      
+      div(
+        HTML(label),
+        style = "
+        font-size: 0.75rem;
+        line-height: 1.15;
+        margin-top: 5px;
+      "
+      )
+    )
+  }
   
   # Chart outputs-----------------------------------------------------------------
   
@@ -1494,6 +1628,108 @@ server <- function(input, output, session) {
   
   output$future_beds_interpretation <- renderUI({
     
+    div(
+      div(
+        style = "display: flex; justify-content: space-between; gap: 8px; margin-top: 4px;",
+        
+        make_metric_block(
+          historic_trends$admissions,
+          input$admissions_change,
+          "Admissions<br>(annual change)",
+          "%",
+          show_change = FALSE
+        ),
+        
+        make_metric_block(
+          historic_trends$los,
+          input$los_change,
+          "LoS<br>(annual change)",
+          "%",
+          show_change = FALSE
+        ),
+        
+        make_metric_block(
+          88.9,
+          input$target_occupancy,
+          "Target Occupancy<br>(fixed value)",
+          "%",
+          show_change = FALSE
+        )
+      ),
+      
+      hr(style = "margin: 10px 0;"),
+      
+      p(
+        "Values compare default assumptions → your selections.",
+        style = "font-size: 0.8rem; margin: 12px 0 0 0;"
+      )
+    )
+  })
+  
+  
+  output$future_admissions_interpretation <- renderUI({
+    
+    div(
+      div(
+        style = "display: flex; justify-content: space-between; gap: 8px; margin-top: 4px;",
+        
+        make_metric_block(
+          historic_trends$beds,
+          input$bedday_growth,
+          "Bed supply<br>(annual change)",
+          "%",
+          show_change = FALSE
+        ),
+        
+        make_metric_block(
+          historic_trends$los,
+          input$los_change2,
+          "LoS<br>(annual change)",
+          "%",
+          show_change = FALSE
+        ),
+        
+        make_metric_block(
+          88.9,
+          input$bed_occupancy,
+          "Target Occupancy<br>(fixed value)",
+          "%",
+          show_change = FALSE
+        )
+      ),
+      
+      hr(style = "margin: 10px 0;"),
+      
+      p(
+        "Values compare default assumptions → your selections.",
+        style = "font-size: 0.8rem; margin: 12px 0 0 0;"
+      )
+    )
+  })
+  
+  output$admissions_header <- renderUI({
+    make_chart_header(
+      "Number of Admissions (millions)",
+      make_compare_badge(historic_trends$admissions, input$admissions_change, "%")
+    )
+  })
+  
+  output$los_header <- renderUI({
+    make_chart_header(
+      "Average Length of Stay (days)",
+      make_compare_badge(historic_trends$los, input$los_change, "%")
+    )
+  })
+  
+  output$occupancy_header <- renderUI({
+    make_chart_header(
+      "Bed Occupancy Rate (%)",
+      make_compare_badge(88.9, input$target_occupancy, "%")
+    )
+  })
+  
+  output$beds_header <- renderUI({
+    
     plot_data <- future_beds_model(
       from_93,
       input$admissions_change,
@@ -1501,49 +1737,44 @@ server <- function(input, output, session) {
       input$target_occupancy
     )
     
-    beds_2025 <- plot_data$beds[plot_data$year == 2025]
-    beds_2035 <- plot_data$beds[plot_data$year == 2035]
-    beds_change <- (beds_2035 - beds_2025)*1000
-    
-    beds_change_text <- ifelse(
-      beds_change >= 0,
-      paste0(
-        format(round(beds_change, 0), big.mark = ",", scientific = FALSE),
-        " extra beds"
-      ),
-      paste0(
-        format(abs(round(beds_change, 0)), big.mark = ",", scientific = FALSE),
-        " fewer beds"
-      )
+    default_plot_data <- future_beds_model(
+      from_93,
+      historic_trends$admissions,
+      historic_trends$los,
+      88.9
     )
     
-    p(
-      "A yearly change of ",
-      tags$span(
-        paste0(round(input$admissions_change, 1), "%"),
-        style = "font-weight: 700; color: #ec6555;"
-      ),
-      " to admissions and ",
-      tags$span(
-        paste0(round(input$los_change, 1), "%"),
-        style = "font-weight: 700; color: #ec6555;"
-      ),
-      " to LoS means ",
-      tags$span(
-        beds_change_text,
-        style = "font-weight: 700; color: #ec6555;"
-      ),
-      " required by 2035 under a target occupancy of ",
-      tags$span(
-        paste0(round(input$target_occupancy, 1), "%"),
-        style = "font-weight: 700; color: #ec6555;"
-      ),
-      "."
+    beds_2035 <- plot_data$beds[plot_data$year == 2035]
+    default_beds_2035 <- default_plot_data$beds[default_plot_data$year == 2035]
+    
+    make_chart_header(
+      "Beds Required (thousands)",
+      make_compare_badge(default_beds_2035, beds_2035, "k")
     )
   })
   
+  output$beds2_header <- renderUI({
+    make_chart_header(
+      "Number of Beds (thousands)",
+      make_compare_badge(historic_trends$beds, input$bedday_growth, "%")
+    )
+  })
   
-  output$future_admissions_interpretation <- renderUI({
+  output$los2_header <- renderUI({
+    make_chart_header(
+      "Average Length of Stay (days)",
+      make_compare_badge(historic_trends$los, input$los_change2, "%")
+    )
+  })
+  
+  output$occupancy2_header <- renderUI({
+    make_chart_header(
+      "Bed Occupancy Rate (%)",
+      make_compare_badge(88.9, input$bed_occupancy, "%")
+    )
+  })
+  
+  output$admissions2_header <- renderUI({
     
     plot_data <- future_admissions_model(
       from_93,
@@ -1552,39 +1783,19 @@ server <- function(input, output, session) {
       input$bed_occupancy
     )
     
-    admissions_2025 <- plot_data$admissions[plot_data$year == 2025]
-    admissions_2035 <- plot_data$admissions[plot_data$year == 2035]
-    
-    admissions_change <- admissions_2035 - admissions_2025
-    
-    admissions_change_text <- ifelse(
-      admissions_change >= 0,
-      paste0(round(admissions_change, 1), " million additional admissions"),
-      paste0(round(abs(admissions_change), 1), " million fewer admissions")
+    default_plot_data <- future_admissions_model(
+      from_93,
+      historic_trends$beds,
+      historic_trends$los,
+      88.9
     )
     
-    p(
-      "A yearly change of ",
-      tags$span(
-        paste0(round(input$bedday_growth, 1), "%"),
-        style = "font-weight: 700; color: #ec6555;"
-      ),
-      " to bed supply and ",
-      tags$span(
-        paste0(round(input$los_change2, 1), "%"),
-        style = "font-weight: 700; color: #ec6555;"
-      ),
-      " to LoS means ",
-      tags$span(
-        admissions_change_text,
-        style = "font-weight: 700; color: #ec6555;"
-      ),
-      " supported per year by 2035 under a target occupancy of ",
-      tags$span(
-        paste0(round(input$bed_occupancy, 1), "%"),
-        style = "font-weight: 700; color: #ec6555;"
-      ),
-      "."
+    admissions_2035 <- plot_data$admissions[plot_data$year == 2035]
+    default_admissions_2035 <- default_plot_data$admissions[default_plot_data$year == 2035]
+    
+    make_chart_header(
+      "Supported Admissions (millions)",
+      make_compare_badge(default_admissions_2035, admissions_2035, "M")
     )
   })
   
