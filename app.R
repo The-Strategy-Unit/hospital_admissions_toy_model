@@ -384,7 +384,247 @@ ui <- page_navbar(
     .toy-model-links ul li a:hover {
     color: #0a58ca;
     }
-  ")),
+    
+    .infographic-wrap {
+  position: relative;
+  width: 330px;
+  height: 245px;
+  margin: 0 auto;
+}
+
+.info-node {
+  position: absolute;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  text-align: center;
+  padding-top: 18px;
+  z-index: 3;
+}
+
+.info-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.info-label {
+  font-size: 0.68rem;
+  line-height: 1.05;
+  margin-top: 6px;
+}
+
+.info-sublabel {
+  font-size: 0.62rem;
+  line-height: 1.05;
+}
+
+.info-node-blue {
+  top: 0;
+  left: 119px;
+  border: 1.5px solid #5881c1;
+  background: #eef4fb;
+}
+
+.info-node-grey {
+  top: 145px;
+  left: 0;
+  border: 1.5px solid #686f73;
+  background: #f4f4f4;
+}
+
+.info-node-yellow {
+  top: 145px;
+  right: 0;
+  border: 1.5px solid #f9bf07;
+  background: #fff8e1;
+}
+
+.info-arrow {
+  position: absolute;
+  height: 3px;
+  background: #9fa3a6;
+  transform-origin: left center;
+  z-index: 1;
+}
+
+.info-arrow::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: -5px;
+  width: 0;
+  height: 0;
+  border-left: 12px solid #9fa3a6;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+
+.info-arrow-left {
+  width: 105px;
+  top: 93px;
+  left: 105px;
+  transform: rotate(125deg);
+}
+
+.info-arrow-right {
+  width: 105px;
+  top: 93px;
+  left: 220px;
+  transform: rotate(55deg);
+}
+
+.info-arrow-bottom {
+  width: 118px;
+  top: 191px;
+  left: 108px;
+}
+
+.info-output {
+  position: absolute;
+  top: 92px;
+  left: 105px;
+  width: 120px;
+  text-align: center;
+  z-index: 2;
+}
+
+.bed-icon {
+  margin-bottom: 2px;
+}
+
+.bed-icon i {
+  font-size: 2.4rem;
+  color: #4a4a4a;
+  line-height: 1;
+}
+
+.output-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  margin-top: 4px;
+}
+
+.output-value {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #d99a00;
+  line-height: 1;
+}
+
+/* PANEL 3 — Supported Admissions infographic */
+
+.panel3-smart-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 390px;
+  height: 255px;
+  margin: 8px auto 6px auto;
+  overflow: hidden;
+}
+
+.panel3-smart-inputs {
+  position: absolute;
+  left: 8px;
+  top: 18px;
+  width: 130px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panel3-smart-input {
+  border-radius: 7px;
+  padding: 7px 5px;
+  text-align: center;
+  min-height: 61px;
+}
+
+.panel3-smart-blue {
+  border: 1.5px solid #5881c1;
+  background: #eef4fb;
+}
+
+.panel3-smart-grey {
+  border: 1.5px solid #686f73;
+  background: #f4f4f4;
+}
+
+.panel3-smart-yellow {
+  border: 1.5px solid #f9bf07;
+  background: #fff8e1;
+}
+
+.panel3-smart-value {
+  font-size: 1.1rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.panel3-smart-label {
+  font-size: 0.7rem;
+  line-height: 1.05;
+  margin-top: 4px;
+}
+
+.panel3-smart-sublabel {
+  font-size: 0.62rem;
+  line-height: 1.05;
+}
+
+.panel3-smart-flow {
+  position: absolute;
+  left: 122px;
+  top: 30px;
+  width: 150px;
+  height: 175px;
+  z-index: 1;
+}
+
+.panel3-smart-output {
+  position: absolute;
+  right: 4px;
+  top: 52px;
+  width: 128px;
+  min-height: 128px;
+  border: 1.5px solid #f9bf07;
+  background: #fff8e1;
+  border-radius: 8px;
+  text-align: center;
+  padding: 10px 6px;
+  z-index: 4;
+}
+
+.panel3-smart-output .bed-icon i {
+  font-size: 2.4rem;
+  color: #4a4a4a;
+}
+
+.panel3-smart-output-label {
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-top: 6px;
+  color: #2c2825;
+}
+
+.panel3-smart-output-value {
+  font-size: 1.75rem;
+  font-weight: 900;
+  line-height: 1.05;
+  margin-top: 8px;
+}
+
+.panel3-smart-note {
+  font-size: 0.8rem;
+  margin: 0;
+  line-height: 1.2;
+}
+
+")
+               ),
     
     tags$head(
       tags$style(HTML("
@@ -1314,6 +1554,35 @@ server <- function(input, output, session) {
     return(list(icon = "=", colour = "#686f73", change = change))
   }
   
+  format_direction_value <- function(default_value,
+                                     selected_value,
+                                     suffix = "%",
+                                     digits = 1) {
+    
+    direction <- get_indicator_direction(default_value, selected_value)
+    
+    icon <- if(direction$icon == "▲"){
+      "▲"
+    } else if(direction$icon == "▼"){
+      "▼"
+    } else {
+      "="
+    }
+    
+    HTML(
+      paste0(
+        "<span style='color:",
+        direction$colour,
+        "; font-weight:800;'>",
+        icon,
+        " ",
+        round(selected_value, digits),
+        suffix,
+        "</span>"
+      )
+    )
+  }
+  
   make_compare_badge <- function(default_value, selected_value, suffix = "", digits = 1) {
     
     direction <- get_indicator_direction(default_value, selected_value, digits)
@@ -1622,40 +1891,100 @@ server <- function(input, output, session) {
   
   output$future_beds_interpretation <- renderUI({
     
+    plot_data <- future_beds_model(
+      from_93,
+      input$admissions_change,
+      input$los_change,
+      input$target_occupancy
+    )
+    
+    default_plot_data <- future_beds_model(
+      from_93,
+      historic_trends$admissions,
+      historic_trends$los,
+      88.9
+    )
+    
+    beds_2035 <- plot_data$beds[plot_data$year == 2035]
+    default_beds_2035 <- default_plot_data$beds[default_plot_data$year == 2035]
+    
     div(
       div(
-        style = "display: flex; justify-content: space-between; gap: 8px; margin-top: 4px;",
+        class = "infographic-wrap",
         
-        make_metric_block(
-          historic_trends$admissions,
-          input$admissions_change,
-          "Admissions<br>(annual change)",
-          "%",
-          show_change = FALSE
+        div(class = "info-arrow info-arrow-left"),
+        div(class = "info-arrow info-arrow-right"),
+        div(class = "info-arrow info-arrow-bottom"),
+        
+        div(
+          class = "info-node info-node-blue",
+          div(
+            class = "info-value",
+            make_compare_badge(
+              historic_trends$admissions,
+              input$admissions_change,
+              "%",
+              digits = 1
+            )
+          ),
+          div(class = "info-label", "Admissions"),
+          div(class = "info-sublabel", "(annual change)")
         ),
         
-        make_metric_block(
-          historic_trends$los,
-          input$los_change,
-          "LoS<br>(annual change)",
-          "%",
-          show_change = FALSE
+        div(
+          class = "info-node info-node-grey",
+          div(
+            class = "info-value",
+            make_compare_badge(
+              historic_trends$los,
+              input$los_change,
+              "%",
+              digits = 1
+            )
+          ),
+          div(class = "info-label", "LoS"),
+          div(class = "info-sublabel", "(annual change)")
         ),
         
-        make_metric_block(
-          88.9,
-          input$target_occupancy,
-          "Target Occupancy<br>(fixed value)",
-          "%",
-          show_change = FALSE
+        div(
+          class = "info-node info-node-yellow",
+          div(
+            class = "info-value",
+            make_compare_badge(
+              88.9,
+              input$target_occupancy,
+              "%",
+              digits = 1
+            )
+          ),
+          div(class = "info-label", "Target Occupancy"),
+          div(class = "info-sublabel", "(fixed value)")
+        ),
+        
+        div(
+          class = "info-output",
+          div(
+            class = "bed-icon",
+            icon("bed")
+          ),
+          div(class = "output-label", "BEDS REQUIRED"),
+          div(
+            class = "output-value",
+            make_compare_badge(
+              default_beds_2035,
+              beds_2035,
+              "k",
+              digits = 0
+            )
+          )
         )
       ),
       
-      hr(style = "margin: 10px 0;"),
+      hr(style = "margin: 4px 0 8px 0;"),
       
       p(
-        "Values compare default assumptions → your selections.",
-        style = "font-size: 0.8rem; margin: 12px 0 0 0;"
+        "These three inputs interact to determine the number of beds required.",
+        style = "font-size:0.8rem; margin:0; line-height:1.2;"
       )
     )
   })
@@ -1663,40 +1992,130 @@ server <- function(input, output, session) {
   
   output$future_admissions_interpretation <- renderUI({
     
+    plot_data <- future_admissions_model(
+      from_93,
+      input$bedday_growth,
+      input$los_change2,
+      input$bed_occupancy
+    )
+    
+    default_plot_data <- future_admissions_model(
+      from_93,
+      historic_trends$beds,
+      historic_trends$los,
+      88.9
+    )
+    
+    admissions_2035 <- plot_data$admissions[plot_data$year == 2035]
+    default_admissions_2035 <- default_plot_data$admissions[default_plot_data$year == 2035]
+    
     div(
       div(
-        style = "display: flex; justify-content: space-between; gap: 8px; margin-top: 4px;",
+        class = "panel3-smart-wrap",
         
-        make_metric_block(
-          historic_trends$beds,
-          input$bedday_growth,
-          "Bed supply<br>(annual change)",
-          "%",
-          show_change = FALSE
+        div(
+          class = "panel3-smart-inputs",
+          
+          div(
+            class = "panel3-smart-input panel3-smart-blue",
+            div(
+              class = "panel3-smart-value",
+              make_compare_badge(
+                historic_trends$beds,
+                input$bedday_growth,
+                "%",
+                digits = 1
+              )
+            ),
+            div(class = "panel3-smart-label", "Bed supply"),
+            div(class = "panel3-smart-sublabel", "(annual change)")
+          ),
+          
+          div(
+            class = "panel3-smart-input panel3-smart-grey",
+            div(
+              class = "panel3-smart-value",
+              make_compare_badge(
+                historic_trends$los,
+                input$los_change2,
+                "%",
+                digits = 1
+              )
+            ),
+            div(class = "panel3-smart-label", "LoS"),
+            div(class = "panel3-smart-sublabel", "(annual change)")
+          ),
+          
+          div(
+            class = "panel3-smart-input panel3-smart-yellow",
+            div(
+              class = "panel3-smart-value",
+              make_compare_badge(
+                88.9,
+                input$bed_occupancy,
+                "%",
+                digits = 1
+              )
+            ),
+            div(class = "panel3-smart-label", "Target Occupancy"),
+            div(class = "panel3-smart-sublabel", "(fixed value)")
+          )
         ),
         
-        make_metric_block(
-          historic_trends$los,
-          input$los_change2,
-          "LoS<br>(annual change)",
-          "%",
-          show_change = FALSE
+        tags$svg(
+          class = "panel3-smart-flow",
+          viewBox = "0 0 170 175",
+          preserveAspectRatio = "none",
+          
+          tags$path(
+            d = "M0,24 C45,18 95,34 170,70",
+            stroke = "#5881c1",
+            `stroke-width` = "24",
+            fill = "none",
+            opacity = "0.28",
+            `stroke-linecap` = "round"
+          ),
+          
+          tags$path(
+            d = "M0,87 C55,87 110,87 170,87",
+            stroke = "#686f73",
+            `stroke-width` = "24",
+            fill = "none",
+            opacity = "0.28",
+            `stroke-linecap` = "round"
+          ),
+          
+          tags$path(
+            d = "M0,150 C45,150 95,134 170,105",
+            stroke = "#f9bf07",
+            `stroke-width` = "24",
+            fill = "none",
+            opacity = "0.34",
+            `stroke-linecap` = "round"
+          )
         ),
         
-        make_metric_block(
-          88.9,
-          input$bed_occupancy,
-          "Target Occupancy<br>(fixed value)",
-          "%",
-          show_change = FALSE
+        div(
+          class = "panel3-smart-output",
+          div(class = "bed-icon", icon("chart-line")),
+          div(class = "panel3-smart-output-label", HTML("SUPPORTED<br>ADMISSIONS")),
+          div(
+            class = "panel3-smart-output-value",
+            make_compare_badge(
+              default_admissions_2035,
+              admissions_2035,
+              "M",
+              digits = 1
+            )
+          )
         )
       ),
       
-      hr(style = "margin: 10px 0;"),
+      hr(style = "margin: 6px 0 8px 0;"),
       
       p(
-        "Values compare default assumptions → your selections.",
-        style = "font-size: 0.8rem; margin: 12px 0 0 0;"
+        "These three inputs interact to determine the number of admissions that could be supported.",
+        class = "panel3-smart-note"
       )
     )
   })
@@ -1723,9 +2142,27 @@ server <- function(input, output, session) {
   })
   
   output$beds_header <- renderUI({
+    
+    plot_data <- future_beds_model(
+      from_93,
+      input$admissions_change,
+      input$los_change,
+      input$target_occupancy
+    )
+    
+    default_plot_data <- future_beds_model(
+      from_93,
+      historic_trends$admissions,
+      historic_trends$los,
+      88.9
+    )
+    
+    beds_2035 <- plot_data$beds[plot_data$year == 2035]
+    default_beds_2035 <- default_plot_data$beds[default_plot_data$year == 2035]
+    
     make_chart_header(
       "Beds Required (thousands)",
-      make_compare_badge(88.9, input$target_occupancy, "%")
+      make_compare_badge(default_beds_2035, beds_2035, "k", digits = 0)
     )
   })
   
