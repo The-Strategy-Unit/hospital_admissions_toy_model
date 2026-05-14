@@ -116,8 +116,16 @@ future_beds_model<-function(from_93, admissions_yearly_percentage_change, los_ye
 }
 
 ## Plotting function
-plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, scenario_3_values, output_type, y_axis_label, y_axis_max = NULL) {
-  
+plotting_function <- function(
+    plot_data,
+    scenario_1_values,
+    scenario_2_values,
+    scenario_3_values,
+    output_type,
+    y_axis_label,
+    y_axis_max = NULL,
+    show_trend_labels = FALSE
+) {
   # Heather adding historic and future average annual % change chart labels
   
   annual_percentage_change <- function(data, output_type, start_year, end_year) {
@@ -270,26 +278,30 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
         automargin = FALSE,
         fixedrange = FALSE
       ),
-      annotations = list(
+      annotations = if(show_trend_labels) {
         list(
-          x = 2024.4,
-          y = y_label_position,
-          text = historical_label,
-          showarrow = FALSE,
-          xanchor = "right",
-          yanchor = "middle",
-          font = list(size = 14, color = "black")
-        ),
-        list(
-          x = 2025.6,
-          y = y_label_position,
-          text = future_label,
-          showarrow = FALSE,
-          xanchor = "left",
-          yanchor = "middle",
-          font = list(size = 14, color = "black")
+          list(
+            x = 2024.4,
+            y = y_label_position,
+            text = historical_label,
+            showarrow = FALSE,
+            xanchor = "right",
+            yanchor = "middle",
+            font = list(size = 14, color = "black")
+          ),
+          list(
+            x = 2025.6,
+            y = y_label_position,
+            text = future_label,
+            showarrow = FALSE,
+            xanchor = "left",
+            yanchor = "middle",
+            font = list(size = 14, color = "black")
+          )
         )
-      )
+      } else {
+        list()
+      }
     )
 }
 
@@ -1303,10 +1315,6 @@ server <- function(input, output, session) {
     direction <- get_indicator_direction(default_value, selected_value)
     
     HTML(paste0(
-      "<span style='color:#2c2825; font-weight:700;'>",
-      format_indicator_value(default_value, suffix, digits),
-      "</span>",
-      "<span style='color:#2c2825; font-weight:700; font-size:1.5em; line-height:0; vertical-align:-0.12em;'> &rarr; </span>",
       "<span style='color:", direction$colour, "; font-weight:900;'>",
       direction$icon,
       " ",
@@ -1452,7 +1460,8 @@ server <- function(input, output, session) {
                       NULL,
                       NULL,
                       "beds",
-                      "Beds (thousands)")
+                      "Beds (thousands)", 
+                      show_trend_labels = TRUE)
     
   })
   
@@ -1481,7 +1490,8 @@ server <- function(input, output, session) {
                       planned,
                       ambitious,
                       "admissions", 
-                      "Admissions (millions)")
+                      "Admissions (millions)", 
+                      show_trend_labels = TRUE)
     
   })
   
