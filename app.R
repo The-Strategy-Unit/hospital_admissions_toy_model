@@ -1296,7 +1296,10 @@ server <- function(input, output, session) {
     paste0(round(value, digits), suffix)
   }
   
-  get_indicator_direction <- function(default_value, selected_value) {
+  get_indicator_direction <- function(default_value, selected_value, digits = 1) {
+    
+    default_value <- round(default_value, digits)
+    selected_value <- round(selected_value, digits)
     
     change <- selected_value - default_value
     
@@ -1313,7 +1316,7 @@ server <- function(input, output, session) {
   
   make_compare_badge <- function(default_value, selected_value, suffix = "", digits = 1) {
     
-    direction <- get_indicator_direction(default_value, selected_value)
+    direction <- get_indicator_direction(default_value, selected_value, digits)
     
     HTML(paste0(
       "<span style='color:", direction$colour, "; font-weight:900;'>",
@@ -1369,7 +1372,7 @@ server <- function(input, output, session) {
                                 digits = 1,
                                 show_change = TRUE) {
     
-    direction <- get_indicator_direction(default_value, selected_value)
+    direction <- get_indicator_direction(default_value, selected_value, digits)
     
     div(
       style = "
@@ -1720,27 +1723,9 @@ server <- function(input, output, session) {
   })
   
   output$beds_header <- renderUI({
-    
-    plot_data <- future_beds_model(
-      from_93,
-      input$admissions_change,
-      input$los_change,
-      input$target_occupancy
-    )
-    
-    default_plot_data <- future_beds_model(
-      from_93,
-      historic_trends$admissions,
-      historic_trends$los,
-      88.9
-    )
-    
-    beds_2035 <- plot_data$beds[plot_data$year == 2035]
-    default_beds_2035 <- default_plot_data$beds[default_plot_data$year == 2035]
-    
     make_chart_header(
       "Beds Required (thousands)",
-      make_compare_badge(default_beds_2035, beds_2035, "k")
+      make_compare_badge(88.9, input$target_occupancy, "%")
     )
   })
   
