@@ -524,22 +524,22 @@ ui <- page_navbar(
           #     span("2026: 16967214"),
           #     span("2035: 16967214") ),
           
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-            #span(paste0("2025: ", round(from_93$`All admissions`[from_93$Year == 2025], 0))),
-            #Add commas: 
-            span(
-              paste0(
-                "2025: ",
-                format(
-                  round(from_93$`All admissions`[from_93$Year == 2025], 0),
-                  big.mark = ",",
-                  scientific = FALSE
-                )
-              )
-            ),
-            span(textOutput("future_beds_admissions_2035", inline = TRUE))
-          ),
+          # div(
+          #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+          #   #span(paste0("2025: ", round(from_93$`All admissions`[from_93$Year == 2025], 0))),
+          #   #Add commas: 
+          #   span(
+          #     paste0(
+          #       "2025: ",
+          #       format(
+          #         round(from_93$`All admissions`[from_93$Year == 2025], 0),
+          #         big.mark = ",",
+          #         scientific = FALSE
+          #       )
+          #     )
+          #   ),
+          #   span(textOutput("future_beds_admissions_2035", inline = TRUE))
+          # ),
           
           hr(style = "margin: 8px 0;"),
           
@@ -565,11 +565,11 @@ ui <- page_navbar(
           #  span("2035: 3.12 days")
           # ),
           
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-            span(paste0("2025: ", round(from_93$avgLoS[from_93$Year == 2025], 2), " days")),
-            span(textOutput("future_beds_los_2035", inline = TRUE))
-          ),
+          # div(
+          #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+          #   span(paste0("2025: ", round(from_93$avgLoS[from_93$Year == 2025], 2), " days")),
+          #   span(textOutput("future_beds_los_2035", inline = TRUE))
+          # ),
           
           hr(style = "margin: 8px 0;"),
           
@@ -595,11 +595,11 @@ ui <- page_navbar(
           #  span("100%")
           #),
           
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-            span(paste0("2025: ", round(from_93$occupancy[from_93$Year == 2025] * 100, 1), "%")),
-            span(textOutput("future_beds_occupancy_2035", inline = TRUE))
-          ),
+          # div(
+          #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+          #   span(paste0("2025: ", round(from_93$occupancy[from_93$Year == 2025] * 100, 1), "%")),
+          #   span(textOutput("future_beds_occupancy_2035", inline = TRUE))
+          # ),
           
           actionButton(
             "reset_scenario", 
@@ -769,20 +769,20 @@ ui <- page_navbar(
             step = 0.1
           ),
           
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-            span(
-              paste0(
-                "2025: ",
-                format(
-                  round(from_93$Beds[from_93$Year == 2025], 0),
-                  big.mark = ",",
-                  scientific = FALSE
-                )
-              )
-            ),
-            span(textOutput("future_admissions_beds_2035", inline = TRUE))
-          ),
+          # div(
+          #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+          #   span(
+          #     paste0(
+          #       "2025: ",
+          #       format(
+          #         round(from_93$Beds[from_93$Year == 2025], 0),
+          #         big.mark = ",",
+          #         scientific = FALSE
+          #       )
+          #     )
+          #   ),
+          #   span(textOutput("future_admissions_beds_2035", inline = TRUE))
+          # ),
           
           hr(style = "margin: 8px 0;"),
           
@@ -803,11 +803,11 @@ ui <- page_navbar(
             width = "100%"
           ),
           
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-            span(paste0("2025: ", round(from_93$avgLoS[from_93$Year == 2025], 2), " days")),
-            span(textOutput("future_admissions_los_2035", inline = TRUE))
-          ),
+          # div(
+          #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+          #   span(paste0("2025: ", round(from_93$avgLoS[from_93$Year == 2025], 2), " days")),
+          #   span(textOutput("future_admissions_los_2035", inline = TRUE))
+          # ),
           
           hr(style = "margin: 8px 0;"),
           
@@ -828,11 +828,11 @@ ui <- page_navbar(
             width = "100%"
           ),
           
-          div(
-            style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
-            span(paste0("2025: ", round(from_93$occupancy[from_93$Year == 2025] * 100, 1), "%")),
-            span(textOutput("future_admissions_occupancy_2035", inline = TRUE))
-          ),
+          # div(
+          #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
+          #   span(paste0("2025: ", round(from_93$occupancy[from_93$Year == 2025] * 100, 1), "%")),
+          #   span(textOutput("future_admissions_occupancy_2035", inline = TRUE))
+          # ),
           
           actionButton(
             "reset_baseline", 
