@@ -211,7 +211,8 @@ plotting_function <- function(
   # Initial plot
   p <- ggplot(data = plot_data, aes(x = year, y = .data[[output_type]], 
                                     text = paste0("Year: ", year, "<br>", y_axis_label, ": ", round(.data[[output_type]], 1)))) +
-    geom_vline(xintercept = 2025, colour = "#5881c1" , linetype = "dashed") +
+    #geom_vline(xintercept = 2025, colour = "#5881c1" , linetype = "dashed") +
+    geom_vline(xintercept = 2025, colour = "#f9bf07" , linetype = "dashed") +
     su_theme() +
     labs(title=NULL, subtitle=NULL, y = NULL, x = "Year") +
     scale_y_continuous(limits = c(y_axis_min, y_axis_max))
@@ -245,16 +246,16 @@ plotting_function <- function(
           "<br>", y_axis_label, ": ", round(.data[[output_type]], 1)
         )
       ),
-      colour = "#b2b7b9",
+      colour = "#5881c1",
       linewidth = 0.6,
       linetype = "dotted",
       group = 1
     ) +
     geom_line(data = subset(plot_data, as.numeric(year) >= 2025),
               aes(x = year, y = .data[[output_type]]),
-              colour = "#ec6555", 
+              colour = "#5881c1", 
               linewidth = 0.6, 
-              linetype = "dotted", 
+              linetype = "solid", 
               group = 1)+
     geom_line(data = subset(plot_data, as.numeric(year) <= 2025),
               aes(x = year, y = .data[[output_type]]),
@@ -1307,7 +1308,7 @@ server <- function(input, output, session) {
       return(list(icon = "▼", colour = "#ec6555", change = change))
     }
     
-    return(list(icon = "=", colour = "#5881c1", change = change))
+    return(list(icon = "=", colour = "#686f73", change = change))
   }
   
   make_compare_badge <- function(default_value, selected_value, suffix = "", digits = 1) {
