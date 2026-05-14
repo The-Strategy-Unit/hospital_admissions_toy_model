@@ -296,7 +296,7 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
 #UI ----------------------------------------------------------------------------
 ##UI General
 ui <- page_navbar(
-  title = "Hospital Admission Tool",
+  title = "", #"Hospital Admission Tool",
   position = "fixed-top", 
   id = "nav",
   bg = "#2c2825",
@@ -406,7 +406,7 @@ ui <- page_navbar(
   
   ## Panel 1: Landing page ---------------------------------------------------------
   nav_panel(
-    "Intro",
+    "The Question",
     
     div(
       style = "max-width: 1400px; margin: 0 auto;",
