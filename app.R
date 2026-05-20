@@ -491,17 +491,17 @@ ui <- page_navbar(
         open = "always",
         
         div(
-          style = "margin-top: 0px;",
+          style = "margin-top: 18px;",
           
           h3("Future Assumptions",
              style = "font-size: 1.2rem; margin: 0 0 6px 0;"),
           
-          hr(style = "margin: 6px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           p("Set assumptions for admissions, length of stay and bed occupancy over the next 10 years, and the required beds is calculated.",
             style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"),
           
-          hr(style = "margin: 6px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           h5("ADMISSIONS", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
           
@@ -545,7 +545,7 @@ ui <- page_navbar(
             span(textOutput("future_beds_admissions_2035", inline = TRUE))
           ),
           
-          hr(style = "margin: 8px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           h5("LENGTH OF STAY", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
           
@@ -575,7 +575,7 @@ ui <- page_navbar(
             span(textOutput("future_beds_los_2035", inline = TRUE))
           ),
           
-          hr(style = "margin: 8px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           h5("TARGET BED OCCUPANCY", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
           
@@ -751,21 +751,21 @@ ui <- page_navbar(
         open = "always",
         
         div(
-          style = "margin-top: 0px;",
+          style = "margin-top: 18px;",
           
           h3(
             "Future Assumptions",
             style = "font-size: 1.2rem; margin: 0 0 6px 0;"
           ),
           
-          hr(style = "margin: 6px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           p(
             "Set assumptions for future beds, length of stay and bed occupancy over the next 10 years, and the supported admissions is calculated.",
             style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"
           ),
           
-          hr(style = "margin: 6px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           h5("BED SUPPLY", style = "font-size: 0.95rem; margin: 6px 0;"),
           
@@ -798,7 +798,7 @@ ui <- page_navbar(
             span(textOutput("future_admissions_beds_2035", inline = TRUE))
           ),
           
-          hr(style = "margin: 8px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           h5("LENGTH OF STAY", style = "font-size: 0.95rem; margin: 6px 0;"),
           
@@ -823,7 +823,7 @@ ui <- page_navbar(
             span(textOutput("future_admissions_los_2035", inline = TRUE))
           ),
           
-          hr(style = "margin: 8px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           h5("TARGET BED OCCUPANCY", style = "font-size: 0.95rem; margin: 6px 0;"),
           
