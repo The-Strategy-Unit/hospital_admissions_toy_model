@@ -612,17 +612,17 @@ ui <- page_navbar(
             style = "margin-top: 10px;"
           ),
           
-          div(
-            style = "
-            border: 1px solid #f9bf07;
-            background-color: #fff8e1;
-            padding: 8px;
-            margin-top: 8px;
-            font-size: 0.75rem;
-            line-height: 1.15;
-          ",
-            "Beds required are calculated automatically from the assumptions."
-          )
+       #   div(
+       #     style = "
+        #    border: 1px solid #f9bf07;
+        #    background-color: #fff8e1;
+        #    padding: 8px;
+        #    margin-top: 8px;
+        #    font-size: 0.75rem;
+        #    line-height: 1.15;
+        #  ",
+        #    "Beds required are calculated automatically from the assumptions."
+        #  )
         )
       ),
       
@@ -855,17 +855,17 @@ ui <- page_navbar(
             style = "margin-top: 10px;"
           ),
           
-          div(
-            style = "
-            border: 1px solid #f9bf07;
-            background-color: #fff8e1;
-            padding: 8px;
-            margin-top: 8px;
-            font-size: 0.75rem;
-            line-height: 1.15;
-          ",
-            "Admissions capacity is calculated from the selected beds, LoS and target bed occupancy assumptions."
-          )
+      #    div(
+      #      style = "
+      #      border: 1px solid #f9bf07;
+      #      background-color: #fff8e1;
+      #      padding: 8px;
+      #      margin-top: 8px;
+      #      font-size: 0.75rem;
+     #       line-height: 1.15;
+     #     ",
+     #       "Admissions capacity is calculated from the selected beds, LoS and target bed occupancy assumptions."
+     #     )
         )
       ),
       
