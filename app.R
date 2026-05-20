@@ -382,14 +382,21 @@ ui <- page_navbar(
   "))
     ),
     
-    tags$head(
-      tags$style(HTML("
-      /* Hides the minimum and maximum labels at the ends of the slider */
-      .irs-min, .irs-max { 
+    tags$style(HTML("
+      .irs-min, .irs-max, .irs-grid-pol.small { 
         display: none !important; 
       }
-    "))
-    ),
+      
+      .irs-bar, .irs-bar-edge, .irs-single {
+        background: #5881c1 !important;
+        border-color: #5881c1 !important;
+      }
+      
+      .irs-handle > i:first-child {
+        background-color: #5881c1 !important;
+      }
+    ")
+  ),
     
     # Top-right buttons + logo ---------------------------------------------------
     tags$div(
