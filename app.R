@@ -170,8 +170,16 @@ plotting_function <- function(
   
   historic_2025_value <- plot_data[[output_type]][plot_data$year == 2025]
   
-  historic_trend_data[[output_type]] <- historic_2025_value *
-    (1 + historical_avg_annual_change / 100)^(historic_trend_data$year - 2025)
+  if (output_type == "admissions") { 
+    historic_trend_data[[output_type]] <- historic_2025_value *
+      (1 + historical_avg_annual_change / 100)^(historic_trend_data$year - 2025)
+  } else if (output_type == "los") {
+    historic_trend_data[[output_type]] <- rep(historic_2025_value, nrow(historic_trend_data))
+  }  else if (output_type == "beds") {
+    historic_trend_data[[output_type]] <- rep(historic_2025_value, nrow(historic_trend_data))
+  }  else if (output_type == "occupancy") {
+    historic_trend_data[[output_type]] <- rep(historic_2025_value, nrow(historic_trend_data))
+  }
   
   y_axis_min <- min(
     plot_data[[output_type]],
@@ -241,7 +249,7 @@ plotting_function <- function(
         x = year,
         y = .data[[output_type]],
         text = paste0(
-          "Historic trend continued<br>",
+          #"Historic trend continued<br>",
           "Year: ", year,
           "<br>", y_axis_label, ": ", round(.data[[output_type]], 1)
         )
@@ -833,7 +841,7 @@ ui <- page_navbar(
             label = NULL,
             min = -5,
             max = 5,
-            value = historic_trends$los,
+            value = 0, #historic_trends$los,
             step = 0.1
           ),
           
@@ -865,7 +873,7 @@ ui <- page_navbar(
             label = NULL,
             min = 75,
             max = 100,
-            value = 88.9,
+            value = 90.5,
             step = 0.1
           ),
           
@@ -1047,7 +1055,7 @@ ui <- page_navbar(
             label = NULL, 
             min = -5, 
             max = 5,  
-            value = historic_trends$beds, 
+            value = 0, #historic_trends$beds, 
             step = 0.1
           ),
           
@@ -1082,7 +1090,7 @@ ui <- page_navbar(
             NULL,
             min = -5,
             max = 5,
-            value = historic_trends$los,
+            value = 0, #historic_trends$los,
             step = 0.1,
             width = "100%"
           ),
@@ -1109,7 +1117,7 @@ ui <- page_navbar(
             NULL,
             min = 75,
             max = 100,
-            value = 88.9,
+            value = 90.5,
             step = 0.5,
             width = "100%"
           ),
@@ -1123,7 +1131,7 @@ ui <- page_navbar(
 
           
           actionButton(
-            "reset_scenario", 
+            "reset_baseline", 
             "Reset to Historic Projections", 
             class = "btn-primary w-100",
             style = "margin-top: 10px;"
@@ -1572,14 +1580,14 @@ server <- function(input, output, session) {
   
   observeEvent(input$reset_scenario, {
     updateSliderInput(session, "admissions_change", value = historic_trends$admissions)
-    updateSliderInput(session, "los_change", value = historic_trends$los)
-    updateSliderInput(session, "target_occupancy", value = 88.9)
+    updateSliderInput(session, "los_change", value = 0)#historic_trends$los)
+    updateSliderInput(session, "target_occupancy", value = 90.5)
   })
   
   observeEvent(input$reset_baseline, {
-    updateSliderInput(session, "bedday_growth", value = historic_trends$beds) 
-    updateSliderInput(session, "los_change2", value = historic_trends$los) 
-    updateSliderInput(session, "bed_occupancy", value = 88.9) 
+    updateSliderInput(session, "bedday_growth", value = 0)#historic_trends$beds) 
+    updateSliderInput(session, "los_change2", value = 0)#,historic_trends$los) 
+    updateSliderInput(session, "bed_occupancy", value = 90.5) 
   })
   
   format_indicator_value <- function(value, suffix = "", digits = 1) {
@@ -1809,9 +1817,9 @@ server <- function(input, output, session) {
     plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
     
     plotting_function(plot_data,
-                      do_nothing,
-                      planned,
-                      ambitious,
+                      NULL, #do_nothing,
+                      NULL, #planned,
+                      NULL, #ambitious,
                       "admissions", 
                       "Admissions (millions)", 
                       show_trend_labels = TRUE)
@@ -1952,7 +1960,7 @@ server <- function(input, output, session) {
       from_93,
       historic_trends$admissions,
       historic_trends$los,
-      88.9
+      90.5
     )
     
     beds_2035 <- plot_data$beds[plot_data$year == 2035]
@@ -2001,7 +2009,7 @@ server <- function(input, output, session) {
           div(
             class = "info-value",
             make_compare_badge(
-              88.9,
+              90.5,
               input$target_occupancy,
               "%",
               digits = 1
@@ -2046,14 +2054,14 @@ server <- function(input, output, session) {
       from_93,
       input$bedday_growth,
       input$los_change2,
-      input$bed_occupancy
+      90.5 #input$bed_occupancy
     )
     
     default_plot_data <- future_admissions_model(
       from_93,
       historic_trends$beds,
       historic_trends$los,
-      88.9
+      90.5
     )
     
     admissions_2035 <- plot_data$admissions[plot_data$year == 2035]
@@ -2101,7 +2109,7 @@ server <- function(input, output, session) {
             div(
               class = "panel3-smart-value",
               make_compare_badge(
-                88.9,
+                90.5,
                 input$bed_occupancy,
                 "%",
                 digits = 1
@@ -2187,7 +2195,7 @@ server <- function(input, output, session) {
   output$occupancy_header <- renderUI({
     make_chart_header(
       "Bed Occupancy Rate (%)",
-      make_compare_badge(88.9, input$target_occupancy, "%")
+      make_compare_badge(90.5, input$target_occupancy, "%")
     )
   })
   
@@ -2204,7 +2212,7 @@ server <- function(input, output, session) {
       from_93,
       historic_trends$admissions,
       historic_trends$los,
-      88.9
+      90.5
     )
     
     beds_2035 <- plot_data$beds[plot_data$year == 2035]
@@ -2233,7 +2241,7 @@ server <- function(input, output, session) {
   output$occupancy2_header <- renderUI({
     make_chart_header(
       "Bed Occupancy Rate (%)",
-      make_compare_badge(88.9, input$bed_occupancy, "%")
+      make_compare_badge(90.5, input$bed_occupancy, "%")
     )
   })
   
@@ -2250,7 +2258,7 @@ server <- function(input, output, session) {
       from_93,
       historic_trends$beds,
       historic_trends$los,
-      88.9
+      90.5
     )
     
     admissions_2035 <- plot_data$admissions[plot_data$year == 2035]
