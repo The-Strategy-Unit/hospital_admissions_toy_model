@@ -382,6 +382,15 @@ ui <- page_navbar(
   "))
     ),
     
+    tags$head(
+      tags$style(HTML("
+      /* Hides the minimum and maximum labels at the ends of the slider */
+      .irs-min, .irs-max { 
+        display: none !important; 
+      }
+    "))
+    ),
+    
     # Top-right buttons + logo ---------------------------------------------------
     tags$div(
       class = "top-panel",
