@@ -498,7 +498,7 @@ ui <- page_navbar(
           
           hr(style = "margin: 6px 0;"),
           
-          p("Adjust inputs for the next 10 years.",
+          p("Set assumptions for admissions, length of stay and bed occupancy over the next 10 years, and the required beds is calculated.",
             style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"),
           
           hr(style = "margin: 6px 0;"),
@@ -761,7 +761,7 @@ ui <- page_navbar(
           hr(style = "margin: 6px 0;"),
           
           p(
-            "Set a fixed bed supply and test what admissions and LoS combinations would be sustainable.",
+            "Set assumptions for future beds, length of stay and bed occupancy over the next 10 years, and the supported admissions is calculated.",
             style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"
           ),
           
