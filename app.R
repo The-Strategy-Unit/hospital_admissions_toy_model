@@ -19,7 +19,7 @@ options(scipen=999)
 
 # Data-------------------------------------------------------------------------
 
-data<-read_excel("data/Collating the data.xlsx")
+data<-read_excel("data/Collating the data_final.xlsx")
 from_93<-data[7:38,]
 
 # Formatting data----------------------------------------------------------------
@@ -306,10 +306,13 @@ plotting_function <- function(
     )
 }
 
+
+
 #UI ----------------------------------------------------------------------------
 ##UI General
 ui <- page_navbar(
-  title = "", #"Hospital Admission Tool",
+
+  title = "Why do we need more beds?",
   position = "fixed-top", 
   id = "nav",
   bg = "#2c2825",
@@ -634,6 +637,40 @@ ui <- page_navbar(
   "))
     ),
     
+    tags$style(HTML("
+      .irs-min, .irs-max, .irs-grid-pol.small { 
+        display: none !important; 
+      }
+      
+      .irs-bar, .irs-bar-edge, .irs-single {
+        background: #5881c1 !important;
+        border-color: #5881c1 !important;
+      }
+      
+      .irs-handle > i:first-child {
+        background-color: #5881c1 !important;
+      }
+    ")
+  ),
+  
+  tags$script(HTML("
+        $(document).on('shiny:connected', function() {
+          var slider = $('#target_occupancy').data('ionRangeSlider');
+          if (slider) {
+            slider.update({ grid_num: 5 });
+          }
+        });
+      ")),
+  
+  tags$script(HTML("
+        $(document).on('shiny:connected', function() {
+          var slider = $('#bed_occupancy').data('ionRangeSlider');
+          if (slider) {
+            slider.update({ grid_num: 5 });
+          }
+        });
+      ")),
+    
     # Top-right buttons + logo ---------------------------------------------------
     tags$div(
       class = "top-panel",
@@ -673,7 +710,7 @@ ui <- page_navbar(
       ",
         
         h1(
-          "Why do we need more beds now when historically bed capacity has been in decline?",
+          "Why do we need more beds?",
           style = "
           margin: 0;
           font-size: 2.2rem;
@@ -684,7 +721,7 @@ ui <- page_navbar(
       
       card(
         style = "margin-bottom: 10px;",
-        card_header("What This Tool Does"),
+        card_header("A changing picture of hospital bed requirements"),
         card_body(
           style = "padding: 10px 12px 8px 12px;",
           div(
@@ -727,17 +764,17 @@ ui <- page_navbar(
         open = "always",
         
         div(
-          style = "margin-top: 0px;",
+          style = "margin-top: 18px;",
           
           h3("Future Assumptions",
              style = "font-size: 1.2rem; margin: 0 0 6px 0;"),
           
-          hr(style = "margin: 6px 0;"),
+          hr(style = "margin: 18px 0;"),
           
-          p("Adjust inputs for the next 10 years.",
+          p("Set assumptions for admissions, length of stay and bed occupancy over the next 10 years, and the number of beds required is calculated.",
             style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"),
           
-          hr(style = "margin: 6px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           h5("ADMISSIONS", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
           
@@ -764,6 +801,7 @@ ui <- page_navbar(
           #     span("2026: 16967214"),
           #     span("2035: 16967214") ),
           
+
           # div(
           #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
           #   #span(paste0("2025: ", round(from_93$`All admissions`[from_93$Year == 2025], 0))),
@@ -781,7 +819,7 @@ ui <- page_navbar(
           #   span(textOutput("future_beds_admissions_2035", inline = TRUE))
           # ),
           
-          hr(style = "margin: 8px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           h5("LENGTH OF STAY", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
           
@@ -805,13 +843,15 @@ ui <- page_navbar(
           #  span("2035: 3.12 days")
           # ),
           
+
           # div(
           #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
           #   span(paste0("2025: ", round(from_93$avgLoS[from_93$Year == 2025], 2), " days")),
           #   span(textOutput("future_beds_los_2035", inline = TRUE))
           # ),
+
           
-          hr(style = "margin: 8px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           h5("TARGET BED OCCUPANCY", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
           
@@ -835,11 +875,13 @@ ui <- page_navbar(
           #  span("100%")
           #),
           
+
           # div(
           #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
           #   span(paste0("2025: ", round(from_93$occupancy[from_93$Year == 2025] * 100, 1), "%")),
           #   span(textOutput("future_beds_occupancy_2035", inline = TRUE))
           # ),
+
           
           actionButton(
             "reset_scenario", 
@@ -848,17 +890,17 @@ ui <- page_navbar(
             style = "margin-top: 10px;"
           ),
           
-          div(
-            style = "
-            border: 1px solid #f9bf07;
-            background-color: #fff8e1;
-            padding: 8px;
-            margin-top: 8px;
-            font-size: 0.75rem;
-            line-height: 1.15;
-          ",
-            "Beds required are calculated automatically from the assumptions."
-          )
+       #   div(
+       #     style = "
+        #    border: 1px solid #f9bf07;
+        #    background-color: #fff8e1;
+        #    padding: 8px;
+        #    margin-top: 8px;
+        #    font-size: 0.75rem;
+        #    line-height: 1.15;
+        #  ",
+        #    "Beds required are calculated automatically from the assumptions."
+        #  )
         )
       ),
       
@@ -977,21 +1019,21 @@ ui <- page_navbar(
         open = "always",
         
         div(
-          style = "margin-top: 0px;",
+          style = "margin-top: 18px;",
           
           h3(
             "Future Assumptions",
             style = "font-size: 1.2rem; margin: 0 0 6px 0;"
           ),
           
-          hr(style = "margin: 6px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           p(
-            "Set a fixed bed supply and test what admissions and LoS combinations would be sustainable.",
+            "Set assumptions for future beds, length of stay and bed occupancy over the next 10 years, and the supported admissions are calculated.",
             style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"
           ),
           
-          hr(style = "margin: 6px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           h5("BED SUPPLY", style = "font-size: 0.95rem; margin: 6px 0;"),
           
@@ -1009,6 +1051,7 @@ ui <- page_navbar(
             step = 0.1
           ),
           
+
           # div(
           #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
           #   span(
@@ -1023,8 +1066,9 @@ ui <- page_navbar(
           #   ),
           #   span(textOutput("future_admissions_beds_2035", inline = TRUE))
           # ),
+
           
-          hr(style = "margin: 8px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           h5("LENGTH OF STAY", style = "font-size: 0.95rem; margin: 6px 0;"),
           
@@ -1043,13 +1087,15 @@ ui <- page_navbar(
             width = "100%"
           ),
           
+
           # div(
           #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
           #   span(paste0("2025: ", round(from_93$avgLoS[from_93$Year == 2025], 2), " days")),
           #   span(textOutput("future_admissions_los_2035", inline = TRUE))
           # ),
+
           
-          hr(style = "margin: 8px 0;"),
+          hr(style = "margin: 18px 0;"),
           
           h5("TARGET BED OCCUPANCY", style = "font-size: 0.95rem; margin: 6px 0;"),
           
@@ -1068,30 +1114,32 @@ ui <- page_navbar(
             width = "100%"
           ),
           
+
           # div(
           #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
           #   span(paste0("2025: ", round(from_93$occupancy[from_93$Year == 2025] * 100, 1), "%")),
           #   span(textOutput("future_admissions_occupancy_2035", inline = TRUE))
           # ),
+
           
           actionButton(
-            "reset_baseline", 
-            "↻ Reset to Baseline", 
+            "reset_scenario", 
+            "Reset to Historic Projections", 
             class = "btn-primary w-100",
-            style = "margin-top: 8px; font-size: 0.8rem; padding: 6px;"
+            style = "margin-top: 10px;"
           ),
           
-          div(
-            style = "
-            border: 1px solid #f9bf07;
-            background-color: #fff8e1;
-            padding: 8px;
-            margin-top: 8px;
-            font-size: 0.75rem;
-            line-height: 1.15;
-          ",
-            "Admissions capacity is calculated from the selected beds, LoS and target bed occupancy assumptions."
-          )
+      #    div(
+      #      style = "
+      #      border: 1px solid #f9bf07;
+      #      background-color: #fff8e1;
+      #      padding: 8px;
+      #      margin-top: 8px;
+      #      font-size: 0.75rem;
+     #       line-height: 1.15;
+     #     ",
+     #       "Admissions capacity is calculated from the selected beds, LoS and target bed occupancy assumptions."
+     #     )
         )
       ),
       
