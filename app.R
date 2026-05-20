@@ -534,7 +534,7 @@ ui <- page_navbar(
   width: 100%;
   max-width: 390px;
   height: 255px;
-  margin: 8px auto 6px auto;
+  margin: 0px auto 0px auto;
   overflow: hidden;
 }
 
@@ -1196,10 +1196,11 @@ ui <- page_navbar(
             
             card(
               style = "height: 100%;",
-              card_header(HTML("Scenario Interpretation")),
+              card_header(HTML("Summary")),
               card_body(
                 #p("Historically reductions in LoS have allowed continual reductions in the number of beds, despite rising admissions."),
-                p("Here we consider the impact of future planned bed supply and LoS scenarios on the number of admissions that could be supported."),uiOutput("future_admissions_interpretation"),
+                #p("Here we consider the impact of future planned bed supply and LoS scenarios on the number of admissions that could be supported."),uiOutput("future_admissions_interpretation"),
+                p(""),uiOutput("future_admissions_interpretation"),
                 padding = 10,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
@@ -1497,10 +1498,14 @@ ui <- page_navbar(
       
       card(
         class = "toy-model-links",
-        style = "margin-bottom: 10px; height: 15%;",
+        style =  "
+        border: 2px solid #5881c1;
+        padding: 10px 12px;
+        margin: 10px 0;
+      ",
         card_header("References"),
         card_body(
-          style = "padding: 10px 12px 8px 12px;",
+          style = "padding: 10px 12px 8px 12px; padding-bottom: 10px;",
           div(
             style = "display: flex; gap: 10px; align-items: flex-start;",
             tags$span(
@@ -1566,22 +1571,35 @@ server <- function(input, output, session) {
     paste0(round(value, digits), suffix)
   }
   
-  get_indicator_direction <- function(default_value, selected_value, digits = 1) {
+  get_indicator_direction <- function(default_value, selected_value, digits = 1, panel = "future_beds") {
     
     default_value <- round(default_value, digits)
     selected_value <- round(selected_value, digits)
     
     change <- selected_value - default_value
     
-    if(change > 0.00001){
-      return(list(icon = "▲", colour = "#ec6555", change = change))
-    }
+    if (panel == "future_beds") {
+
+      if(change > 0.00001){
+        return(list(icon = "▲", colour = "#ec6555", change = change))
+      }
     
-    if(change < -0.00001){
-      return(list(icon = "▼", colour = "#238b45", change = change))
-    }
+      if(change < -0.00001){
+        return(list(icon = "▼", colour = "#238b45", change = change))
+      }
     
-    return(list(icon = "=", colour = "#686f73", change = change))
+      return(list(icon = "=", colour = "#686f73", change = change))
+    } else if (panel == "future_admissions") {
+      if(change > 0.00001){
+        return(list(icon = "▲", colour = "#238b45", change = change))
+      }
+      
+      if(change < -0.00001){
+        return(list(icon = "▼", colour = "#ec6555", change = change))
+      }
+      
+      return(list(icon = "=", colour = "#686f73", change = change))
+    }
   }
   
   format_direction_value <- function(default_value,
@@ -1613,9 +1631,9 @@ server <- function(input, output, session) {
     )
   }
   
-  make_compare_badge <- function(default_value, selected_value, suffix = "", digits = 1) {
+  make_compare_badge <- function(default_value, selected_value, suffix = "", digits = 1, panel = "future_beds") {
     
-    direction <- get_indicator_direction(default_value, selected_value, digits)
+    direction <- get_indicator_direction(default_value, selected_value, digits, panel)
     
     HTML(paste0(
       "<span style='color:", direction$colour, "; font-weight:900;'>",
@@ -1955,7 +1973,8 @@ server <- function(input, output, session) {
               0,
               input$admissions_change,
               "%",
-              digits = 1
+              digits = 1,
+              panel = "future_beds"
             )
           ),
           div(class = "info-label", "Admissions"),
@@ -1970,7 +1989,8 @@ server <- function(input, output, session) {
               0,
               input$los_change,
               "%",
-              digits = 1
+              digits = 1,
+              panel = "future_beds"
             )
           ),
           div(class = "info-label", "LoS"),
@@ -1985,7 +2005,8 @@ server <- function(input, output, session) {
               90.5,
               input$target_occupancy,
               "%",
-              digits = 1
+              digits = 1,
+              panel = "future_beds"
             )
           ),
           div(class = "info-label", "Bed Occupancy"),
@@ -2005,7 +2026,8 @@ server <- function(input, output, session) {
               default_beds_2035,
               beds_2035,
               "k",
-              digits = 0
+              digits = 0,
+              panel = "future_beds"
             )
           )
         )
@@ -2052,10 +2074,11 @@ server <- function(input, output, session) {
             div(
               class = "panel3-smart-value",
               make_compare_badge(
-                historic_trends$beds,
+                0,
                 input$bedday_growth,
                 "%",
-                digits = 1
+                digits = 1,
+                panel = "future_admissions"
               )
             ),
             div(class = "panel3-smart-label", "Bed supply"),
@@ -2067,10 +2090,11 @@ server <- function(input, output, session) {
             div(
               class = "panel3-smart-value",
               make_compare_badge(
-                historic_trends$los,
+                0,
                 input$los_change2,
                 "%",
-                digits = 1
+                digits = 1,
+                panel = "future_beds"
               )
             ),
             div(class = "panel3-smart-label", "LoS"),
@@ -2085,11 +2109,12 @@ server <- function(input, output, session) {
                 90.5,
                 input$bed_occupancy,
                 "%",
-                digits = 1
+                digits = 1,
+                panel = "future_beds"
               )
             ),
-            div(class = "panel3-smart-label", "Target Occupancy"),
-            div(class = "panel3-smart-sublabel", "(fixed value)")
+            div(class = "panel3-smart-label", "Bed Occupancy"),
+            div(class = "panel3-smart-sublabel", "(target value)")
           )
         ),
         
@@ -2136,17 +2161,18 @@ server <- function(input, output, session) {
               default_admissions_2035,
               admissions_2035,
               "M",
-              digits = 1
+              digits = 1,
+              panel = "future_admissions"
             )
           )
         )
       ),
       
-      hr(style = "margin: 6px 0 8px 0;"),
+      hr(style = "margin: 0px 0 8px 0;"),
       
       p(
-        "These three inputs interact to determine the number of admissions that could be supported.",
-        class = "panel3-smart-note"
+        "The three inputs interact to determine the number of admissions that could be supported.",
+        style = "font-size:1rem; margin:0; line-height:1.2;"
       )
     )
   })
@@ -2154,21 +2180,21 @@ server <- function(input, output, session) {
   output$admissions_header <- renderUI({
     make_chart_header(
       "Number of Admissions (millions)",
-      make_compare_badge(0, input$admissions_change, "%")
+      make_compare_badge(0, input$admissions_change, "%", digits = 1, panel = "future_beds")
     )
   })
   
   output$los_header <- renderUI({
     make_chart_header(
       "Average Length of Stay (days)",
-      make_compare_badge(0, input$los_change, "%")
+      make_compare_badge(0, input$los_change, "%", digits = 1, panel = "future_beds")
     )
   })
   
   output$occupancy_header <- renderUI({
     make_chart_header(
       "Bed Occupancy Rate (%)",
-      make_compare_badge(90.5, input$target_occupancy, "%")
+      make_compare_badge(90.5, input$target_occupancy, "%", digits = 1, panel = "future_beds")
     )
   })
   
@@ -2193,28 +2219,28 @@ server <- function(input, output, session) {
     
     make_chart_header(
       "Beds Required (thousands)",
-      make_compare_badge(default_beds_2035, beds_2035, "k", digits = 0)
+      make_compare_badge(default_beds_2035, beds_2035, "k", digits = 1, panel = "future_beds")
     )
   })
   
   output$beds2_header <- renderUI({
     make_chart_header(
       "Number of Beds (thousands)",
-      make_compare_badge(0, input$bedday_growth, "%")
+      make_compare_badge(0, input$bedday_growth, "%", digits = 1, panel = "future_admissions")
     )
   })
   
   output$los2_header <- renderUI({
     make_chart_header(
       "Average Length of Stay (days)",
-      make_compare_badge(0, input$los_change2, "%")
+      make_compare_badge(0, input$los_change2, "%", digits = 1, panel = "future_beds")
     )
   })
   
   output$occupancy2_header <- renderUI({
     make_chart_header(
       "Bed Occupancy Rate (%)",
-      make_compare_badge(90.5, input$bed_occupancy, "%")
+      make_compare_badge(90.5, input$bed_occupancy, "%", digits = 1, panel = "future_beds")
     )
   })
   
@@ -2239,7 +2265,7 @@ server <- function(input, output, session) {
     
     make_chart_header(
       "Supported Admissions (millions)",
-      make_compare_badge(default_admissions_2035, admissions_2035, "M")
+      make_compare_badge(default_admissions_2035, admissions_2035, "M", digits = 1, panel = "future_admissions")
     )
   })
   
