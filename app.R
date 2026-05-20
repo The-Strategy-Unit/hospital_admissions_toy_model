@@ -19,7 +19,7 @@ options(scipen=999)
 
 # Data-------------------------------------------------------------------------
 
-data<-read_excel("data/Collating the data.xlsx")
+data<-read_excel("data/Collating the data_final.xlsx")
 from_93<-data[7:38,]
 
 # Formatting data----------------------------------------------------------------
@@ -299,7 +299,7 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
 #UI ----------------------------------------------------------------------------
 ##UI General
 ui <- page_navbar(
-  title = "Hospital Admission Tool",
+  title = "Why do we need more beds?",
   position = "fixed-top", 
   id = "nav",
   bg = "#2c2825",
@@ -457,7 +457,7 @@ ui <- page_navbar(
       ",
         
         h1(
-          "Why do we need more beds now when historically bed capacity has been in decline?",
+          "Why do we need more beds?",
           style = "
           margin: 0;
           font-size: 2.2rem;
@@ -468,7 +468,7 @@ ui <- page_navbar(
       
       card(
         style = "margin-bottom: 10px;",
-        card_header("What This Tool Does"),
+        card_header("A changing picture of hospital bed requirements"),
         card_body(
           style = "padding: 10px 12px 8px 12px;",
           div(
