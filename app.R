@@ -294,6 +294,8 @@ plotting_function <- function(plot_data, scenario_1_values, scenario_2_values, s
     )
 }
 
+
+
 #UI ----------------------------------------------------------------------------
 ##UI General
 ui <- page_navbar(
@@ -397,6 +399,24 @@ ui <- page_navbar(
       }
     ")
   ),
+  
+  tags$script(HTML("
+        $(document).on('shiny:connected', function() {
+          var slider = $('#target_occupancy').data('ionRangeSlider');
+          if (slider) {
+            slider.update({ grid_num: 5 });
+          }
+        });
+      ")),
+  
+  tags$script(HTML("
+        $(document).on('shiny:connected', function() {
+          var slider = $('#bed_occupancy').data('ionRangeSlider');
+          if (slider) {
+            slider.update({ grid_num: 5 });
+          }
+        });
+      ")),
     
     # Top-right buttons + logo ---------------------------------------------------
     tags$div(
