@@ -849,10 +849,10 @@ ui <- page_navbar(
           ),
           
           actionButton(
-            "reset_baseline", 
-            "↻ Reset to Baseline", 
+            "reset_scenario", 
+            "Reset to Historic Projections", 
             class = "btn-primary w-100",
-            style = "margin-top: 8px; font-size: 0.8rem; padding: 6px;"
+            style = "margin-top: 10px;"
           ),
           
           div(
