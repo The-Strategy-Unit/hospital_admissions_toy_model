@@ -1383,9 +1383,9 @@ ui <- page_navbar(
         card_header("Model Overview"),
         div(
           style = "padding: 4px;",
-          p("This tool models the relationship between bed capacity, patient admissions, length of stay (LoS), and occupancy rates."),
-          p("We use well known theory from the M/M/infinity queueing model to derive the number of beds required to meet target occupancy given assumed admission and length of stay scenarios. This model assumes unconstrained capacity, Poisson admissions and exponential lengths of stay. Viewing the system as unconstrained allows us to examine the occupancy distribution and set the number of beds equal to the target quantile of occupancy."),
-          p("The main result in use is that for an M/M/infinity system the expected number in the system follows a Poisson distribution with mean equal to the arrival rate multiplied by the average length of stay:"),
+          p("This model approximates the relationship between bed capacity, patient admissions, length of stay (LoS), and occupancy rates."),
+          p("We use well known theory from the M/G/infinity queueing model to derive the number of beds required to meet target occupancy given assumed admission and length of stay scenarios. This model assumes unconstrained capacity and Poisson admissions. Viewing the system as unconstrained allows us to examine the occupancy distribution and set the number of beds equal to the target quantile of occupancy."),
+          p("The main result in use is that for an M/G/infinity system the expected number in the system follows a Poisson distribution with mean equal to the arrival rate multiplied by the average length of stay:"),
           div(
             style = "
             border: 2px solid #5881c1;
@@ -1396,8 +1396,10 @@ ui <- page_navbar(
           ",
             "λ = Arrival rate (admissions per day) * μ = Average length of stay (days) = Expected number of patients in the system E_NIS"
           ),
-          p("we can therefore derive the number of beds required to meet a target occupancy level (p) as the p quantile of a Poisson distribution with mean E_NIS."),
-          
+          p("we therefore derive the number of beds required to meet a target occupancy level (p) as the p quantile of a Poisson distribution with mean E_NIS."),
+          p("This model is designed for intuition building and is not a forecasting tool. It is not designed to give precise estimates of future bed requirements or admissions capacity, but rather to allow users to explore the relationship between these variables and build intuition about how they interact."),
+          p("In reality the assumption of Poisson admissions may not hold, and other factors such as seasonal variations, changes in patient demographics, and healthcare policies can impact admission rates. Additionally, the model assumes that bed capacity is unconstrained, which may not reflect real-world limitations and their impact on patient flow and occupancy."),
+
           p("Parameters:"),
           tags$ul(
             tags$li("Admissions: Number of hospital admissions per year (converted to daily rate for the model)."),
