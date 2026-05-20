@@ -454,6 +454,7 @@ ui <- page_navbar(
 .info-arrow {
   position: absolute;
   height: 3px;
+  border-radius: 20px;
   background: #9fa3a6;
   transform-origin: left center;
   z-index: 1;
@@ -472,23 +473,24 @@ ui <- page_navbar(
 }
 
 .info-arrow-left {
-  width: 105px;
+  width: 55px;
   top: 93px;
+  border-radius: 20px;
   left: 105px;
   transform: rotate(125deg);
 }
 
 .info-arrow-right {
-  width: 105px;
+  width: 55px;
   top: 93px;
   left: 220px;
   transform: rotate(55deg);
 }
 
 .info-arrow-bottom {
-  width: 118px;
-  top: 191px;
-  left: 108px;
+  width: 55px;
+  top: 210px;
+  left: 138px;
 }
 
 .info-output {
@@ -501,7 +503,8 @@ ui <- page_navbar(
 }
 
 .bed-icon {
-  margin-bottom: 2px;
+  margin-top: 8px;
+  margin-bottom: 8px;
 }
 
 .bed-icon i {
@@ -704,7 +707,7 @@ ui <- page_navbar(
   
   ## Panel 1: Landing page ---------------------------------------------------------
   nav_panel(
-    "The Question",
+    "",
     
     div(
       style = "max-width: 1400px; margin: 0 auto;",
@@ -712,9 +715,9 @@ ui <- page_navbar(
       div(
         style = "
         background-color: #f9bf07;
-        border: 2px solid #2c2825;
+        border: 6px solid #2c2825;
         padding: 34px 36px;
-        margin: 30px 0 18px 0;
+        margin: 200px 0 18px 0;
       ",
         
         h1(
@@ -726,36 +729,6 @@ ui <- page_navbar(
         "
         )
       ),
-      
-      card(
-        style = "margin-bottom: 10px;",
-        card_header("A changing picture of hospital bed requirements"),
-        card_body(
-          style = "padding: 10px 12px 8px 12px;",
-          div(
-            style = "display: flex; gap: 10px; align-items: flex-start;",
-            tags$span(
-              style = "font-size: 20px; color: #5881c1; line-height: 1.1;"
-            ),
-            div(
-              p(
-                "Historically reduction in LoS has allowed for reduction in bed capacity despite growing admissions. However, there is a limit to the amount LoS can reduce, and if admissions continue to grow bed capacity must also to maintain system performance.",
-                style = "margin: 0 0 6px 0;"
-              ),
-              p(
-                "This app allows the user to build intuition by:",
-                style = "margin: 0 0 6px 0;"
-              ),
-              tags$ul(
-                style = "margin: 0; padding-left: 20px;",
-                tags$li("Viewing how admissions, available beds, average length of stay and bed occupancy have changed over the past 30+ years (1994–2025)."),
-                tags$li("How changes in admissions could affect future bed requirements (Future Beds Calculator)."),
-                tags$li("How many admissions could be supported by future growth in bed capacity (Future Admissions Calculator).")
-              )
-            )
-          )
-        )
-      )
     )
   ),
   
@@ -777,12 +750,12 @@ ui <- page_navbar(
           h3("Future Assumptions",
              style = "font-size: 1.2rem; margin: 0 0 6px 0;"),
           
-          hr(style = "margin: 18px 0;"),
+          hr(style = "margin: 15px 0;"),
           
-          p("Set assumptions for admissions, length of stay and bed occupancy over the next 10 years, and the number of beds required is calculated.",
+          p("Set assumptions for admissions, LoS and bed occupancy over the next 10 years. The number of beds required is calculated.",
             style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"),
           
-          hr(style = "margin: 18px 0;"),
+          hr(style = "margin: 15px 0;"),
           
           h5("ADMISSIONS", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
           
@@ -1001,12 +974,11 @@ ui <- page_navbar(
             
             card(
               style = "height: 100%;",
-              card_header(HTML("Scenario Interpretation")),
+              card_header(HTML("Summary")),
               card_body(
-                #p("Historically reductions in LoS have allowed continual reductions in the number of beds, despite rising admissions."),
-                p("Here we consider the impact of future admission and LoS scenarios on the number of beds."),uiOutput("future_beds_interpretation"),
+                p(""),uiOutput("future_beds_interpretation"),
                 padding = 10,
-                style = "height: calc(100% - 48px); overflow-y: auto;"
+                style = "height: calc(100% - 36px); overflow-y: auto;"
               )
             )
           )
@@ -1034,14 +1006,14 @@ ui <- page_navbar(
             style = "font-size: 1.2rem; margin: 0 0 6px 0;"
           ),
           
-          hr(style = "margin: 18px 0;"),
+          hr(style = "margin: 15px 0;"),
           
           p(
-            "Set assumptions for future beds, length of stay and bed occupancy over the next 10 years, and the supported admissions are calculated.",
+            "Set assumptions for future beds, LoS and bed occupancy over the next 10 years. The supported admissions are calculated.",
             style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"
           ),
           
-          hr(style = "margin: 18px 0;"),
+          hr(style = "margin: 15px 0;"),
           
           h5("BED SUPPLY", style = "font-size: 0.95rem; margin: 6px 0;"),
           
@@ -1253,9 +1225,9 @@ ui <- page_navbar(
         padding: 16px 22px;
         margin: 10px 0 10px 0;
       ",
-        h2("Hospital Admissions Tool", style = "margin: 0 0 6px 0;"),
-        p(
-          "This interactive tool allows exploration of the relationship between hospital admissions, length of stay (LoS), bed occupancy and available beds.",
+        #h2("Hospital Admissions Tool", style = "margin: 0 0 6px 0;"),
+        h2(
+          "Exploring the relationship between hospital admissions, length of stay (LoS), bed occupancy and available beds.",
           style = "margin: 0;"
         )
       ),
@@ -1484,7 +1456,7 @@ ui <- page_navbar(
             #      margin-bottom: 10px;
             #    ",
             p("The historic annual number of admissions and average length of stays between 1994 and 2025 were derived from the Hospital Episode Statistics dataset."),
-            p("The historic number of beds and bed occupancy was taken from the NHS England Bed Availability and Occupancy (KH03) Collection. Day and overnight beds were combined and the number of beds was taken from Q4 each year."),
+            p("The historic number of beds and bed occupancy was taken from the NHS England Bed Availability and Occupancy (KH03) Collection. Day and overnight beds were combined and the number of beds averaged over the four quarters of theyear."),
             p("The preset admission scenarios (Do nothing, Planned and Ambitious) were derived using The Strategy Unit's NHP Model. Details can be found in the Future Demand for Community Care report (see references).")
           ),
           
@@ -1649,7 +1621,7 @@ server <- function(input, output, session) {
       "<span style='color:", direction$colour, "; font-weight:900;'>",
       direction$icon,
       " ",
-      format_indicator_value(selected_value, suffix, digits),
+      format_indicator_value(abs(default_value - selected_value), suffix, digits),
       "</span>"
     ))
   }
@@ -1968,6 +1940,7 @@ server <- function(input, output, session) {
     
     div(
       div(
+        
         class = "infographic-wrap",
         
         div(class = "info-arrow info-arrow-left"),
@@ -1979,7 +1952,7 @@ server <- function(input, output, session) {
           div(
             class = "info-value",
             make_compare_badge(
-              historic_trends$admissions,
+              0,
               input$admissions_change,
               "%",
               digits = 1
@@ -1994,7 +1967,7 @@ server <- function(input, output, session) {
           div(
             class = "info-value",
             make_compare_badge(
-              historic_trends$los,
+              0,
               input$los_change,
               "%",
               digits = 1
@@ -2015,8 +1988,8 @@ server <- function(input, output, session) {
               digits = 1
             )
           ),
-          div(class = "info-label", "Target Occupancy"),
-          div(class = "info-sublabel", "(fixed value)")
+          div(class = "info-label", "Bed Occupancy"),
+          div(class = "info-sublabel", "(fixed target)")
         ),
         
         div(
@@ -2041,8 +2014,8 @@ server <- function(input, output, session) {
       hr(style = "margin: 4px 0 8px 0;"),
       
       p(
-        "These three inputs interact to determine the number of beds required.",
-        style = "font-size:0.8rem; margin:0; line-height:1.2;"
+        "The three inputs interact to determine the number of beds required in 2035.",
+        style = "font-size:1rem; margin:0; line-height:1.2;"
       )
     )
   })
@@ -2181,14 +2154,14 @@ server <- function(input, output, session) {
   output$admissions_header <- renderUI({
     make_chart_header(
       "Number of Admissions (millions)",
-      make_compare_badge(historic_trends$admissions, input$admissions_change, "%")
+      make_compare_badge(0, input$admissions_change, "%")
     )
   })
   
   output$los_header <- renderUI({
     make_chart_header(
       "Average Length of Stay (days)",
-      make_compare_badge(historic_trends$los, input$los_change, "%")
+      make_compare_badge(0, input$los_change, "%")
     )
   })
   
@@ -2227,14 +2200,14 @@ server <- function(input, output, session) {
   output$beds2_header <- renderUI({
     make_chart_header(
       "Number of Beds (thousands)",
-      make_compare_badge(historic_trends$beds, input$bedday_growth, "%")
+      make_compare_badge(0, input$bedday_growth, "%")
     )
   })
   
   output$los2_header <- renderUI({
     make_chart_header(
       "Average Length of Stay (days)",
-      make_compare_badge(historic_trends$los, input$los_change2, "%")
+      make_compare_badge(0, input$los_change2, "%")
     )
   })
   
