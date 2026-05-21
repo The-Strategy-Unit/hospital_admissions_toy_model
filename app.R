@@ -866,7 +866,7 @@ ui <- page_navbar(
           
           actionButton(
             "reset_scenario", 
-            "Reset to Historic Projections", 
+            "Reset Values", 
             class = "btn-primary w-100",
             style = "margin-top: 10px;"
           ),
@@ -1104,7 +1104,7 @@ ui <- page_navbar(
           
           actionButton(
             "reset_baseline", 
-            "Reset to Historic Projections", 
+            "Reset Values", 
             class = "btn-primary w-100",
             style = "margin-top: 10px;"
           ),
