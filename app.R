@@ -28,7 +28,7 @@ historic_trends<-from_93|>
   rename(los=`avgLoS`)|>
   rename(beds=Beds)|>
   select(admissions, los, beds, occupancy)|>
-  summarise(across(everything(),  ~ ((last(.) / first(.))^(1 / n()) - 1) * 100))|>
+  summarise(across(everything(),  ~ ((last(.) / first(.))^(1 / (n()-1)) - 1) * 100))|>
   mutate(across(where(is.numeric), round, digits = 2))
 
 # Functions--------------------------------------------------------------------
@@ -115,6 +115,28 @@ future_beds_model<-function(from_93, admissions_yearly_percentage_change, los_ye
   
 }
 
+
+annual_percentage_change <- function(data, output_type, start_year, end_year) {
+  
+  start_value <- data[[output_type]][data$year == start_year]
+  end_value <- data[[output_type]][data$year == end_year]
+  number_of_years <- end_year - start_year
+  
+  if (
+    length(start_value) == 0 ||
+    length(end_value) == 0 ||
+    is.na(start_value) ||
+    is.na(end_value) ||
+    start_value <= 0 ||
+    end_value <= 0
+  ) {
+    return(NA)
+  }
+  
+  ((end_value / start_value)^(1 / number_of_years) - 1) * 100
+}
+
+
 ## Plotting function
 plotting_function <- function(
     plot_data,
@@ -127,26 +149,7 @@ plotting_function <- function(
     show_trend_labels = FALSE
 ) {
   # Heather adding historic and future average annual % change chart labels
-  
-  annual_percentage_change <- function(data, output_type, start_year, end_year) {
-    
-    start_value <- data[[output_type]][data$year == start_year]
-    end_value <- data[[output_type]][data$year == end_year]
-    number_of_years <- end_year - start_year
-    
-    if (
-      length(start_value) == 0 ||
-      length(end_value) == 0 ||
-      is.na(start_value) ||
-      is.na(end_value) ||
-      start_value <= 0 ||
-      end_value <= 0
-    ) {
-      return(NA)
-    }
-    
-    ((end_value / start_value)^(1 / number_of_years) - 1) * 100
-  }
+
   
   historical_avg_annual_change <- annual_percentage_change(
     plot_data,
