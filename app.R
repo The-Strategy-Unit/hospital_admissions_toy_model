@@ -205,13 +205,13 @@ plotting_function <- function(
   y_label_position <- y_axis_min + ((y_axis_max - y_axis_min) * 0.95)
   
   historical_label <- paste0(
-    "Historic avg %<br>change: ",
+    "Historic annual <br>change: ",
     round(historical_avg_annual_change, 1),
     "%"
   )
   
   future_label <- paste0(
-    "Future avg %<br>change: ",
+    "Future annual <br>change: ",
     round(future_avg_annual_change, 1),
     "%"
   )
@@ -290,14 +290,14 @@ plotting_function <- function(
       annotations = if(show_trend_labels) {
         list(
           list(
-            x = 2024.4,
+           x = 2024.4,
             y = y_label_position,
             text = historical_label,
             showarrow = FALSE,
             xanchor = "right",
             yanchor = "middle",
             font = list(size = 14, color = "black")
-          ),
+           ),
           list(
             x = 2025.6,
             y = y_label_position,
@@ -306,10 +306,17 @@ plotting_function <- function(
             xanchor = "left",
             yanchor = "middle",
             font = list(size = 14, color = "black")
-          )
-        )
+          ))
       } else {
-        list()
+        list(   list(
+             x = 2024.4,
+             y = y_label_position,
+             text = historical_label,
+            showarrow = FALSE,
+              xanchor = "right",
+             yanchor = "middle",
+              font = list(size = 14, color = "black")
+        ))
       }
     )
 }
@@ -913,14 +920,14 @@ ui <- page_navbar(
         div(
           style = "
           display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
+          grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
           grid-template-rows: 32vh 55vh;
           gap: 8px;
           height: 80vh;
         ",
           
           card(
-            style = "height: 100%;",
+            style ="grid-column: 1 / span 3; height: 100%;",
             card_header(uiOutput("admissions_header")),
             card_body(
               plotlyOutput("admissions", height = "100%"),
@@ -930,7 +937,7 @@ ui <- page_navbar(
           ),
           
           card(
-            style = "height: 100%;",
+            style ="grid-column: 4 / span 6; height: 100%;",
             card_header(uiOutput("los_header")),
             card_body(
               plotlyOutput("los", height = "100%"),
@@ -939,18 +946,18 @@ ui <- page_navbar(
             )
           ),
           
-          card(
-            style = "height: 100%;",
-            card_header(uiOutput("occupancy_header")),
-            card_body(
-              plotlyOutput("occupancy", height = "100%"),
-              padding = 8,
-              style = "height: calc(100% - 48px); overflow: hidden;"
-            )
-          ),
+        #  card(
+        #    style = "height: 100%;",
+        #    card_header(uiOutput("occupancy_header")),
+        #    card_body(
+        #      plotlyOutput("occupancy", height = "100%"),
+        #      padding = 8,
+        #      style = "height: calc(100% - 48px); overflow: hidden;"
+        #    )
+        #  ),
           
           card(
-            style = "grid-column: 1 / span 2; height: 100%;",
+            style = "grid-column: 1 / span 4; height: 100%;",
             card_header(
               uiOutput("beds_header"),
               style = "
@@ -965,23 +972,16 @@ ui <- page_navbar(
               style = "height: calc(100% - 48px); overflow: hidden;"
             )
           ),
-          
-          div(
-            style = "
-            display: grid;
-            grid-template-rows: 1fr;
-            gap: 8px;
-            height: 100%;
-          ",
+    
             
             card(
-              style = "height: 100%;",
+              style = "grid-column: 5/ span 6; height: 100%;",
               card_header(HTML("Summary")),
               card_body(
                 p(""),uiOutput("future_beds_interpretation"),
                 padding = 10,
                 style = "height: calc(100% - 36px); overflow-y: auto;"
-              )
+            
             )
           )
         )
@@ -1135,14 +1135,14 @@ ui <- page_navbar(
         div(
           style = "
           display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
+          grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
           grid-template-rows: 32vh 55vh;
           gap: 8px;
           height: 80vh;
         ",
           
           card(
-            style = "height: 100%;",
+            style = "grid-column: 1 / span 3; height: 100%;",
             card_header(uiOutput("beds2_header")),
             card_body(
               plotlyOutput("beds2", height = "100%"),
@@ -1152,7 +1152,7 @@ ui <- page_navbar(
           ),
           
           card(
-            style = "height: 100%;",
+            style = "grid-column: 4 / span 6; height: 100%;",
             card_header(uiOutput("los2_header")),
             card_body(
               plotlyOutput("los2", height = "100%"),
@@ -1161,18 +1161,18 @@ ui <- page_navbar(
             )
           ),
           
-          card(
-            style = "height: 100%;",
-            card_header(uiOutput("occupancy2_header")),
-            card_body(
-              plotlyOutput("occupancy2", height = "100%"),
-              padding = 8,
-              style = "height: calc(100% - 48px); overflow: hidden;"
-            )
-          ),
+        #  card(
+        #    style = "height: 100%;",
+        #    card_header(uiOutput("occupancy2_header")),
+        #    card_body(
+        #      plotlyOutput("occupancy2", height = "100%"),
+        #      padding = 8,
+         #     style = "height: calc(100% - 48px); overflow: hidden;"
+         #   )
+         # ),
           
           card(
-            style = "grid-column: 1 / span 2; height: 100%;",
+            style = "grid-column: 1 / span 4; height: 100%;",
             card_header(
               uiOutput("admissions2_header"),
               style = "
@@ -1188,16 +1188,9 @@ ui <- page_navbar(
             )
           ),
           
-          div(
-            style = "
-            display: grid;
-            grid-template-rows: 1fr;
-            gap: 8px;
-            height: 100%;
-          ",
             
             card(
-              style = "height: 100%;",
+              style ="grid-column: 5 / span 6; height: 100%;",
               card_header(HTML("Summary")),
               card_body(
                 #p("Historically reductions in LoS have allowed continual reductions in the number of beds, despite rising admissions."),
@@ -1206,7 +1199,7 @@ ui <- page_navbar(
                 padding = 10,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
-            )
+          
           )
         )
       )
