@@ -249,12 +249,12 @@ plotting_function <- function(
         x = year,
         y = .data[[output_type]],
         text = paste0(
-          #"Historic trend continued<br>",
+          "Projected continuation of historic trend<br>",
           "Year: ", year,
           "<br>", y_axis_label, ": ", round(.data[[output_type]], 1)
         )
       ),
-      colour = "#5881c1",
+      colour = "#9AB3D9",
       linewidth = 0.6,
       linetype = "dotted",
       group = 1
@@ -816,7 +816,7 @@ ui <- page_navbar(
             label = NULL,
             min = -5,
             max = 5,
-            value = 0, #historic_trends$los,
+            value = historic_trends$los,
             step = 0.1
           ),
           
@@ -1064,7 +1064,7 @@ ui <- page_navbar(
             NULL,
             min = -5,
             max = 5,
-            value = 0, #historic_trends$los,
+            value = historic_trends$los,
             step = 0.1,
             width = "100%"
           ),
@@ -1562,13 +1562,13 @@ server <- function(input, output, session) {
   
   observeEvent(input$reset_scenario, {
     updateSliderInput(session, "admissions_change", value = historic_trends$admissions)
-    updateSliderInput(session, "los_change", value = 0)#historic_trends$los)
+    updateSliderInput(session, "los_change", value =historic_trends$los)
     updateSliderInput(session, "target_occupancy", value = 90.5)
   })
   
   observeEvent(input$reset_baseline, {
     updateSliderInput(session, "bedday_growth", value = 0)#historic_trends$beds) 
-    updateSliderInput(session, "los_change2", value = 0)#,historic_trends$los) 
+    updateSliderInput(session, "los_change2", value =historic_trends$los) 
     updateSliderInput(session, "bed_occupancy", value = 90.5) 
   })
   
@@ -1991,7 +1991,7 @@ server <- function(input, output, session) {
           div(
             class = "info-value",
             make_compare_badge(
-              0,
+              historic_trends$los,
               input$los_change,
               "%",
               digits = 1,
@@ -2095,7 +2095,7 @@ server <- function(input, output, session) {
             div(
               class = "panel3-smart-value",
               make_compare_badge(
-                0,
+                historic_trends$los,
                 input$los_change2,
                 "%",
                 digits = 1,
