@@ -1353,14 +1353,14 @@ ui <- page_navbar(
               tags$span(style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
               div(
                 h5("Step 2: Explore Projections", style = "margin: 0 0 4px 0;"),
-                p("Four trend charts are displayed on each calculator tab illustrating number of admissions, average length of stay, number of beds and target bed occupancy over time. Charts allow a user to:"),
+                p("Three trend charts are displayed on each calculator tab illustrating number of admissions, average length of stay and number of beds over time. Charts allow a user to:"),
                 tags$ul(
                   style = "margin: 0; padding-left: 20px;",
                   #tags$li("Number of admissions, Average length of stay, Number of beds and Target bed occupancy."),
-                  tags$li("View historic trends (solid black line) and projected trends (red dotted line) from 2026-2035 (based on the selected assumptions)."),
-                  tags$li("View pre-set admission scenarios (3 dotted grey lines) under do nothing, planned and ambitious admission strategies."),
+                  tags$li("View historic trends (solid black line) and projected trends (blue dotted line) from 2026-2035 (based on the historic trends)."),
+                  tags$li("Adjust the sliders to see changes in the future projections (solid blue line)."),
                   #tags$li("Adjust the sliders to watch trends change in real time."),
-                  tags$li("Hover over the chart lines to read off yearly values. Actual values for 2025 and projected values for 2035 are given on the sidebar.")
+                  tags$li("Hover over the chart lines to read off yearly values.")
                 )
               )
             )
@@ -1382,17 +1382,17 @@ ui <- page_navbar(
       # ),
       
       ### Call to action 
-      div(
-        style = "
-        border: 2px solid #5881c1;
-        background-color: #eef4fb;
-        padding: 10px 12px;
-        margin: 10px 0;
-      ",
-        h4("Ready to Get Started?", style = "margin: 0 0 6px 0;"),
-        p(HTML('Go to <b>"Future Beds Calculator"</b> and adjust assumptions to predict the number of beds required to meet future changes in admissions.'), style = "margin: 0;"),
-        p(HTML('Go to <b>"Future Admissions Calculator"</b> and adjust assumptions to predict the number of admissions that could be supported by future growth in bed capacity.'), style = "margin: 0;")
-      )
+   #   div(
+   #     style = "
+   #     border: 2px solid #5881c1;
+   #     background-color: #eef4fb;
+   #     padding: 10px 12px;
+   #     margin: 10px 0;
+   #   ",
+    #    h4("Ready to Get Started?", style = "margin: 0 0 6px 0;"),
+    #    p(HTML('Go to <b>"Future Beds Calculator"</b> and adjust assumptions to predict the number of beds required to meet future changes in admissions.'), style = "margin: 0;"),
+    #    p(HTML('Go to <b>"Future Admissions Calculator"</b> and adjust assumptions to predict the number of admissions that could be supported by future growth in bed capacity.'), style = "margin: 0;")
+    #  )
     )
   ),
   
@@ -1482,7 +1482,7 @@ ui <- page_navbar(
             tags$li("Admissions per day are calculated by dividing annual admissions by 365, assuming a constant rate throughout the year. This ignores seasonal variation."),
             tags$li("Average LoS was estimated using beddays from HES under the assumption that same day admissions take on average 0.2 of a day (5 hours)."),
             tags$li("The historical number of beds was taken from Q4 each year, which may not reflect the average number of beds across the year."),
-            tags$li("The historical occpancy is calculated as the historic beddays divided by the number of available beddays given the number of beds. This assumes that bed occupancy is constant across the year and does not reflect seasonal variation. It also doesn't align exactly with the occupancy reported in the NHS England Bed Availability and Occupancy (KH03) Collection."),
+            tags$li("The historical occupancy is calculated as the historic beddays divided by the number of available beddays given the number of beds. This assumes that bed occupancy is constant across the year and does not reflect seasonal variation. It also doesn't align exactly with the occupancy reported in the NHS England Bed Availability and Occupancy (KH03) Collection."),
           ),
           p(strong("This tool is designed for intuition building only, and not for strategic planning or operational decisions."))
         )
