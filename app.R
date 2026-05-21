@@ -1987,7 +1987,7 @@ server <- function(input, output, session) {
           div(
             class = "info-value",
             make_compare_badge(
-              historic_trends$los,
+              0,
               input$los_change,
               "%",
               digits = 1,
