@@ -28,7 +28,7 @@ historic_trends<-from_93|>
   rename(los=`avgLoS`)|>
   rename(beds=Beds)|>
   select(admissions, los, beds, occupancy)|>
-  summarise(across(everything(),  ~ ((last(.) / first(.))^(1 / n()) - 1) * 100))|>
+  summarise(across(everything(),  ~ ((last(.) / first(.))^(1 / (n()-1)) - 1) * 100))|>
   mutate(across(where(is.numeric), round, digits = 2))
 
 # Functions--------------------------------------------------------------------
@@ -115,6 +115,28 @@ future_beds_model<-function(from_93, admissions_yearly_percentage_change, los_ye
   
 }
 
+
+annual_percentage_change <- function(data, output_type, start_year, end_year) {
+  
+  start_value <- data[[output_type]][data$year == start_year]
+  end_value <- data[[output_type]][data$year == end_year]
+  number_of_years <- end_year - start_year
+  
+  if (
+    length(start_value) == 0 ||
+    length(end_value) == 0 ||
+    is.na(start_value) ||
+    is.na(end_value) ||
+    start_value <= 0 ||
+    end_value <= 0
+  ) {
+    return(NA)
+  }
+  
+  ((end_value / start_value)^(1 / number_of_years) - 1) * 100
+}
+
+
 ## Plotting function
 plotting_function <- function(
     plot_data,
@@ -127,26 +149,7 @@ plotting_function <- function(
     show_trend_labels = FALSE
 ) {
   # Heather adding historic and future average annual % change chart labels
-  
-  annual_percentage_change <- function(data, output_type, start_year, end_year) {
-    
-    start_value <- data[[output_type]][data$year == start_year]
-    end_value <- data[[output_type]][data$year == end_year]
-    number_of_years <- end_year - start_year
-    
-    if (
-      length(start_value) == 0 ||
-      length(end_value) == 0 ||
-      is.na(start_value) ||
-      is.na(end_value) ||
-      start_value <= 0 ||
-      end_value <= 0
-    ) {
-      return(NA)
-    }
-    
-    ((end_value / start_value)^(1 / number_of_years) - 1) * 100
-  }
+
   
   historical_avg_annual_change <- annual_percentage_change(
     plot_data,
@@ -205,13 +208,13 @@ plotting_function <- function(
   y_label_position <- y_axis_min + ((y_axis_max - y_axis_min) * 0.95)
   
   historical_label <- paste0(
-    "Historic avg %<br>change: ",
+    "Historic annual <br>change: ",
     round(historical_avg_annual_change, 1),
     "%"
   )
   
   future_label <- paste0(
-    "Future avg %<br>change: ",
+    "Future annual <br>change: ",
     round(future_avg_annual_change, 1),
     "%"
   )
@@ -249,12 +252,12 @@ plotting_function <- function(
         x = year,
         y = .data[[output_type]],
         text = paste0(
-          #"Historic trend continued<br>",
+          "Projected continuation of historic trend<br>",
           "Year: ", year,
           "<br>", y_axis_label, ": ", round(.data[[output_type]], 1)
         )
       ),
-      colour = "#5881c1",
+      colour = "#9AB3D9",
       linewidth = 0.6,
       linetype = "dotted",
       group = 1
@@ -290,14 +293,14 @@ plotting_function <- function(
       annotations = if(show_trend_labels) {
         list(
           list(
-            x = 2024.4,
+           x = 2024.4,
             y = y_label_position,
             text = historical_label,
             showarrow = FALSE,
             xanchor = "right",
             yanchor = "middle",
             font = list(size = 14, color = "black")
-          ),
+           ),
           list(
             x = 2025.6,
             y = y_label_position,
@@ -306,10 +309,17 @@ plotting_function <- function(
             xanchor = "left",
             yanchor = "middle",
             font = list(size = 14, color = "black")
-          )
-        )
+          ))
       } else {
-        list()
+        list(   list(
+             x = 2024.4,
+             y = y_label_position,
+             text = historical_label,
+            showarrow = FALSE,
+              xanchor = "right",
+             yanchor = "middle",
+              font = list(size = 14, color = "black")
+        ))
       }
     )
 }
@@ -816,7 +826,7 @@ ui <- page_navbar(
             label = NULL,
             min = -5,
             max = 5,
-            value = 0, #historic_trends$los,
+            value = historic_trends$los,
             step = 0.1
           ),
           
@@ -913,14 +923,14 @@ ui <- page_navbar(
         div(
           style = "
           display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
+          grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
           grid-template-rows: 32vh 55vh;
           gap: 8px;
           height: 80vh;
         ",
           
           card(
-            style = "height: 100%;",
+            style ="grid-column: 1 / span 3; height: 100%;",
             card_header(uiOutput("admissions_header")),
             card_body(
               plotlyOutput("admissions", height = "100%"),
@@ -930,7 +940,7 @@ ui <- page_navbar(
           ),
           
           card(
-            style = "height: 100%;",
+            style ="grid-column: 4 / span 6; height: 100%;",
             card_header(uiOutput("los_header")),
             card_body(
               plotlyOutput("los", height = "100%"),
@@ -939,18 +949,18 @@ ui <- page_navbar(
             )
           ),
           
-          card(
-            style = "height: 100%;",
-            card_header(uiOutput("occupancy_header")),
-            card_body(
-              plotlyOutput("occupancy", height = "100%"),
-              padding = 8,
-              style = "height: calc(100% - 48px); overflow: hidden;"
-            )
-          ),
+        #  card(
+        #    style = "height: 100%;",
+        #    card_header(uiOutput("occupancy_header")),
+        #    card_body(
+        #      plotlyOutput("occupancy", height = "100%"),
+        #      padding = 8,
+        #      style = "height: calc(100% - 48px); overflow: hidden;"
+        #    )
+        #  ),
           
           card(
-            style = "grid-column: 1 / span 2; height: 100%;",
+            style = "grid-column: 1 / span 4; height: 100%;",
             card_header(
               uiOutput("beds_header"),
               style = "
@@ -965,23 +975,16 @@ ui <- page_navbar(
               style = "height: calc(100% - 48px); overflow: hidden;"
             )
           ),
-          
-          div(
-            style = "
-            display: grid;
-            grid-template-rows: 1fr;
-            gap: 8px;
-            height: 100%;
-          ",
+    
             
             card(
-              style = "height: 100%;",
+              style = "grid-column: 5/ span 6; height: 100%;",
               card_header(HTML("Summary")),
               card_body(
                 p(""),uiOutput("future_beds_interpretation"),
                 padding = 10,
                 style = "height: calc(100% - 36px); overflow-y: auto;"
-              )
+            
             )
           )
         )
@@ -1064,7 +1067,7 @@ ui <- page_navbar(
             NULL,
             min = -5,
             max = 5,
-            value = 0, #historic_trends$los,
+            value = historic_trends$los,
             step = 0.1,
             width = "100%"
           ),
@@ -1135,14 +1138,14 @@ ui <- page_navbar(
         div(
           style = "
           display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
+          grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
           grid-template-rows: 32vh 55vh;
           gap: 8px;
           height: 80vh;
         ",
           
           card(
-            style = "height: 100%;",
+            style = "grid-column: 1 / span 3; height: 100%;",
             card_header(uiOutput("beds2_header")),
             card_body(
               plotlyOutput("beds2", height = "100%"),
@@ -1152,7 +1155,7 @@ ui <- page_navbar(
           ),
           
           card(
-            style = "height: 100%;",
+            style = "grid-column: 4 / span 6; height: 100%;",
             card_header(uiOutput("los2_header")),
             card_body(
               plotlyOutput("los2", height = "100%"),
@@ -1161,18 +1164,18 @@ ui <- page_navbar(
             )
           ),
           
-          card(
-            style = "height: 100%;",
-            card_header(uiOutput("occupancy2_header")),
-            card_body(
-              plotlyOutput("occupancy2", height = "100%"),
-              padding = 8,
-              style = "height: calc(100% - 48px); overflow: hidden;"
-            )
-          ),
+        #  card(
+        #    style = "height: 100%;",
+        #    card_header(uiOutput("occupancy2_header")),
+        #    card_body(
+        #      plotlyOutput("occupancy2", height = "100%"),
+        #      padding = 8,
+         #     style = "height: calc(100% - 48px); overflow: hidden;"
+         #   )
+         # ),
           
           card(
-            style = "grid-column: 1 / span 2; height: 100%;",
+            style = "grid-column: 1 / span 4; height: 100%;",
             card_header(
               uiOutput("admissions2_header"),
               style = "
@@ -1188,16 +1191,9 @@ ui <- page_navbar(
             )
           ),
           
-          div(
-            style = "
-            display: grid;
-            grid-template-rows: 1fr;
-            gap: 8px;
-            height: 100%;
-          ",
             
             card(
-              style = "height: 100%;",
+              style ="grid-column: 5 / span 6; height: 100%;",
               card_header(HTML("Summary")),
               card_body(
                 #p("Historically reductions in LoS have allowed continual reductions in the number of beds, despite rising admissions."),
@@ -1206,7 +1202,7 @@ ui <- page_navbar(
                 padding = 10,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
-            )
+          
           )
         )
       )
@@ -1260,8 +1256,8 @@ ui <- page_navbar(
                 tags$ul(
                   style = "margin: 0; padding-left: 20px;",
                   tags$li("Viewing how admissions, available beds, average length of stay and bed occupancy have changed over the past 30+ years (1994–2025)."),
-                  tags$li("How changes in admissions could affect future bed requirements (Future Beds Calculator)."),
-                  tags$li("How many admissions could be supported by future growth in bed capacity (Future Admissions Calculator)."),
+                  tags$li("How changes in admissions could affect future bed requirements (Beds Calculator)."),
+                  tags$li("How many admissions could be supported by future growth in bed capacity (Admissions Calculator)."),
                   #tags$li("Relationship between admissions, bed capacity, length of stay and bed occupancy.")
                   
                 )
@@ -1360,14 +1356,14 @@ ui <- page_navbar(
               tags$span(style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
               div(
                 h5("Step 2: Explore Projections", style = "margin: 0 0 4px 0;"),
-                p("Four trend charts are displayed on each calculator tab illustrating number of admissions, average length of stay, number of beds and target bed occupancy over time. Charts allow a user to:"),
+                p("Three trend charts are displayed on each calculator tab illustrating number of admissions, average length of stay and number of beds over time. Charts allow a user to:"),
                 tags$ul(
                   style = "margin: 0; padding-left: 20px;",
                   #tags$li("Number of admissions, Average length of stay, Number of beds and Target bed occupancy."),
-                  tags$li("View historic trends (solid black line) and projected trends (red dotted line) from 2026-2035 (based on the selected assumptions)."),
-                  tags$li("View pre-set admission scenarios (3 dotted grey lines) under do nothing, planned and ambitious admission strategies."),
+                  tags$li("View historic trends (solid black line) and projected trends (blue dotted line) from 2026-2035 (based on the historic trends)."),
+                  tags$li("Adjust the sliders to see changes in the future projections (solid blue line)."),
                   #tags$li("Adjust the sliders to watch trends change in real time."),
-                  tags$li("Hover over the chart lines to read off yearly values. Actual values for 2025 and projected values for 2035 are given on the sidebar.")
+                  tags$li("Hover over the chart lines to read off yearly values.")
                 )
               )
             )
@@ -1389,17 +1385,17 @@ ui <- page_navbar(
       # ),
       
       ### Call to action 
-      div(
-        style = "
-        border: 2px solid #5881c1;
-        background-color: #eef4fb;
-        padding: 10px 12px;
-        margin: 10px 0;
-      ",
-        h4("Ready to Get Started?", style = "margin: 0 0 6px 0;"),
-        p(HTML('Go to <b>"Future Beds Calculator"</b> and adjust assumptions to predict the number of beds required to meet future changes in admissions.'), style = "margin: 0;"),
-        p(HTML('Go to <b>"Future Admissions Calculator"</b> and adjust assumptions to predict the number of admissions that could be supported by future growth in bed capacity.'), style = "margin: 0;")
-      )
+   #   div(
+   #     style = "
+   #     border: 2px solid #5881c1;
+   #     background-color: #eef4fb;
+   #     padding: 10px 12px;
+   #     margin: 10px 0;
+   #   ",
+    #    h4("Ready to Get Started?", style = "margin: 0 0 6px 0;"),
+    #    p(HTML('Go to <b>"Future Beds Calculator"</b> and adjust assumptions to predict the number of beds required to meet future changes in admissions.'), style = "margin: 0;"),
+    #    p(HTML('Go to <b>"Future Admissions Calculator"</b> and adjust assumptions to predict the number of admissions that could be supported by future growth in bed capacity.'), style = "margin: 0;")
+    #  )
     )
   ),
   
@@ -1489,7 +1485,7 @@ ui <- page_navbar(
             tags$li("Admissions per day are calculated by dividing annual admissions by 365, assuming a constant rate throughout the year. This ignores seasonal variation."),
             tags$li("Average LoS was estimated using beddays from HES under the assumption that same day admissions take on average 0.2 of a day (5 hours)."),
             tags$li("The historical number of beds was taken from Q4 each year, which may not reflect the average number of beds across the year."),
-            tags$li("The historical occpancy is calculated as the historic beddays divided by the number of available beddays given the number of beds. This assumes that bed occupancy is constant across the year and does not reflect seasonal variation. It also doesn't align exactly with the occupancy reported in the NHS England Bed Availability and Occupancy (KH03) Collection."),
+            tags$li("The historical occupancy is calculated as the historic beddays divided by the number of available beddays given the number of beds. This assumes that bed occupancy is constant across the year and does not reflect seasonal variation. It also doesn't align exactly with the occupancy reported in the NHS England Bed Availability and Occupancy (KH03) Collection."),
           ),
           p(strong("This tool is designed for intuition building only, and not for strategic planning or operational decisions."))
         )
@@ -1562,13 +1558,13 @@ server <- function(input, output, session) {
   
   observeEvent(input$reset_scenario, {
     updateSliderInput(session, "admissions_change", value = historic_trends$admissions)
-    updateSliderInput(session, "los_change", value = 0)#historic_trends$los)
+    updateSliderInput(session, "los_change", value =historic_trends$los)
     updateSliderInput(session, "target_occupancy", value = 90.5)
   })
   
   observeEvent(input$reset_baseline, {
     updateSliderInput(session, "bedday_growth", value = 0)#historic_trends$beds) 
-    updateSliderInput(session, "los_change2", value = 0)#,historic_trends$los) 
+    updateSliderInput(session, "los_change2", value =historic_trends$los) 
     updateSliderInput(session, "bed_occupancy", value = 90.5) 
   })
   
@@ -1991,7 +1987,7 @@ server <- function(input, output, session) {
           div(
             class = "info-value",
             make_compare_badge(
-              0,
+              historic_trends$los,
               input$los_change,
               "%",
               digits = 1,
@@ -2095,7 +2091,7 @@ server <- function(input, output, session) {
             div(
               class = "panel3-smart-value",
               make_compare_badge(
-                0,
+                historic_trends$los,
                 input$los_change2,
                 "%",
                 digits = 1,
