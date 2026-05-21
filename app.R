@@ -320,7 +320,7 @@ plotting_function <- function(
 ##UI General
 ui <- page_navbar(
 
-  title = "Why do we need more beds?",
+  title = "Do we need more hospital beds?",
   position = "fixed-top", 
   id = "nav",
   bg = "#2c2825",
@@ -707,34 +707,36 @@ ui <- page_navbar(
   
   ## Panel 1: Landing page ---------------------------------------------------------
   nav_panel(
-    "",
+    title = "",
+    value = "landing_page",
     
     div(
       style = "max-width: 1400px; margin: 0 auto;",
       
-      div(
+      actionButton(
+        inputId = "go_to_next_page",
+        label = h1(
+          "Do we need more hospital beds?",
+          style = "margin: 0; font-size: 2.2rem; line-height: 1.15; color: #2c2825;"
+        ),
         style = "
         background-color: #f9bf07;
         border: 6px solid #2c2825;
         padding: 34px 36px;
         margin: 200px 0 18px 0;
-      ",
-        
-        h1(
-          "Why do we need more beds?",
-          style = "
-          margin: 0;
-          font-size: 2.2rem;
-          line-height: 1.15;
-        "
-        )
-      ),
+        width: 100%;
+        text-align: left;
+        display: block;
+        cursor: pointer;
+      "
+      )
     )
-  ),
+    ),
   
   ## Panel 2: Beds nav panel ---------------------------------------------------------  
   nav_panel(
     "Beds Calculator",
+    value="beds_tab",
     class = "panel-one",
     
     layout_sidebar(
@@ -866,7 +868,7 @@ ui <- page_navbar(
           
           actionButton(
             "reset_scenario", 
-            "Reset to Historic Projections", 
+            "Reset", 
             class = "btn-primary w-100",
             style = "margin-top: 10px;"
           ),
@@ -1104,7 +1106,7 @@ ui <- page_navbar(
           
           actionButton(
             "reset_baseline", 
-            "Reset to Historic Projections", 
+            "Reset", 
             class = "btn-primary w-100",
             style = "margin-top: 10px;"
           ),
@@ -1554,6 +1556,9 @@ ui <- page_navbar(
 
 server <- function(input, output, session) {
   
+  observeEvent(input$go_to_next_page, {
+    nav_select("nav", "beds_tab")
+  })
   
   observeEvent(input$reset_scenario, {
     updateSliderInput(session, "admissions_change", value = historic_trends$admissions)
