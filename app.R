@@ -1253,8 +1253,8 @@ ui <- page_navbar(
                 tags$ul(
                   style = "margin: 0; padding-left: 20px;",
                   tags$li("Viewing how admissions, available beds, average length of stay and bed occupancy have changed over the past 30+ years (1994–2025)."),
-                  tags$li("How changes in admissions could affect future bed requirements (Future Beds Calculator)."),
-                  tags$li("How many admissions could be supported by future growth in bed capacity (Future Admissions Calculator)."),
+                  tags$li("How changes in admissions could affect future bed requirements (Beds Calculator)."),
+                  tags$li("How many admissions could be supported by future growth in bed capacity (Admissions Calculator)."),
                   #tags$li("Relationship between admissions, bed capacity, length of stay and bed occupancy.")
                   
                 )
