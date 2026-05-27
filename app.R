@@ -15,12 +15,12 @@ library(StrategyUnitTheme)
 library(plotly)
 library(dplyr)
 
-options(scipen=999)
+options(scipen = 999)
 
 # Data-------------------------------------------------------------------------
 
-data<-read_excel("data/Collating the data_final.xlsx")
-from_93<-data[7:38,]
+data <- read_excel("data/Collating the data_final.xlsx")
+from_93 <- data[7:38, ]
 
 # Formatting data----------------------------------------------------------------
 historic_trends<-from_93|>
@@ -34,85 +34,150 @@ historic_trends<-from_93|>
 # Functions--------------------------------------------------------------------
 
 ## Solve for admissions
-solve_for_admissions<-function(admissions,LoS,occupancy,beds){
-  return(abs(beds - qpois(occupancy, admissions*LoS/365)))
+solve_for_admissions <- function(admissions, LoS, occupancy, beds) {
+  return(abs(beds - qpois(occupancy, admissions * LoS / 365)))
 }
 
 
 ## Generate model outputs FUTURE ADMISSIONS
-future_admissions_model<-function(from_93, beds_yearly_percentage_change, los_yearly_percentage_change, occupancy_fixed_level){
-  
-  years<-c(from_93$Year,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035)
-  admissions<-from_93$`All admissions`
-  beddays<-from_93$`All beddays`
-  beds<-from_93$Beds
-  los<-from_93$avgLoS
-  occupancy<-from_93$`occupancy`
-  
-  if(occupancy_fixed_level==100){
-    occupancy_fixed<-99.999999999999
-  }else{ 
-    occupancy_fixed<-occupancy_fixed_level}
-  
-  for(i in 1:(length(years)-length(from_93$Year))){
-    ## adds one entry to each array during each loop
-    los <- c(los , los[length(los)] + los[length(los)]*los_yearly_percentage_change/100 )
-    beddays <- c(beddays , admissions[length(admissions)]*los[length(los)])
-    ## Using MMinf as model to work out # beds to reach set performance
-    beds <- c(beds, beds[length(beds)] + beds[length(beds)]*beds_yearly_percentage_change/100)
-    occupancy<- c(occupancy, (occupancy_fixed/100))
-    # now solve for admissions
-    admissions <- c(admissions,optim(par = c(18742360),fn = solve_for_admissions  , LoS = los[length(los)], occupancy = occupancy[length(occupancy)], beds = beds[length(beds)], method="Brent",lower=15000000,upper=26000000)$par)
-  }
-  
-  plot_data<-data.frame(
-    year = as.numeric(unlist(years)), 
-    admissions = (unlist(admissions))/1000000,
-    los = unlist(los), 
-    beds = round(unlist(beds),0)/1000,
-    occupancy = (unlist(occupancy))*100
+future_admissions_model <- function(
+  from_93,
+  beds_yearly_percentage_change,
+  los_yearly_percentage_change,
+  occupancy_fixed_level
+) {
+  years <- c(
+    from_93$Year,
+    2026,
+    2027,
+    2028,
+    2029,
+    2030,
+    2031,
+    2032,
+    2033,
+    2034,
+    2035
   )
-  
+  admissions <- from_93$`All admissions`
+  beddays <- from_93$`All beddays`
+  beds <- from_93$Beds
+  los <- from_93$avgLoS
+  occupancy <- from_93$`occupancy`
+
+  if (occupancy_fixed_level == 100) {
+    occupancy_fixed <- 99.999999999999
+  } else {
+    occupancy_fixed <- occupancy_fixed_level
+  }
+
+  for (i in 1:(length(years) - length(from_93$Year))) {
+    ## adds one entry to each array during each loop
+    los <- c(
+      los,
+      los[length(los)] + los[length(los)] * los_yearly_percentage_change / 100
+    )
+    beddays <- c(beddays, admissions[length(admissions)] * los[length(los)])
+    ## Using MMinf as model to work out # beds to reach set performance
+    beds <- c(
+      beds,
+      beds[length(beds)] +
+        beds[length(beds)] * beds_yearly_percentage_change / 100
+    )
+    occupancy <- c(occupancy, (occupancy_fixed / 100))
+    # now solve for admissions
+    admissions <- c(
+      admissions,
+      optim(
+        par = c(18742360),
+        fn = solve_for_admissions,
+        LoS = los[length(los)],
+        occupancy = occupancy[length(occupancy)],
+        beds = beds[length(beds)],
+        method = "Brent",
+        lower = 15000000,
+        upper = 26000000
+      )$par
+    )
+  }
+
+  plot_data <- data.frame(
+    year = as.numeric(unlist(years)),
+    admissions = (unlist(admissions)) / 1000000,
+    los = unlist(los),
+    beds = round(unlist(beds), 0) / 1000,
+    occupancy = (unlist(occupancy)) * 100
+  )
+
   return(plot_data)
-  
 }
 
 
 ## Generate model outputs FUTURE BEDS
 
-future_beds_model<-function(from_93, admissions_yearly_percentage_change, los_yearly_percentage_change, occupancy_fixed_level){
-  
-  years<-c(from_93$Year,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035)
-  admissions<-from_93$`All admissions`
-  beddays<-from_93$`All beddays`
-  beds<-from_93$Beds
-  los<-from_93$avgLoS
-  occupancy<-from_93$`occupancy`
-  
-  if(occupancy_fixed_level==100){
-    occupancy_fixed<-99.999999999999
-  }else{ 
-    occupancy_fixed<-occupancy_fixed_level}
-  
-  
-  for(i in 1:(length(years)-length(from_93$Year))){
-    admissions <- c(admissions,admissions[length(admissions)] +  admissions[length(admissions)] *admissions_yearly_percentage_change/100)
-    los <- c(los , los[length(los)] + los[length(los)]*los_yearly_percentage_change/100 )
-    beddays <- c(beddays , admissions[length(admissions)]*los[length(los)])
-    beds <- c(beds, qpois((occupancy_fixed/100), (admissions[length(admissions)]/365)*los[length(los)]))
-    occupancy<- c(occupancy, (occupancy_fixed/100))
-  }
-  
-  plot_data<-data.frame(
-    year = as.numeric(unlist(years)), 
-    admissions = (unlist(admissions))/1000000,
-    los = unlist(los), 
-    beds = round(unlist(beds),0)/1000,
-    occupancy = (unlist(occupancy))*100
+future_beds_model <- function(
+  from_93,
+  admissions_yearly_percentage_change,
+  los_yearly_percentage_change,
+  occupancy_fixed_level
+) {
+  years <- c(
+    from_93$Year,
+    2026,
+    2027,
+    2028,
+    2029,
+    2030,
+    2031,
+    2032,
+    2033,
+    2034,
+    2035
   )
-  
+  admissions <- from_93$`All admissions`
+  beddays <- from_93$`All beddays`
+  beds <- from_93$Beds
+  los <- from_93$avgLoS
+  occupancy <- from_93$`occupancy`
+
+  if (occupancy_fixed_level == 100) {
+    occupancy_fixed <- 99.999999999999
+  } else {
+    occupancy_fixed <- occupancy_fixed_level
+  }
+
+  for (i in 1:(length(years) - length(from_93$Year))) {
+    admissions <- c(
+      admissions,
+      admissions[length(admissions)] +
+        admissions[length(admissions)] *
+          admissions_yearly_percentage_change /
+          100
+    )
+    los <- c(
+      los,
+      los[length(los)] + los[length(los)] * los_yearly_percentage_change / 100
+    )
+    beddays <- c(beddays, admissions[length(admissions)] * los[length(los)])
+    beds <- c(
+      beds,
+      qpois(
+        (occupancy_fixed / 100),
+        (admissions[length(admissions)] / 365) * los[length(los)]
+      )
+    )
+    occupancy <- c(occupancy, (occupancy_fixed / 100))
+  }
+
+  plot_data <- data.frame(
+    year = as.numeric(unlist(years)),
+    admissions = (unlist(admissions)) / 1000000,
+    los = unlist(los),
+    beds = round(unlist(beds), 0) / 1000,
+    occupancy = (unlist(occupancy)) * 100
+  )
+
   return(plot_data)
-  
 }
 
 
@@ -139,122 +204,171 @@ annual_percentage_change <- function(data, output_type, start_year, end_year) {
 
 ## Plotting function
 plotting_function <- function(
-    plot_data,
-    scenario_1_values,
-    scenario_2_values,
-    scenario_3_values,
-    output_type,
-    y_axis_label,
-    y_axis_max = NULL,
-    show_trend_labels = FALSE
+  plot_data,
+  scenario_1_values,
+  scenario_2_values,
+  scenario_3_values,
+  output_type,
+  y_axis_label,
+  y_axis_max = NULL,
+  show_trend_labels = FALSE
 ) {
   # Heather adding historic and future average annual % change chart labels
 
-  
+  annual_percentage_change <- function(
+    data,
+    output_type,
+    start_year,
+    end_year
+  ) {
+    start_value <- data[[output_type]][data$year == start_year]
+    end_value <- data[[output_type]][data$year == end_year]
+    number_of_years <- end_year - start_year
+
+    if (
+      length(start_value) == 0 ||
+        length(end_value) == 0 ||
+        is.na(start_value) ||
+        is.na(end_value) ||
+        start_value <= 0 ||
+        end_value <= 0
+    ) {
+      return(NA)
+    }
+
+    ((end_value / start_value)^(1 / number_of_years) - 1) * 100
+  }
+
   historical_avg_annual_change <- annual_percentage_change(
     plot_data,
     output_type,
     min(plot_data$year[plot_data$year <= 2025], na.rm = TRUE),
     2025
   )
-  
+
   future_avg_annual_change <- annual_percentage_change(
     plot_data,
     output_type,
     2025,
     2035
   )
-  
+
   # Heather adding historic trend continuation line
-  
+
   historic_trend_data <- data.frame(
     year = 2025:2035
   )
-  
+
   historic_2025_value <- plot_data[[output_type]][plot_data$year == 2025]
-  
-  if (output_type == "admissions") { 
+
+  if (output_type == "admissions") {
     historic_trend_data[[output_type]] <- historic_2025_value *
       (1 + historical_avg_annual_change / 100)^(historic_trend_data$year - 2025)
   } else if (output_type == "los") {
-    historic_trend_data[[output_type]] <- rep(historic_2025_value, nrow(historic_trend_data))
-  }  else if (output_type == "beds") {
-    historic_trend_data[[output_type]] <- rep(historic_2025_value, nrow(historic_trend_data))
-  }  else if (output_type == "occupancy") {
-    historic_trend_data[[output_type]] <- rep(historic_2025_value, nrow(historic_trend_data))
+    historic_trend_data[[output_type]] <- rep(
+      historic_2025_value,
+      nrow(historic_trend_data)
+    )
+  } else if (output_type == "beds") {
+    historic_trend_data[[output_type]] <- rep(
+      historic_2025_value,
+      nrow(historic_trend_data)
+    )
+  } else if (output_type == "occupancy") {
+    historic_trend_data[[output_type]] <- rep(
+      historic_2025_value,
+      nrow(historic_trend_data)
+    )
   }
-  
+
   y_axis_min <- min(
     plot_data[[output_type]],
     historic_trend_data[[output_type]],
     na.rm = TRUE
   )
-  
+
   y_axis_max <- max(
     plot_data[[output_type]],
     historic_trend_data[[output_type]],
     na.rm = TRUE
   )
-  
+
   y_axis_range <- y_axis_max - y_axis_min
-  
-  if(y_axis_range == 0){
+
+  if (y_axis_range == 0) {
     y_axis_range <- y_axis_max * 0.1
   }
-  
+
   y_axis_min <- y_axis_min - (y_axis_range * 0.08)
   y_axis_max <- y_axis_max + (y_axis_range * 0.25)
-  
+
   y_label_position <- y_axis_min + ((y_axis_max - y_axis_min) * 0.95)
-  
+
   historical_label <- paste0(
     "Historic annual <br>change: ",
     round(historical_avg_annual_change, 1),
     "%"
   )
-  
+
   future_label <- paste0(
     "Future annual <br>change: ",
     round(future_avg_annual_change, 1),
     "%"
   )
-  
+
   # Initial plot
-  p <- ggplot(data = plot_data, aes(x = year, y = .data[[output_type]], 
-                                    text = paste0("Year: ", year, "<br>", y_axis_label, ": ", round(.data[[output_type]], 1)))) +
+  p <- ggplot(
+    data = plot_data,
+    aes(
+      x = year,
+      y = .data[[output_type]],
+      text = paste0(
+        "Year: ",
+        year,
+        "<br>",
+        y_axis_label,
+        ": ",
+        round(.data[[output_type]], 1)
+      )
+    )
+  ) +
     #geom_vline(xintercept = 2025, colour = "#5881c1" , linetype = "dashed") +
-    geom_vline(xintercept = 2025, colour = "#f9bf07" , linetype = "dashed") +
+    geom_vline(xintercept = 2025, colour = "#f9bf07", linetype = "dashed") +
     su_theme() +
-    labs(title=NULL, subtitle=NULL, y = NULL, x = "Year") +
+    labs(title = NULL, subtitle = NULL, y = NULL, x = "Year") +
     scale_y_continuous(limits = c(y_axis_min, y_axis_max))
-  
+
   # Add Scenario plots if needed
   #  if (!is.null(scenario_1_values)) {
-  #    p <- p + geom_line(data = scenario_1_values, 
-  #                       aes(x = year, y = .data[[output_type]], 
-  #                           text = paste0("Do nothing<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
-  #                       colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)+ 
-  #      geom_line(data = scenario_2_values, 
-  #                aes(x = year, y = .data[[output_type]], 
-  #                    text = paste0("Planned<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
-  #                colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)+ 
-  #      geom_line(data = scenario_3_values, 
-  #                aes(x = year, y = .data[[output_type]], 
-  #                    text = paste0("Ambitious<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))), 
+  #    p <- p + geom_line(data = scenario_1_values,
+  #                       aes(x = year, y = .data[[output_type]],
+  #                           text = paste0("Do nothing<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))),
+  #                       colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)+
+  #      geom_line(data = scenario_2_values,
+  #                aes(x = year, y = .data[[output_type]],
+  #                    text = paste0("Planned<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))),
+  #                colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)+
+  #      geom_line(data = scenario_3_values,
+  #                aes(x = year, y = .data[[output_type]],
+  #                    text = paste0("Ambitious<br>", "Year: ", year, "<br>", y_axis_label, ": ", round((.data[[output_type]]), 1))),
   #                colour = "#b2b7b9", linewidth = 0.5, linetype = "dotted", group = 1)
   # }
-  
+
   # Add the main line last so it sits on top
-  p <- p +     
+  p <- p +
     geom_line(
       data = historic_trend_data,
       aes(
         x = year,
         y = .data[[output_type]],
         text = paste0(
-          "Projected continuation of historic trend<br>",
-          "Year: ", year,
-          "<br>", y_axis_label, ": ", round(.data[[output_type]], 1)
+          #"Historic trend continued<br>",
+          "Year: ",
+          year,
+          "<br>",
+          y_axis_label,
+          ": ",
+          round(.data[[output_type]], 1)
         )
       ),
       colour = "#9AB3D9",
@@ -262,35 +376,38 @@ plotting_function <- function(
       linetype = "dotted",
       group = 1
     ) +
-    geom_line(data = subset(plot_data, as.numeric(year) >= 2025),
-              aes(x = year, y = .data[[output_type]]),
-              colour = "#5881c1", 
-              linewidth = 0.6, 
-              linetype = "solid", 
-              group = 1)+
-    geom_line(data = subset(plot_data, as.numeric(year) <= 2025),
-              aes(x = year, y = .data[[output_type]]),
-              colour = "black", 
-              linewidth = 0.5, 
-              linetype = "solid", 
-              group = 1)
-  
-  
+    geom_line(
+      data = subset(plot_data, as.numeric(year) >= 2025),
+      aes(x = year, y = .data[[output_type]]),
+      colour = "#5881c1",
+      linewidth = 0.6,
+      linetype = "solid",
+      group = 1
+    ) +
+    geom_line(
+      data = subset(plot_data, as.numeric(year) <= 2025),
+      aes(x = year, y = .data[[output_type]]),
+      colour = "black",
+      linewidth = 0.5,
+      linetype = "solid",
+      group = 1
+    )
+
   #ggplotly(p, tooltip = "text")|>
   #  layout(
   #    margin = list(t = 20, b = 10, l = 55, r =10, pad = 0), # Top, Bottom, Left, Right
   #  )
-  
-  ggplotly(p, tooltip = "text")|>
+
+  ggplotly(p, tooltip = "text") |>
     layout(
       margin = list(t = 20, b = 10, l = 30, r = 8, pad = 0),
-      
+
       yaxis = list(
         title = "",
         automargin = FALSE,
         fixedrange = FALSE
       ),
-      annotations = if(show_trend_labels) {
+      annotations = if (show_trend_labels) {
         list(
           list(
            x = 2024.4,
@@ -325,7 +442,6 @@ plotting_function <- function(
 }
 
 
-
 #UI ----------------------------------------------------------------------------
 ##UI General
 ui <- page_navbar(
@@ -339,11 +455,11 @@ ui <- page_navbar(
     primary = "#686f73",
     secondary = "#f9bf07"
   ),
-  
+
   header = tagList(
-    
     # Styling --------------------------------------------------------------------
-    tags$style(HTML("
+    tags$style(HTML(
+      "
       /* navbar */
     .navbar {
       min-height: 62px;
@@ -647,18 +763,21 @@ ui <- page_navbar(
   line-height: 1.2;
 }
 
-")
-               ),
-    
+"
+    )),
+
     tags$head(
-      tags$style(HTML("
+      tags$style(HTML(
+        "
     body { 
       padding-top: 60px !important; 
     }
-  "))
+  "
+      ))
     ),
-    
-    tags$style(HTML("
+
+    tags$style(HTML(
+      "
       .irs-min, .irs-max, .irs-grid-pol.small { 
         display: none !important; 
       }
@@ -671,50 +790,54 @@ ui <- page_navbar(
       .irs-handle > i:first-child {
         background-color: #5881c1 !important;
       }
-    ")
-  ),
-  
-  tags$script(HTML("
+    "
+    )),
+
+    tags$script(HTML(
+      "
         $(document).on('shiny:connected', function() {
           var slider = $('#target_occupancy').data('ionRangeSlider');
           if (slider) {
             slider.update({ grid_num: 5 });
           }
         });
-      ")),
-  
-  tags$script(HTML("
+      "
+    )),
+
+    tags$script(HTML(
+      "
         $(document).on('shiny:connected', function() {
           var slider = $('#bed_occupancy').data('ionRangeSlider');
           if (slider) {
             slider.update({ grid_num: 5 });
           }
         });
-      ")),
-    
+      "
+    )),
+
     # Top-right buttons + logo ---------------------------------------------------
     tags$div(
       class = "top-panel",
-      
+
       #  tags$a(
       #   href = "#",
       #   class = "top-panel-button",
       #     HTML("&#9432; About")
       #  ),
-      
+
       tags$a(
         href = "mailto:strategy.unit@nhs.net?subject=Hospital Admission Model query",
         class = "top-panel-button",
         HTML("&#9993; Contact")
       ),
-      
+
       tags$div(
         class = "logo",
         tags$img(src = "tsu_logo_yellow_screen_transparent.png")
       )
     )
   ),
-  
+
   ## Panel 1: Landing page ---------------------------------------------------------
   nav_panel(
     title = "",
@@ -734,71 +857,91 @@ ui <- page_navbar(
         border: 6px solid #2c2825;
         padding: 34px 36px;
         margin: 200px 0 18px 0;
-        width: 100%;
-        text-align: left;
-        display: block;
-        cursor: pointer;
-      "
-      )
+      ",
+
+        h1(
+          "Why do we need more beds?",
+          style = "
+          margin: 0;
+          font-size: 2.2rem;
+          line-height: 1.15;
+        "
+        )
+      ),
     )
-    ),
-  
-  ## Panel 2: Beds nav panel ---------------------------------------------------------  
+  ),
+
+  ## Panel 2: Beds nav panel ---------------------------------------------------------
   nav_panel(
     "Beds Calculator",
     value="beds_tab",
     class = "panel-one",
-    
+
     layout_sidebar(
       sidebar = sidebar(
         title = NULL,
         id = "sidebar_future_beds",
         width = "300px",
         open = "always",
-        
+
         div(
           style = "margin-top: 18px;",
-          
-          h3("Future Assumptions",
-             style = "font-size: 1.2rem; margin: 0 0 6px 0;"),
-          
+
+          h3(
+            "Future Assumptions",
+            style = "font-size: 1.2rem; margin: 0 0 6px 0;"
+          ),
+
           hr(style = "margin: 15px 0;"),
-          
-          p("Set assumptions for admissions, LoS and bed occupancy over the next 10 years. The number of beds required is calculated.",
-            style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"),
-          
+
+          p(
+            "Set assumptions for admissions, LoS and bed occupancy over the next 10 years. The number of beds required is calculated.",
+            style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"
+          ),
+
           hr(style = "margin: 15px 0;"),
-          
-          h5("ADMISSIONS", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
-          
+
+          h5(
+            "ADMISSIONS",
+            style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"
+          ),
+
           #  tooltip(
           #    selectInput(
           #     "preset",
           #      label = span(
           #        "Select Scenario or adjust slider:",
           #        style = "font-size: 0.85rem;"
-          #      ), 
+          #      ),
           #      choices = c("Do nothing", "Planned", "Ambitious")), # don't think we need custom as can overwrite a preset
           #    "Choose a preset scenario or adjust sliders to customise assumptions",
           #   placement = "right"),
-          
-          div(style = "display:flex; justify-content:space-between; margin-top: 10px;",
-              strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
+
+          div(
+            style = "display:flex; justify-content:space-between; margin-top: 10px;",
+            strong(
+              "Annual Change (%):",
+              style = "font-size: 0.8rem; font-weight: 600;"
+            )
           ),
-          
+
           sliderInput(
             "admissions_change",
-            label = NULL, min = -5, max = 5, value = historic_trends$admissions, step = 0.1),
-          
+            label = NULL,
+            min = -5,
+            max = 5,
+            value = historic_trends$admissions,
+            step = 0.1
+          ),
+
           # div(style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
           #     span("2026: 16967214"),
           #     span("2035: 16967214") ),
-          
 
           # div(
           #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
           #   #span(paste0("2025: ", round(from_93$`All admissions`[from_93$Year == 2025], 0))),
-          #   #Add commas: 
+          #   #Add commas:
           #   span(
           #     paste0(
           #       "2025: ",
@@ -811,16 +954,22 @@ ui <- page_navbar(
           #   ),
           #   span(textOutput("future_beds_admissions_2035", inline = TRUE))
           # ),
-          
+
           hr(style = "margin: 18px 0;"),
-          
-          h5("LENGTH OF STAY", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
-          
+
+          h5(
+            "LENGTH OF STAY",
+            style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"
+          ),
+
           div(
             style = "display:flex; justify-content:space-between;",
-            strong("Annual Change (%):",style = "font-size: 0.8rem; font-weight: 600;")
+            strong(
+              "Annual Change (%):",
+              style = "font-size: 0.8rem; font-weight: 600;"
+            )
           ),
-          
+
           sliderInput(
             "los_change",
             label = NULL,
@@ -829,13 +978,12 @@ ui <- page_navbar(
             value = historic_trends$los,
             step = 0.1
           ),
-          
+
           #div(
           #  style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
           #  span("2026: 3.12 days"),
           #  span("2035: 3.12 days")
           # ),
-          
 
           # div(
           #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
@@ -843,16 +991,21 @@ ui <- page_navbar(
           #   span(textOutput("future_beds_los_2035", inline = TRUE))
           # ),
 
-          
           hr(style = "margin: 18px 0;"),
-          
-          h5("TARGET BED OCCUPANCY", style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"),
-          
+
+          h5(
+            "TARGET BED OCCUPANCY",
+            style = "font-size: 0.95rem; font-weight: 500; margin: 6px 0;"
+          ),
+
           div(
             style = "display:flex; justify-content:space-between;",
-            strong("Fixed Value:",style = "font-size: 0.8rem; font-weight: 600;")
+            strong(
+              "Fixed Value:",
+              style = "font-size: 0.8rem; font-weight: 600;"
+            )
           ),
-          
+
           sliderInput(
             "target_occupancy",
             label = NULL,
@@ -861,13 +1014,12 @@ ui <- page_navbar(
             value = 90.5,
             step = 0.1
           ),
-          
+
           #div(
           #  style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:-6px;",
           #  span("0%"),
           #  span("100%")
           #),
-          
 
           # div(
           #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
@@ -875,34 +1027,33 @@ ui <- page_navbar(
           #   span(textOutput("future_beds_occupancy_2035", inline = TRUE))
           # ),
 
-          
           actionButton(
             "reset_scenario", 
             "Reset", 
             class = "btn-primary w-100",
             style = "margin-top: 10px;"
           ),
-          
-       #   div(
-       #     style = "
-        #    border: 1px solid #f9bf07;
-        #    background-color: #fff8e1;
-        #    padding: 8px;
-        #    margin-top: 8px;
-        #    font-size: 0.75rem;
-        #    line-height: 1.15;
-        #  ",
-        #    "Beds required are calculated automatically from the assumptions."
-        #  )
+
+          #   div(
+          #     style = "
+          #    border: 1px solid #f9bf07;
+          #    background-color: #fff8e1;
+          #    padding: 8px;
+          #    margin-top: 8px;
+          #    font-size: 0.75rem;
+          #    line-height: 1.15;
+          #  ",
+          #    "Beds required are calculated automatically from the assumptions."
+          #  )
         )
       ),
-      
+
       div(
         style = "padding-left: 10px;",
-        
+
         #h3("Admissions Analysis", style = "margin-bottom: 4px;"),
         #hr(style = "margin: 4px 0 8px 0;"),
-        
+
         # Yellow explanatory box ------------------------------------------------
         # div(
         #   style = "
@@ -918,7 +1069,7 @@ ui <- page_navbar(
         #   div(HTML("<b>Why it is useful:</b> Shows how changing assumptions affects future pressure on beds.")),
         #   div(HTML("<b>How to use it:</b> Adjust the sidebar inputs and compare the projected direction and 2035 values."))
         # ),
-        
+
         ### Chart and interpretation layout
         div(
           style = "
@@ -928,7 +1079,7 @@ ui <- page_navbar(
           gap: 8px;
           height: 80vh;
         ",
-          
+
           card(
             style ="grid-column: 1 / span 3; height: 100%;",
             card_header(uiOutput("admissions_header")),
@@ -938,7 +1089,7 @@ ui <- page_navbar(
               style = "height: calc(100% - 48px); overflow: hidden;"
             )
           ),
-          
+
           card(
             style ="grid-column: 4 / span 6; height: 100%;",
             card_header(uiOutput("los_header")),
@@ -975,13 +1126,21 @@ ui <- page_navbar(
               style = "height: calc(100% - 48px); overflow: hidden;"
             )
           ),
-    
-            
+
+          div(
+            style = "
+            display: grid;
+            grid-template-rows: 1fr;
+            gap: 8px;
+            height: 100%;
+          ",
+
             card(
               style = "grid-column: 5/ span 6; height: 100%;",
               card_header(HTML("Summary")),
               card_body(
-                p(""),uiOutput("future_beds_interpretation"),
+                p(""),
+                uiOutput("future_beds_interpretation"),
                 padding = 10,
                 style = "height: calc(100% - 36px); overflow-y: auto;"
             
@@ -991,51 +1150,50 @@ ui <- page_navbar(
       )
     )
   ),
-  
+
   ## Panel 3: Admissions Calculator nav panel ---------------------------------------
   nav_panel(
     "Admissions Calculator",
-    
+
     layout_sidebar(
       sidebar = sidebar(
         title = NULL,
         id = "sidebar_fixed_beds",
         width = "300px",
         open = "always",
-        
+
         div(
           style = "margin-top: 18px;",
-          
+
           h3(
             "Future Assumptions",
             style = "font-size: 1.2rem; margin: 0 0 6px 0;"
           ),
-          
+
           hr(style = "margin: 15px 0;"),
-          
+
           p(
             "Set assumptions for future beds, LoS and bed occupancy over the next 10 years. The supported admissions are calculated.",
             style = "font-size: 0.85rem; line-height: 1.15; margin: 0 0 8px 0;"
           ),
-          
+
           hr(style = "margin: 15px 0;"),
-          
+
           h5("BED SUPPLY", style = "font-size: 0.95rem; margin: 6px 0;"),
-          
+
           div(
             style = "display:flex; justify-content:space-between; font-size:0.8rem;",
             strong("Annual Change (%):")
           ),
-          
+
           sliderInput(
-            "bedday_growth", 
-            label = NULL, 
-            min = -5, 
-            max = 5,  
-            value = 0, #historic_trends$beds, 
+            "bedday_growth",
+            label = NULL,
+            min = -5,
+            max = 5,
+            value = 0, #historic_trends$beds,
             step = 0.1
           ),
-          
 
           # div(
           #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
@@ -1052,16 +1210,15 @@ ui <- page_navbar(
           #   span(textOutput("future_admissions_beds_2035", inline = TRUE))
           # ),
 
-          
           hr(style = "margin: 18px 0;"),
-          
+
           h5("LENGTH OF STAY", style = "font-size: 0.95rem; margin: 6px 0;"),
-          
+
           div(
             style = "display:flex; justify-content:space-between; font-size:0.8rem;",
             strong("Annual Change (%):")
           ),
-          
+
           sliderInput(
             "los_change2",
             NULL,
@@ -1071,7 +1228,6 @@ ui <- page_navbar(
             step = 0.1,
             width = "100%"
           ),
-          
 
           # div(
           #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
@@ -1079,16 +1235,18 @@ ui <- page_navbar(
           #   span(textOutput("future_admissions_los_2035", inline = TRUE))
           # ),
 
-          
           hr(style = "margin: 18px 0;"),
-          
-          h5("TARGET BED OCCUPANCY", style = "font-size: 0.95rem; margin: 6px 0;"),
-          
+
+          h5(
+            "TARGET BED OCCUPANCY",
+            style = "font-size: 0.95rem; margin: 6px 0;"
+          ),
+
           div(
             style = "display:flex; justify-content:space-between; font-size:0.8rem;",
             strong("Fixed Value:")
           ),
-          
+
           sliderInput(
             "bed_occupancy",
             NULL,
@@ -1098,7 +1256,6 @@ ui <- page_navbar(
             step = 0.5,
             width = "100%"
           ),
-          
 
           # div(
           #   style = "display:flex; justify-content:space-between; font-size:0.75rem; margin-top:8px;",
@@ -1106,34 +1263,33 @@ ui <- page_navbar(
           #   span(textOutput("future_admissions_occupancy_2035", inline = TRUE))
           # ),
 
-          
           actionButton(
             "reset_baseline", 
             "Reset", 
             class = "btn-primary w-100",
             style = "margin-top: 10px;"
           ),
-          
-      #    div(
-      #      style = "
-      #      border: 1px solid #f9bf07;
-      #      background-color: #fff8e1;
-      #      padding: 8px;
-      #      margin-top: 8px;
-      #      font-size: 0.75rem;
-     #       line-height: 1.15;
-     #     ",
-     #       "Admissions capacity is calculated from the selected beds, LoS and target bed occupancy assumptions."
-     #     )
+
+          #    div(
+          #      style = "
+          #      border: 1px solid #f9bf07;
+          #      background-color: #fff8e1;
+          #      padding: 8px;
+          #      margin-top: 8px;
+          #      font-size: 0.75rem;
+          #       line-height: 1.15;
+          #     ",
+          #       "Admissions capacity is calculated from the selected beds, LoS and target bed occupancy assumptions."
+          #     )
         )
       ),
-      
+
       div(
         style = "padding-left: 10px;",
-        
+
         # h3("Admissions Calculator", style = "margin-bottom: 4px;"),
         # hr(style = "margin: 4px 0 8px 0;"),
-        
+
         ### Chart and interpretation layout
         div(
           style = "
@@ -1143,7 +1299,7 @@ ui <- page_navbar(
           gap: 8px;
           height: 80vh;
         ",
-          
+
           card(
             style = "grid-column: 1 / span 3; height: 100%;",
             card_header(uiOutput("beds2_header")),
@@ -1153,7 +1309,7 @@ ui <- page_navbar(
               style = "height: calc(100% - 48px); overflow: hidden;"
             )
           ),
-          
+
           card(
             style = "grid-column: 4 / span 6; height: 100%;",
             card_header(uiOutput("los2_header")),
@@ -1190,15 +1346,23 @@ ui <- page_navbar(
               style = "height: calc(100% - 48px); overflow: hidden;"
             )
           ),
-          
-            
+
+          div(
+            style = "
+            display: grid;
+            grid-template-rows: 1fr;
+            gap: 8px;
+            height: 100%;
+          ",
+
             card(
               style ="grid-column: 5 / span 6; height: 100%;",
               card_header(HTML("Summary")),
               card_body(
                 #p("Historically reductions in LoS have allowed continual reductions in the number of beds, despite rising admissions."),
                 #p("Here we consider the impact of future planned bed supply and LoS scenarios on the number of admissions that could be supported."),uiOutput("future_admissions_interpretation"),
-                p(""),uiOutput("future_admissions_interpretation"),
+                p(""),
+                uiOutput("future_admissions_interpretation"),
                 padding = 10,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
@@ -1208,15 +1372,15 @@ ui <- page_navbar(
       )
     )
   ),
-  
+
   ## Panel 4: Explainer ---------------------------------------------------------
   nav_panel(
     "Explainer",
-    
+
     div(
       style = "max-width: 1400px; margin: 0 auto;",
-      
-      # Top banner 
+
+      # Top banner
       div(
         style = "
         background-color: #f9bf07;
@@ -1230,10 +1394,9 @@ ui <- page_navbar(
           style = "margin: 0;"
         )
       ),
-      
-      ### Side-by-side cards 
+
+      ### Side-by-side cards
       layout_columns(
-        
         card(
           style = "margin-bottom: 10px; height: 100%;",
           card_header("What This Tool Does"),
@@ -1255,17 +1418,22 @@ ui <- page_navbar(
                 ),
                 tags$ul(
                   style = "margin: 0; padding-left: 20px;",
-                  tags$li("Viewing how admissions, available beds, average length of stay and bed occupancy have changed over the past 30+ years (1994–2025)."),
-                  tags$li("How changes in admissions could affect future bed requirements (Beds Calculator)."),
-                  tags$li("How many admissions could be supported by future growth in bed capacity (Admissions Calculator)."),
+                  tags$li(
+                    "Viewing how admissions, available beds, average length of stay and bed occupancy have changed over the past 30+ years (1994–2025)."
+                  ),
+                  tags$li(
+                    "How changes in admissions could affect future bed requirements (Beds Calculator)."
+                  ),
+                  tags$li(
+                    "How many admissions could be supported by future growth in bed capacity (Admissions Calculator)."
+                  ),
                   #tags$li("Relationship between admissions, bed capacity, length of stay and bed occupancy.")
-                  
                 )
               )
             )
           )
         ),
-        
+
         card(
           class = "toy-model-links",
           style = "margin-bottom: 10px; height: 100%;",
@@ -1275,64 +1443,81 @@ ui <- page_navbar(
             div(
               style = "display: flex; gap: 10px; align-items: flex-start;",
               tags$span(
-                style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
+                style = "font-size: 20px; color: #5881c1; line-height: 1.1;"
+              ),
               div(
                 p(
                   "This is one of a series of toy models developed by the Strategy Unit to support decision-making, strategic planning and as a teaching aid.",
-                  style = "margin: 0 0 6px 0;"),
-                
+                  style = "margin: 0 0 6px 0;"
+                ),
+
                 tags$ul(
                   style = "margin: 0; padding-left: 20px;",
-                  
+
                   tags$li(
                     tags$a(
                       "How might risk stratification save money?",
                       href = "https://connect.strategyunitwm.nhs.uk/risk_stratification_tool/",
                       target = "_blank"
-                    )),
-                  
+                    )
+                  ),
+
                   tags$li(
                     tags$a(
                       "Bed pooling and occupancy",
                       href = "https://connect.strategyunitwm.nhs.uk/bed_pool_tool/",
                       target = "_blank"
-                    )),
-                  
+                    )
+                  ),
+
                   tags$li(
                     tags$a(
                       "Bottlenecks and patient flow",
                       href = "https://exchange.iseesystems.com/public/sally-thompson/flows-and-bottlenecks-toy-model/index.html",
                       target = "_blank"
-                    )),
-                  
+                    )
+                  ),
+
                   tags$li("'Sharing nicely'"),
                   tags$li("Waiting list dynamics")
-                ))))),
-        
+                )
+              )
+            )
+          )
+        ),
+
         col_widths = c(8, 4)
       ),
-      
-      ### How to use 
+
+      ### How to use
       card(
         style = "margin-bottom: 10px;",
         card_header("How to Use This Tool"),
         card_body(
           style = "padding: 10px 12px;",
-          
+
           div(
             style = "
         display: grid;
         grid-template-columns: 1fr 1fr;
       ",
-            
+
             div(
               style = "display: flex; gap: 2px; align-items: flex-start; padding: 0 16px 0 0;",
-              tags$span(style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
+              tags$span(
+                style = "font-size: 20px; color: #5881c1; line-height: 1.1;"
+              ),
               div(
                 h5("STEP 1: Adjust assumptions", style = "margin: 0 0 4px 0;"),
-                p("Use the sliders on the sidebar to set your input assumptions. The model will automatically update the charts based on your selections."),
-                p("In the future beds calculator the user inputs their own assumptions about the future growth of admissions, length of stay and set target bed occupancy to be maintained across the next 10 years (2026-2035)."),
-                p("In the future admissions calculator the user inputs their own assumptions of how bed capacity and length of stay will change to see how many admissions could be supported under a given occupancy target."),
+                p(
+                  "Use the sliders on the sidebar to set your input assumptions. The model will automatically update the charts based on your selections."
+                ),
+                p(
+                  "In the beds calculator the user inputs their own assumptions about the future growth of admissions, length of stay and set target bed occupancy to be maintained across the next 10 years (2026-2035)."
+                ),
+                p(
+                  "In the admissions calculator the user inputs their own assumptions of how bed capacity and length of stay will change to see how many admissions could be supported under a given occupancy target."
+                ),
                 #p("Sliders control the following:"),
                 #tags$ul(
                 #  style = "margin: 0; padding-left: 20px;",
@@ -1344,7 +1529,7 @@ ui <- page_navbar(
                 #)
               )
             ),
-            
+
             div(
               style = "
           display: flex;
@@ -1353,27 +1538,35 @@ ui <- page_navbar(
           padding: 0 16px;
           border-left: 1px solid #d9d9d9;
         ",
-              tags$span(style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
+              tags$span(
+                style = "font-size: 20px; color: #5881c1; line-height: 1.1;"
+              ),
               div(
                 h5("Step 2: Explore Projections", style = "margin: 0 0 4px 0;"),
-                p("Three trend charts are displayed on each calculator tab illustrating number of admissions, average length of stay and number of beds over time. Charts allow a user to:"),
+                p(
+                  "Four trend charts are displayed on each calculator tab illustrating number of admissions, average length of stay, number of beds and target bed occupancy over time. Charts allow a user to:"
+                ),
                 tags$ul(
                   style = "margin: 0; padding-left: 20px;",
                   #tags$li("Number of admissions, Average length of stay, Number of beds and Target bed occupancy."),
-                  tags$li("View historic trends (solid black line) and projected trends (blue dotted line) from 2026-2035 (based on the historic trends)."),
-                  tags$li("Adjust the sliders to see changes in the future projections (solid blue line)."),
+                  tags$li(
+                    "View historic trends (solid black line) and projected trends (red dotted line) from 2026-2035 (based on the selected assumptions)."
+                  ),
+                  tags$li(
+                    "View pre-set admission scenarios (3 dotted grey lines) under do nothing, planned and ambitious admission strategies."
+                  ),
                   #tags$li("Adjust the sliders to watch trends change in real time."),
-                  tags$li("Hover over the chart lines to read off yearly values.")
+                  tags$li(
+                    "Hover over the chart lines to read off yearly values. Actual values for 2025 and projected values for 2035 are given on the sidebar."
+                  )
                 )
               )
             )
-            
-            
           )
         )
       ),
-      
-      ### Data source 
+
+      ### Data source
       #   card(
       #    style = "margin-bottom: 10px;",
       #    card_header("Data Source & Methodology"),
@@ -1398,21 +1591,27 @@ ui <- page_navbar(
     #  )
     )
   ),
-  
+
   ## Panel 5: Methodology -----------------------------------------------------
   nav_panel(
     "Methodology",
-    
+
     div(
       style = "width: 88vw; max-width: none; margin: 0 auto;",
-      
+
       card(
         card_header("Model Overview"),
         div(
           style = "padding: 4px;",
-          p("This model approximates the relationship between bed capacity, patient admissions, length of stay (LoS), and occupancy rates."),
-          p("We use well known theory from the M/G/infinity queueing model to derive the number of beds required to meet target occupancy given assumed admission and length of stay scenarios. This model assumes unconstrained capacity and Poisson admissions. Viewing the system as unconstrained allows us to examine the occupancy distribution and set the number of beds equal to the target quantile of occupancy."),
-          p("The main result in use is that for an M/G/infinity system the expected number in the system follows a Poisson distribution with mean equal to the arrival rate multiplied by the average length of stay:"),
+          p(
+            "This model approximates the relationship between bed capacity, patient admissions, length of stay (LoS), and occupancy rates."
+          ),
+          p(
+            "We use well known theory from the M/G/infinity queueing model to derive the number of beds required to meet target occupancy given assumed admission and length of stay scenarios. This model assumes unconstrained capacity and Poisson admissions. Viewing the system as unconstrained allows us to examine the occupancy distribution and set the number of beds equal to the target quantile of occupancy."
+          ),
+          p(
+            "The main result in use is that for an M/G/infinity system the expected number in the system follows a Poisson distribution with mean equal to the arrival rate multiplied by the average length of stay:"
+          ),
           div(
             style = "
             border: 2px solid #5881c1;
@@ -1423,26 +1622,45 @@ ui <- page_navbar(
           ",
             "λ = Arrival rate (admissions per day) * μ = Average length of stay (days) = Expected number of patients in the system E_NIS"
           ),
-          p("we therefore derive the number of beds required to meet a target occupancy level (p) as the p quantile of a Poisson distribution with mean E_NIS."),
-          p("This model is designed for intuition building and is not a forecasting tool. It is not designed to give precise estimates of future bed requirements or admissions capacity, but rather to allow users to explore the relationship between these variables and build intuition about how they interact."),
-          p("In reality the assumption of Poisson admissions may not hold, and other factors such as seasonal variations, changes in patient demographics, and healthcare policies can impact admission rates. Additionally, the model assumes that bed capacity is unconstrained, which may not reflect real-world limitations and their impact on patient flow and occupancy."),
+          p(
+            "we therefore derive the number of beds required to meet a target occupancy level (p) as the p quantile of a Poisson distribution with mean E_NIS."
+          ),
+          p(
+            "This model is designed for intuition building and is not a forecasting tool. It is not designed to give precise estimates of future bed requirements or admissions capacity, but rather to allow users to explore the relationship between these variables and build intuition about how they interact."
+          ),
+          p(
+            "In reality the assumption of Poisson admissions may not hold, and other factors such as seasonal variations, changes in patient demographics, and healthcare policies can impact admission rates. Additionally, the model assumes that bed capacity is unconstrained, which may not reflect real-world limitations and their impact on patient flow and occupancy."
+          ),
 
           p("Parameters:"),
           tags$ul(
-            tags$li("Admissions: Number of hospital admissions per year (converted to daily rate for the model)."),
-            tags$li("Length of stay: Average number of days in hospital for each admission."),
-            tags$li("Beds: Number of available beds at year end (to fit with historical data)."),
-            tags$li("Target bed occupancy: % of available beds that are occupied at a given time.")
+            tags$li(
+              "Admissions: Number of hospital admissions per year (converted to daily rate for the model)."
+            ),
+            tags$li(
+              "Length of stay: Average number of days in hospital for each admission."
+            ),
+            tags$li(
+              "Beds: Number of available beds at year end (to fit with historical data)."
+            ),
+            tags$li(
+              "Target bed occupancy: % of available beds that are occupied at a given time."
+            )
           ),
           tags$ul(
-            tags$li("Change in number of admissions: Assumed % annual change in the number of hospital admissions"),
-            tags$li("Change in average length of stay: Assumed % annual change in length of stay"),
-            tags$li("Change in number of beds: Assumed % annual growth in the number of available beds")
+            tags$li(
+              "Change in number of admissions: Assumed % annual change in the number of hospital admissions"
+            ),
+            tags$li(
+              "Change in average length of stay: Assumed % annual change in length of stay"
+            ),
+            tags$li(
+              "Change in number of beds: Assumed % annual growth in the number of available beds"
+            )
           )
         )
-        
       ),
-      
+
       #layout_columns(
       card(
         card_header("Data"),
@@ -1454,11 +1672,17 @@ ui <- page_navbar(
             #      padding: 12px;
             #      margin-bottom: 10px;
             #    ",
-            p("The historic annual number of admissions and average length of stays between 1994 and 2025 were derived from the Hospital Episode Statistics dataset."),
-            p("The historic number of beds and bed occupancy was taken from the NHS England Bed Availability and Occupancy (KH03) Collection. Day and overnight beds were combined and the number of beds averaged over the four quarters of theyear."),
-            p("The preset admission scenarios (Do nothing, Planned and Ambitious) were derived using The Strategy Unit's NHP Model. Details can be found in the Future Demand for Community Care report (see references).")
+            p(
+              "The historic annual number of admissions and average length of stays between 1994 and 2025 were derived from the Hospital Episode Statistics dataset."
+            ),
+            p(
+              "The historic number of beds and bed occupancy was taken from the NHS England Bed Availability and Occupancy (KH03) Collection. Day and overnight beds were combined and the number of beds averaged over the four quarters of theyear."
+            ),
+            p(
+              "The preset admission scenarios (Do nothing, Planned and Ambitious) were derived using The Strategy Unit's NHP Model. Details can be found in the Future Demand for Community Care report (see references)."
+            )
           ),
-          
+
           #   div(
           #     style = "
           #        border: 1px solid #686f73;
@@ -1469,7 +1693,7 @@ ui <- page_navbar(
           #   )
         )
       ),
-      
+
       card(
         card_header("Assumptions and Limitations"),
         div(
@@ -1482,21 +1706,31 @@ ui <- page_navbar(
           #   "
           #  ),
           tags$ul(
-            tags$li("Admissions per day are calculated by dividing annual admissions by 365, assuming a constant rate throughout the year. This ignores seasonal variation."),
-            tags$li("Average LoS was estimated using beddays from HES under the assumption that same day admissions take on average 0.2 of a day (5 hours)."),
-            tags$li("The historical number of beds was taken from Q4 each year, which may not reflect the average number of beds across the year."),
-            tags$li("The historical occupancy is calculated as the historic beddays divided by the number of available beddays given the number of beds. This assumes that bed occupancy is constant across the year and does not reflect seasonal variation. It also doesn't align exactly with the occupancy reported in the NHS England Bed Availability and Occupancy (KH03) Collection."),
+            tags$li(
+              "Admissions per day are calculated by dividing annual admissions by 365, assuming a constant rate throughout the year. This ignores seasonal variation."
+            ),
+            tags$li(
+              "Average LoS was estimated using beddays from HES under the assumption that same day admissions take on average 0.2 of a day (5 hours)."
+            ),
+            tags$li(
+              "The historical number of beds was taken from Q4 each year, which may not reflect the average number of beds across the year."
+            ),
+            tags$li(
+              "The historical occpancy is calculated as the historic beddays divided by the number of available beddays given the number of beds. This assumes that bed occupancy is constant across the year and does not reflect seasonal variation. It also doesn't align exactly with the occupancy reported in the NHS England Bed Availability and Occupancy (KH03) Collection."
+            ),
           ),
-          p(strong("This tool is designed for intuition building only, and not for strategic planning or operational decisions."))
+          p(strong(
+            "This tool is designed for intuition building only, and not for strategic planning or operational decisions."
+          ))
         )
         #),
-        
+
         #col_widths = c(6, 6)
       ),
-      
+
       card(
         class = "toy-model-links",
-        style =  "
+        style = "
         border: 2px solid #5881c1;
         padding: 10px 12px;
         margin: 10px 0;
@@ -1507,44 +1741,49 @@ ui <- page_navbar(
           div(
             style = "display: flex; gap: 10px; align-items: flex-start;",
             tags$span(
-              style = "font-size: 20px; color: #5881c1; line-height: 1.1;"),
+              style = "font-size: 20px; color: #5881c1; line-height: 1.1;"
+            ),
             div(
-              
               tags$ul(
                 style = "margin: 0; padding-left: 20px;",
-                
+
                 tags$li(
                   tags$a(
                     "NHS England: Bed Availability and Occupancy",
                     href = "https://www.england.nhs.uk/statistics/statistical-work-areas/bed-availability-and-occupancy/",
                     target = "_blank"
-                  )),
-                
+                  )
+                ),
+
                 tags$li(
                   tags$a(
                     "Strategy Unit: New Hospitals Programme Capacity and Demand Modelling",
                     href = "https://www.strategyunitwm.nhs.uk/news/transforming-hospital-planning-open-source-demand-and-capacity-model",
                     target = "_blank"
-                  )),
-                
+                  )
+                ),
+
                 tags$li(
                   tags$a(
                     "Strategy Unit: Future Demand for Community Care",
                     href = "https://www.strategyunitwm.nhs.uk/publications/missing-element-shifting-care",
                     target = "_blank"
-                  )),
-                
+                  )
+                ),
+
                 #tags$li(
                 #  tags$a(
                 #    "The Nuffield Trust: Hospital Bed Occupancy",
                 #    href = "https://www.nuffieldtrust.org.uk/resource/hospital-bed-occupancy",
                 #    target = "_blank"
                 #  ))
-              ))))),
-      
+              )
+            )
+          )
+        )
+      ),
     )
   )
-  
 )
 
 
@@ -1561,63 +1800,67 @@ server <- function(input, output, session) {
     updateSliderInput(session, "los_change", value =historic_trends$los)
     updateSliderInput(session, "target_occupancy", value = 90.5)
   })
-  
+
   observeEvent(input$reset_baseline, {
     updateSliderInput(session, "bedday_growth", value = 0)#historic_trends$beds) 
     updateSliderInput(session, "los_change2", value =historic_trends$los) 
     updateSliderInput(session, "bed_occupancy", value = 90.5) 
   })
-  
+
   format_indicator_value <- function(value, suffix = "", digits = 1) {
     paste0(round(value, digits), suffix)
   }
-  
-  get_indicator_direction <- function(default_value, selected_value, digits = 1, panel = "future_beds") {
-    
+
+  get_indicator_direction <- function(
+    default_value,
+    selected_value,
+    digits = 1,
+    panel = "future_beds"
+  ) {
     default_value <- round(default_value, digits)
     selected_value <- round(selected_value, digits)
-    
-    change <- selected_value - default_value
-    
-    if (panel == "future_beds") {
 
-      if(change > 0.00001){
+    change <- selected_value - default_value
+
+    if (panel == "future_beds") {
+      if (change > 0.00001) {
         return(list(icon = "▲", colour = "#ec6555", change = change))
       }
-    
-      if(change < -0.00001){
+
+      if (change < -0.00001) {
         return(list(icon = "▼", colour = "#238b45", change = change))
       }
-    
+
       return(list(icon = "=", colour = "#686f73", change = change))
     } else if (panel == "future_admissions") {
-      if(change > 0.00001){
+      if (change > 0.00001) {
         return(list(icon = "▲", colour = "#238b45", change = change))
       }
-      
-      if(change < -0.00001){
+
+      if (change < -0.00001) {
         return(list(icon = "▼", colour = "#ec6555", change = change))
       }
-      
+
       return(list(icon = "=", colour = "#686f73", change = change))
     }
   }
-  
-  format_direction_value <- function(default_value,
-                                     selected_value,
-                                     suffix = "%",
-                                     digits = 1) {
-    
+
+  format_direction_value <- function(
+    default_value,
+    selected_value,
+    suffix = "%",
+    digits = 1
+  ) {
     direction <- get_indicator_direction(default_value, selected_value)
-    
-    icon <- if(direction$icon == "▲"){
+
+    icon <- if (direction$icon == "▲") {
       "▲"
-    } else if(direction$icon == "▼"){
+    } else if (direction$icon == "▼") {
       "▼"
     } else {
       "="
     }
-    
+
     HTML(
       paste0(
         "<span style='color:",
@@ -1631,27 +1874,49 @@ server <- function(input, output, session) {
       )
     )
   }
-  
-  make_compare_badge <- function(default_value, selected_value, suffix = "", digits = 1, panel = "future_beds") {
-    
-    direction <- get_indicator_direction(default_value, selected_value, digits, panel)
-    
+
+  make_compare_badge <- function(
+    default_value,
+    selected_value,
+    suffix = "",
+    digits = 1,
+    panel = "future_beds"
+  ) {
+    direction <- get_indicator_direction(
+      default_value,
+      selected_value,
+      digits,
+      panel
+    )
+
     HTML(paste0(
-      "<span style='color:", direction$colour, "; font-weight:900;'>",
+      "<span style='color:",
+      direction$colour,
+      "; font-weight:900;'>",
       direction$icon,
       " ",
-      format_indicator_value(abs(default_value - selected_value), suffix, digits),
+      format_indicator_value(
+        abs(default_value - selected_value),
+        suffix,
+        digits
+      ),
       "</span>"
     ))
   }
-  
-  make_change_badge <- function(default_value, selected_value, suffix = "", digits = 1) {
-    
+
+  make_change_badge <- function(
+    default_value,
+    selected_value,
+    suffix = "",
+    digits = 1
+  ) {
     direction <- get_indicator_direction(default_value, selected_value)
     change <- selected_value - default_value
-    
+
     HTML(paste0(
-      "<span style='color:", direction$colour, "; font-weight:900;'>",
+      "<span style='color:",
+      direction$colour,
+      "; font-weight:900;'>",
       direction$icon,
       " ",
       ifelse(change > 0, "+", ""),
@@ -1660,9 +1925,8 @@ server <- function(input, output, session) {
       "</span>"
     ))
   }
-  
+
   make_chart_header <- function(title, badge) {
-    
     div(
       style = "
         display: flex;
@@ -1682,28 +1946,31 @@ server <- function(input, output, session) {
       )
     )
   }
-  
-  make_metric_block <- function(default_value,
-                                selected_value,
-                                label,
-                                suffix = "",
-                                digits = 1,
-                                show_change = TRUE) {
-    
+
+  make_metric_block <- function(
+    default_value,
+    selected_value,
+    label,
+    suffix = "",
+    digits = 1,
+    show_change = TRUE
+  ) {
     direction <- get_indicator_direction(default_value, selected_value, digits)
-    
+
     div(
       style = "
       text-align: center;
       flex: 1;
     ",
-      
-      if(show_change){
+
+      if (show_change) {
         div(
           style = paste0(
             "font-size:1.8rem;",
             "font-weight:800;",
-            "color:", direction$colour, ";",
+            "color:",
+            direction$colour,
+            ";",
             "line-height:1;",
             "margin-bottom:6px;"
           ),
@@ -1717,14 +1984,16 @@ server <- function(input, output, session) {
           )
         )
       },
-      
+
       div(
         HTML(paste0(
           "<span style='font-weight:700;'>",
           format_indicator_value(default_value, suffix, digits),
           "</span>",
           " <span style='font-size:1.5em; vertical-align:-0.08em;'>&rarr;</span> ",
-          "<span style='font-weight:800; color:", direction$colour, ";'>",
+          "<span style='font-weight:800; color:",
+          direction$colour,
+          ";'>",
           direction$icon,
           " ",
           format_indicator_value(selected_value, suffix, digits),
@@ -1732,7 +2001,7 @@ server <- function(input, output, session) {
         )),
         style = "line-height: 1.1;"
       ),
-      
+
       div(
         HTML(label),
         style = "
@@ -1743,132 +2012,159 @@ server <- function(input, output, session) {
       )
     )
   }
-  
+
   # Chart outputs-----------------------------------------------------------------
-  
-  
-  output$admissions<-renderPlotly({
-    
-    plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    
-    plotting_function(plot_data,
-                      NULL,
-                      NULL,
-                      NULL,
-                      "admissions", 
-                      "Admissions (millions)")
-    
-  })
-  
-  output$los<-renderPlotly({
-    
-    plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    
-    plotting_function(plot_data,
-                      NULL,
-                      NULL,
-                      NULL,
-                      "los", 
-                      "Length of Stay (days)")
-    
-  })
-  
-  output$beds<-renderPlotly({
-    
-    plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    
-    plotting_function(plot_data,
-                      NULL,
-                      NULL,
-                      NULL,
-                      "beds",
-                      "Beds (thousands)", 
-                      show_trend_labels = TRUE)
-    
-  })
-  
-  
-  output$occupancy<-renderPlotly({
-    
-    plot_data<-future_beds_model(from_93, input$admissions_change, input$los_change, input$target_occupancy)
-    
-    plotting_function(plot_data,
-                      NULL,
-                      NULL,
-                      NULL,
-                      "occupancy", 
-                      "Bed Occupancy (%)")
-    
-  })
-  
-  
-  
-  output$admissions2<-renderPlotly({
-    
-    plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
-    
-    plotting_function(plot_data,
-                      NULL, #do_nothing,
-                      NULL, #planned,
-                      NULL, #ambitious,
-                      "admissions", 
-                      "Admissions (millions)", 
-                      show_trend_labels = TRUE)
-    
-  })
-  
-  output$los2<-renderPlotly({
-    
-    plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
-    
-    plotting_function(plot_data,
-                      NULL,
-                      NULL,
-                      NULL,
-                      "los", 
-                      "Length of Stay (days)")
-    
-  })
-  
-  output$beds2<-renderPlotly({
-    
-    plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
-    
-    plotting_function(plot_data,
-                      NULL,
-                      NULL,
-                      NULL,
-                      "beds", 
-                      "Beds (thousands)")
-    
-  })
-  
-  
-  output$occupancy2<-renderPlotly({
-    
-    plot_data<-future_admissions_model(from_93, input$bedday_growth, input$los_change2, input$bed_occupancy)
-    
-    plotting_function(plot_data,
-                      NULL,
-                      NULL,
-                      NULL,
-                      "occupancy", 
-                      "Bed Occupancy (%)")
-    
-  })
-  
-  #Adding changing values to sidebars
-  output$future_beds_admissions_2035 <- renderText({
-    
+
+  output$admissions <- renderPlotly({
     plot_data <- future_beds_model(
       from_93,
       input$admissions_change,
       input$los_change,
       input$target_occupancy
     )
-    
+
+    plotting_function(
+      plot_data,
+      NULL,
+      NULL,
+      NULL,
+      "admissions",
+      "Admissions (millions)"
+    )
+  })
+
+  output$los <- renderPlotly({
+    plot_data <- future_beds_model(
+      from_93,
+      input$admissions_change,
+      input$los_change,
+      input$target_occupancy
+    )
+
+    plotting_function(
+      plot_data,
+      NULL,
+      NULL,
+      NULL,
+      "los",
+      "Length of Stay (days)"
+    )
+  })
+
+  output$beds <- renderPlotly({
+    plot_data <- future_beds_model(
+      from_93,
+      input$admissions_change,
+      input$los_change,
+      input$target_occupancy
+    )
+
+    plotting_function(
+      plot_data,
+      NULL,
+      NULL,
+      NULL,
+      "beds",
+      "Beds (thousands)",
+      show_trend_labels = TRUE
+    )
+  })
+
+  output$occupancy <- renderPlotly({
+    plot_data <- future_beds_model(
+      from_93,
+      input$admissions_change,
+      input$los_change,
+      input$target_occupancy
+    )
+
+    plotting_function(
+      plot_data,
+      NULL,
+      NULL,
+      NULL,
+      "occupancy",
+      "Bed Occupancy (%)"
+    )
+  })
+
+  output$admissions2 <- renderPlotly({
+    plot_data <- future_admissions_model(
+      from_93,
+      input$bedday_growth,
+      input$los_change2,
+      input$bed_occupancy
+    )
+
+    plotting_function(
+      plot_data,
+      NULL, #do_nothing,
+      NULL, #planned,
+      NULL, #ambitious,
+      "admissions",
+      "Admissions (millions)",
+      show_trend_labels = TRUE
+    )
+  })
+
+  output$los2 <- renderPlotly({
+    plot_data <- future_admissions_model(
+      from_93,
+      input$bedday_growth,
+      input$los_change2,
+      input$bed_occupancy
+    )
+
+    plotting_function(
+      plot_data,
+      NULL,
+      NULL,
+      NULL,
+      "los",
+      "Length of Stay (days)"
+    )
+  })
+
+  output$beds2 <- renderPlotly({
+    plot_data <- future_admissions_model(
+      from_93,
+      input$bedday_growth,
+      input$los_change2,
+      input$bed_occupancy
+    )
+
+    plotting_function(plot_data, NULL, NULL, NULL, "beds", "Beds (thousands)")
+  })
+
+  output$occupancy2 <- renderPlotly({
+    plot_data <- future_admissions_model(
+      from_93,
+      input$bedday_growth,
+      input$los_change2,
+      input$bed_occupancy
+    )
+
+    plotting_function(
+      plot_data,
+      NULL,
+      NULL,
+      NULL,
+      "occupancy",
+      "Bed Occupancy (%)"
+    )
+  })
+
+  #Adding changing values to sidebars
+  output$future_beds_admissions_2035 <- renderText({
+    plot_data <- future_beds_model(
+      from_93,
+      input$admissions_change,
+      input$los_change,
+      input$target_occupancy
+    )
+
     admissions_2035 <- plot_data$admissions[plot_data$year == 2035] * 1000000
-    
+
     paste0(
       "2035: ",
       format(
@@ -1878,32 +2174,30 @@ server <- function(input, output, session) {
       )
     )
   })
-  
+
   output$future_beds_los_2035 <- renderText({
-    
     plot_data <- future_beds_model(
       from_93,
       input$admissions_change,
       input$los_change,
       input$target_occupancy
     )
-    
+
     los_2035 <- plot_data$los[plot_data$year == 2035]
-    
+
     paste0("2035: ", round(los_2035, 2), " days")
   })
-  
+
   output$future_admissions_beds_2035 <- renderText({
-    
     plot_data <- future_admissions_model(
       from_93,
       input$bedday_growth,
       input$los_change2,
       input$bed_occupancy
     )
-    
+
     beds_2035 <- plot_data$beds[plot_data$year == 2035]
-    
+
     paste0(
       "2035: ",
       format(
@@ -1913,59 +2207,56 @@ server <- function(input, output, session) {
       )
     )
   })
-  
+
   output$future_admissions_los_2035 <- renderText({
-    
     plot_data <- future_admissions_model(
       from_93,
       input$bedday_growth,
       input$los_change2,
       input$bed_occupancy
     )
-    
+
     los_2035 <- plot_data$los[plot_data$year == 2035]
-    
+
     paste0("2035: ", round(los_2035, 2), " days")
   })
-  
+
   output$future_beds_occupancy_2035 <- renderText({
     paste0("2026-2035: ", round(input$target_occupancy, 1), "%")
   })
-  
+
   output$future_admissions_occupancy_2035 <- renderText({
     paste0("2026-2035: ", round(input$bed_occupancy, 1), "%")
   })
-  
+
   # Adding changing values to interpretation cards
-  
+
   output$future_beds_interpretation <- renderUI({
-    
     plot_data <- future_beds_model(
       from_93,
       input$admissions_change,
       input$los_change,
       input$target_occupancy
     )
-    
+
     default_plot_data <- future_beds_model(
       from_93,
       historic_trends$admissions,
       historic_trends$los,
       90.5
     )
-    
+
     beds_2035 <- plot_data$beds[plot_data$year == 2035]
     default_beds_2035 <- default_plot_data$beds[default_plot_data$year == 2035]
-    
+
     div(
       div(
-        
         class = "infographic-wrap",
-        
+
         div(class = "info-arrow info-arrow-left"),
         div(class = "info-arrow info-arrow-right"),
         div(class = "info-arrow info-arrow-bottom"),
-        
+
         div(
           class = "info-node info-node-blue",
           div(
@@ -1981,7 +2272,7 @@ server <- function(input, output, session) {
           div(class = "info-label", "Admissions"),
           div(class = "info-sublabel", "(annual change)")
         ),
-        
+
         div(
           class = "info-node info-node-grey",
           div(
@@ -1997,7 +2288,7 @@ server <- function(input, output, session) {
           div(class = "info-label", "LoS"),
           div(class = "info-sublabel", "(annual change)")
         ),
-        
+
         div(
           class = "info-node info-node-yellow",
           div(
@@ -2013,7 +2304,7 @@ server <- function(input, output, session) {
           div(class = "info-label", "Bed Occupancy"),
           div(class = "info-sublabel", "(fixed target)")
         ),
-        
+
         div(
           class = "info-output",
           div(
@@ -2033,43 +2324,43 @@ server <- function(input, output, session) {
           )
         )
       ),
-      
+
       hr(style = "margin: 4px 0 8px 0;"),
-      
+
       p(
         "The three inputs interact to determine the number of beds required in 2035.",
         style = "font-size:1rem; margin:0; line-height:1.2;"
       )
     )
   })
-  
-  
+
   output$future_admissions_interpretation <- renderUI({
-    
     plot_data <- future_admissions_model(
       from_93,
       input$bedday_growth,
       input$los_change2,
       90.5 #input$bed_occupancy
     )
-    
+
     default_plot_data <- future_admissions_model(
       from_93,
       historic_trends$beds,
       historic_trends$los,
       90.5
     )
-    
+
     admissions_2035 <- plot_data$admissions[plot_data$year == 2035]
-    default_admissions_2035 <- default_plot_data$admissions[default_plot_data$year == 2035]
-    
+    default_admissions_2035 <- default_plot_data$admissions[
+      default_plot_data$year == 2035
+    ]
+
     div(
       div(
         class = "panel3-smart-wrap",
-        
+
         div(
           class = "panel3-smart-inputs",
-          
+
           div(
             class = "panel3-smart-input panel3-smart-blue",
             div(
@@ -2085,7 +2376,7 @@ server <- function(input, output, session) {
             div(class = "panel3-smart-label", "Bed supply"),
             div(class = "panel3-smart-sublabel", "(annual change)")
           ),
-          
+
           div(
             class = "panel3-smart-input panel3-smart-grey",
             div(
@@ -2101,7 +2392,7 @@ server <- function(input, output, session) {
             div(class = "panel3-smart-label", "LoS"),
             div(class = "panel3-smart-sublabel", "(annual change)")
           ),
-          
+
           div(
             class = "panel3-smart-input panel3-smart-yellow",
             div(
@@ -2118,12 +2409,12 @@ server <- function(input, output, session) {
             div(class = "panel3-smart-sublabel", "(target value)")
           )
         ),
-        
+
         tags$svg(
           class = "panel3-smart-flow",
           viewBox = "0 0 170 175",
           preserveAspectRatio = "none",
-          
+
           tags$path(
             d = "M0,24 C45,18 95,34 170,70",
             stroke = "#5881c1",
@@ -2132,7 +2423,7 @@ server <- function(input, output, session) {
             opacity = "0.28",
             `stroke-linecap` = "round"
           ),
-          
+
           tags$path(
             d = "M0,87 C55,87 110,87 170,87",
             stroke = "#686f73",
@@ -2141,7 +2432,7 @@ server <- function(input, output, session) {
             opacity = "0.28",
             `stroke-linecap` = "round"
           ),
-          
+
           tags$path(
             d = "M0,150 C45,150 95,134 170,105",
             stroke = "#f9bf07",
@@ -2151,11 +2442,14 @@ server <- function(input, output, session) {
             `stroke-linecap` = "round"
           )
         ),
-        
+
         div(
           class = "panel3-smart-output",
           div(class = "bed-icon", icon("chart-line")),
-          div(class = "panel3-smart-output-label", HTML("SUPPORTED<br>ADMISSIONS")),
+          div(
+            class = "panel3-smart-output-label",
+            HTML("SUPPORTED<br>ADMISSIONS")
+          ),
           div(
             class = "panel3-smart-output-value",
             make_compare_badge(
@@ -2168,110 +2462,156 @@ server <- function(input, output, session) {
           )
         )
       ),
-      
+
       hr(style = "margin: 0px 0 8px 0;"),
-      
+
       p(
         "The three inputs interact to determine the number of admissions that could be supported.",
         style = "font-size:1rem; margin:0; line-height:1.2;"
       )
     )
   })
-  
+
   output$admissions_header <- renderUI({
     make_chart_header(
       "Number of Admissions (millions)",
-      make_compare_badge(0, input$admissions_change, "%", digits = 1, panel = "future_beds")
+      make_compare_badge(
+        0,
+        input$admissions_change,
+        "%",
+        digits = 1,
+        panel = "future_beds"
+      )
     )
   })
-  
+
   output$los_header <- renderUI({
     make_chart_header(
       "Average Length of Stay (days)",
-      make_compare_badge(0, input$los_change, "%", digits = 1, panel = "future_beds")
+      make_compare_badge(
+        0,
+        input$los_change,
+        "%",
+        digits = 1,
+        panel = "future_beds"
+      )
     )
   })
-  
+
   output$occupancy_header <- renderUI({
     make_chart_header(
       "Bed Occupancy Rate (%)",
-      make_compare_badge(90.5, input$target_occupancy, "%", digits = 1, panel = "future_beds")
+      make_compare_badge(
+        90.5,
+        input$target_occupancy,
+        "%",
+        digits = 1,
+        panel = "future_beds"
+      )
     )
   })
-  
+
   output$beds_header <- renderUI({
-    
     plot_data <- future_beds_model(
       from_93,
       input$admissions_change,
       input$los_change,
       input$target_occupancy
     )
-    
+
     default_plot_data <- future_beds_model(
       from_93,
       historic_trends$admissions,
       historic_trends$los,
       90.5
     )
-    
+
     beds_2035 <- plot_data$beds[plot_data$year == 2035]
     default_beds_2035 <- default_plot_data$beds[default_plot_data$year == 2035]
-    
+
     make_chart_header(
       "Beds Required (thousands)",
-      make_compare_badge(default_beds_2035, beds_2035, "k", digits = 1, panel = "future_beds")
+      make_compare_badge(
+        default_beds_2035,
+        beds_2035,
+        "k",
+        digits = 1,
+        panel = "future_beds"
+      )
     )
   })
-  
+
   output$beds2_header <- renderUI({
     make_chart_header(
       "Number of Beds (thousands)",
-      make_compare_badge(0, input$bedday_growth, "%", digits = 1, panel = "future_admissions")
+      make_compare_badge(
+        0,
+        input$bedday_growth,
+        "%",
+        digits = 1,
+        panel = "future_admissions"
+      )
     )
   })
-  
+
   output$los2_header <- renderUI({
     make_chart_header(
       "Average Length of Stay (days)",
-      make_compare_badge(0, input$los_change2, "%", digits = 1, panel = "future_beds")
+      make_compare_badge(
+        0,
+        input$los_change2,
+        "%",
+        digits = 1,
+        panel = "future_beds"
+      )
     )
   })
-  
+
   output$occupancy2_header <- renderUI({
     make_chart_header(
       "Bed Occupancy Rate (%)",
-      make_compare_badge(90.5, input$bed_occupancy, "%", digits = 1, panel = "future_beds")
+      make_compare_badge(
+        90.5,
+        input$bed_occupancy,
+        "%",
+        digits = 1,
+        panel = "future_beds"
+      )
     )
   })
-  
+
   output$admissions2_header <- renderUI({
-    
     plot_data <- future_admissions_model(
       from_93,
       input$bedday_growth,
       input$los_change2,
       input$bed_occupancy
     )
-    
+
     default_plot_data <- future_admissions_model(
       from_93,
       historic_trends$beds,
       historic_trends$los,
       90.5
     )
-    
+
     admissions_2035 <- plot_data$admissions[plot_data$year == 2035]
-    default_admissions_2035 <- default_plot_data$admissions[default_plot_data$year == 2035]
-    
+    default_admissions_2035 <- default_plot_data$admissions[
+      default_plot_data$year == 2035
+    ]
+
     make_chart_header(
       "Supported Admissions (millions)",
-      make_compare_badge(default_admissions_2035, admissions_2035, "M", digits = 1, panel = "future_admissions")
+      make_compare_badge(
+        default_admissions_2035,
+        admissions_2035,
+        "M",
+        digits = 1,
+        panel = "future_admissions"
+      )
     )
   })
-  
-  
 }
 
-# Run the application 
+# Run the application
 shinyApp(ui = ui, server = server)
