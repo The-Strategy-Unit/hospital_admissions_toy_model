@@ -95,8 +95,8 @@ future_admissions_model <- function(
         occupancy = occupancy[length(occupancy)],
         beds = beds[length(beds)],
         method = "Brent",
-        lower = 15000000,
-        upper = 26000000
+        lower = 0,
+        upper = 1000000000
       )$par
     )
   }
@@ -265,15 +265,11 @@ plotting_function <- function(
     historic_trend_data[[output_type]] <- historic_2025_value *
       (1 + historical_avg_annual_change / 100)^(historic_trend_data$year - 2025)
   } else if (output_type == "los") {
-    historic_trend_data[[output_type]] <- rep(
-      historic_2025_value,
-      nrow(historic_trend_data)
-    )
+    historic_trend_data[[output_type]] <- historic_2025_value *
+      (1 + historical_avg_annual_change / 100)^(historic_trend_data$year - 2025)
   } else if (output_type == "beds") {
-    historic_trend_data[[output_type]] <- rep(
-      historic_2025_value,
-      nrow(historic_trend_data)
-    )
+    historic_trend_data[[output_type]] <-historic_2025_value *
+      (1 + historical_avg_annual_change / 100)^(historic_trend_data$year - 2025)
   } else if (output_type == "occupancy") {
     historic_trend_data[[output_type]] <- rep(
       historic_2025_value,
@@ -1123,7 +1119,7 @@ ui <- page_navbar(
 
             card(
               style = "grid-column: 5/ span 6; height: 100%;",
-              card_header(HTML("Summary")),
+              card_header(HTML("<b>Is the historic downward trend in LoS likely to continue?</b>")),
               card_body(
                 p(""),
                 uiOutput("future_beds_interpretation"),
@@ -1177,7 +1173,7 @@ ui <- page_navbar(
             label = NULL,
             min = -5,
             max = 5,
-            value = 0, #historic_trends$beds,
+            value = historic_trends$beds,
             step = 0.1
           ),
 
@@ -1335,7 +1331,7 @@ ui <- page_navbar(
 
             card(
               style ="grid-column: 5 / span 6; height: 100%;",
-              card_header(HTML("Summary")),
+              card_header(HTML("<b>Is the historic downward trend in LoS likely to continue?</b>")),
               card_body(
                 #p("Historically reductions in LoS have allowed continual reductions in the number of beds, despite rising admissions."),
                 #p("Here we consider the impact of future planned bed supply and LoS scenarios on the number of admissions that could be supported."),uiOutput("future_admissions_interpretation"),
@@ -1777,13 +1773,13 @@ server <- function(input, output, session) {
   
   observeEvent(input$reset_scenario, {
     updateSliderInput(session, "admissions_change", value = historic_trends$admissions)
-    updateSliderInput(session, "los_change", value =historic_trends$los)
+    updateSliderInput(session, "los_change", value = historic_trends$los)
     updateSliderInput(session, "target_occupancy", value = 90.5)
   })
 
   observeEvent(input$reset_baseline, {
-    updateSliderInput(session, "bedday_growth", value = 0)#historic_trends$beds) 
-    updateSliderInput(session, "los_change2", value =historic_trends$los) 
+    updateSliderInput(session, "bedday_growth", value = historic_trends$beds) 
+    updateSliderInput(session, "los_change2", value = historic_trends$los) 
     updateSliderInput(session, "bed_occupancy", value = 90.5) 
   })
 
@@ -2228,6 +2224,7 @@ server <- function(input, output, session) {
 
     beds_2035 <- plot_data$beds[plot_data$year == 2035]
     default_beds_2035 <- default_plot_data$beds[default_plot_data$year == 2035]
+    default_beds_2025 <- default_plot_data$beds[default_plot_data$year == 2025]
 
     div(
       div(
@@ -2295,7 +2292,7 @@ server <- function(input, output, session) {
           div(
             class = "output-value",
             make_compare_badge(
-              default_beds_2035,
+              default_beds_2025,
               beds_2035,
               "k",
               digits = 0,
@@ -2308,7 +2305,7 @@ server <- function(input, output, session) {
       hr(style = "margin: 4px 0 8px 0;"),
 
       p(
-        "The three inputs interact to determine the number of beds required in 2035.",
+        "The three inputs interact to determine the difference in the number of beds required in 2025 vs. 2035 given user supplied assumptions.",
         style = "font-size:1rem; margin:0; line-height:1.2;"
       )
     )
@@ -2332,6 +2329,9 @@ server <- function(input, output, session) {
     admissions_2035 <- plot_data$admissions[plot_data$year == 2035]
     default_admissions_2035 <- default_plot_data$admissions[
       default_plot_data$year == 2035
+    ]
+    default_admissions_2025 <- default_plot_data$admissions[
+      default_plot_data$year == 2025
     ]
 
     div(
@@ -2362,7 +2362,7 @@ server <- function(input, output, session) {
             div(
               class = "panel3-smart-value",
               make_compare_badge(
-                historic_trends$los,
+                0,
                 input$los_change2,
                 "%",
                 digits = 1,
@@ -2433,7 +2433,7 @@ server <- function(input, output, session) {
           div(
             class = "panel3-smart-output-value",
             make_compare_badge(
-              default_admissions_2035,
+              default_admissions_2025,
               admissions_2035,
               "M",
               digits = 1,
@@ -2446,7 +2446,7 @@ server <- function(input, output, session) {
       hr(style = "margin: 0px 0 8px 0;"),
 
       p(
-        "The three inputs interact to determine the number of admissions that could be supported.",
+        "The three inputs interact to determine the difference in the number of admissions that could be supported in 2025 vs 2035 given user supplied assumptions.",
         style = "font-size:1rem; margin:0; line-height:1.2;"
       )
     )
@@ -2508,14 +2508,15 @@ server <- function(input, output, session) {
 
     beds_2035 <- plot_data$beds[plot_data$year == 2035]
     default_beds_2035 <- default_plot_data$beds[default_plot_data$year == 2035]
+    default_beds_2025 <- default_plot_data$beds[default_plot_data$year == 2025]
 
     make_chart_header(
       "Beds Required (thousands)",
       make_compare_badge(
-        default_beds_2035,
+        default_beds_2025,
         beds_2035,
         "k",
-        digits = 1,
+        digits = 0,
         panel = "future_beds"
       )
     )
@@ -2579,11 +2580,14 @@ server <- function(input, output, session) {
     default_admissions_2035 <- default_plot_data$admissions[
       default_plot_data$year == 2035
     ]
+    default_admissions_2025 <- default_plot_data$admissions[
+      default_plot_data$year == 2025
+    ]
 
     make_chart_header(
       "Supported Admissions (millions)",
       make_compare_badge(
-        default_admissions_2035,
+        default_admissions_2025,
         admissions_2035,
         "M",
         digits = 1,
