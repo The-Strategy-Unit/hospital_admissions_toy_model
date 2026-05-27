@@ -859,15 +859,8 @@ ui <- page_navbar(
         margin: 200px 0 18px 0;
       ",
 
-        h1(
-          "Why do we need more beds?",
-          style = "
-          margin: 0;
-          font-size: 2.2rem;
-          line-height: 1.15;
-        "
-        )
-      ),
+
+      )
     )
   ),
 
@@ -1032,7 +1025,7 @@ ui <- page_navbar(
             "Reset", 
             class = "btn-primary w-100",
             style = "margin-top: 10px;"
-          ),
+          )
 
           #   div(
           #     style = "
@@ -1127,13 +1120,6 @@ ui <- page_navbar(
             )
           ),
 
-          div(
-            style = "
-            display: grid;
-            grid-template-rows: 1fr;
-            gap: 8px;
-            height: 100%;
-          ",
 
             card(
               style = "grid-column: 5/ span 6; height: 100%;",
@@ -1145,10 +1131,10 @@ ui <- page_navbar(
                 style = "height: calc(100% - 36px); overflow-y: auto;"
             
             )
-          )
         )
       )
     )
+  )
   ),
 
   ## Panel 3: Admissions Calculator nav panel ---------------------------------------
@@ -1268,7 +1254,7 @@ ui <- page_navbar(
             "Reset", 
             class = "btn-primary w-100",
             style = "margin-top: 10px;"
-          ),
+          )
 
           #    div(
           #      style = "
@@ -1347,14 +1333,6 @@ ui <- page_navbar(
             )
           ),
 
-          div(
-            style = "
-            display: grid;
-            grid-template-rows: 1fr;
-            gap: 8px;
-            height: 100%;
-          ",
-
             card(
               style ="grid-column: 5 / span 6; height: 100%;",
               card_header(HTML("Summary")),
@@ -1366,9 +1344,8 @@ ui <- page_navbar(
                 padding = 10,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
-          
-          )
-        )
+            )
+            )
       )
     )
   ),
@@ -1426,7 +1403,7 @@ ui <- page_navbar(
                   ),
                   tags$li(
                     "How many admissions could be supported by future growth in bed capacity (Admissions Calculator)."
-                  ),
+                  )
                   #tags$li("Relationship between admissions, bed capacity, length of stay and bed occupancy.")
                 )
               )
@@ -1517,7 +1494,7 @@ ui <- page_navbar(
                 ),
                 p(
                   "In the admissions calculator the user inputs their own assumptions of how bed capacity and length of stay will change to see how many admissions could be supported under a given occupancy target."
-                ),
+                )
                 #p("Sliders control the following:"),
                 #tags$ul(
                 #  style = "margin: 0; padding-left: 20px;",
@@ -1560,11 +1537,15 @@ ui <- page_navbar(
                     "Hover over the chart lines to read off yearly values. Actual values for 2025 and projected values for 2035 are given on the sidebar."
                   )
                 )
-              )
+            
             )
           )
         )
       ),
+      
+      )
+    ),
+    
 
       ### Data source
       #   card(
@@ -1589,8 +1570,6 @@ ui <- page_navbar(
     #    p(HTML('Go to <b>"Future Beds Calculator"</b> and adjust assumptions to predict the number of beds required to meet future changes in admissions.'), style = "margin: 0;"),
     #    p(HTML('Go to <b>"Future Admissions Calculator"</b> and adjust assumptions to predict the number of admissions that could be supported by future growth in bed capacity.'), style = "margin: 0;")
     #  )
-    )
-  ),
 
   ## Panel 5: Methodology -----------------------------------------------------
   nav_panel(
@@ -1681,7 +1660,7 @@ ui <- page_navbar(
             p(
               "The preset admission scenarios (Do nothing, Planned and Ambitious) were derived using The Strategy Unit's NHP Model. Details can be found in the Future Demand for Community Care report (see references)."
             )
-          ),
+          )
 
           #   div(
           #     style = "
@@ -1717,7 +1696,7 @@ ui <- page_navbar(
             ),
             tags$li(
               "The historical occpancy is calculated as the historic beddays divided by the number of available beddays given the number of beds. This assumes that bed occupancy is constant across the year and does not reflect seasonal variation. It also doesn't align exactly with the occupancy reported in the NHS England Bed Availability and Occupancy (KH03) Collection."
-            ),
+            )
           ),
           p(strong(
             "This tool is designed for intuition building only, and not for strategic planning or operational decisions."
@@ -1769,7 +1748,7 @@ ui <- page_navbar(
                     href = "https://www.strategyunitwm.nhs.uk/publications/missing-element-shifting-care",
                     target = "_blank"
                   )
-                ),
+                )
 
                 #tags$li(
                 #  tags$a(
@@ -1781,9 +1760,10 @@ ui <- page_navbar(
             )
           )
         )
-      ),
+      )
     )
   )
+)
 )
 
 
