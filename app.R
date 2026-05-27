@@ -23,15 +23,12 @@ data <- read_excel("data/Collating the data_final.xlsx")
 from_93 <- data[7:38, ]
 
 # Formatting data----------------------------------------------------------------
-historic_trends <- from_93 |>
-  rename(admissions = `All admissions`) |>
-  rename(los = `avgLoS`) |>
-  rename(beds = Beds) |>
-  select(admissions, los, beds, occupancy) |>
-  summarise(across(
-    everything(),
-    ~ ((last(.) / first(.))^(1 / n()) - 1) * 100
-  )) |>
+historic_trends<-from_93|>
+  rename(admissions=`All admissions`)|>
+  rename(los=`avgLoS`)|>
+  rename(beds=Beds)|>
+  select(admissions, los, beds, occupancy)|>
+  summarise(across(everything(),  ~ ((last(.) / first(.))^(1 / (n()-1)) - 1) * 100))|>
   mutate(across(where(is.numeric), round, digits = 2))
 
 # Functions--------------------------------------------------------------------
@@ -183,6 +180,28 @@ future_beds_model <- function(
   return(plot_data)
 }
 
+
+annual_percentage_change <- function(data, output_type, start_year, end_year) {
+  
+  start_value <- data[[output_type]][data$year == start_year]
+  end_value <- data[[output_type]][data$year == end_year]
+  number_of_years <- end_year - start_year
+  
+  if (
+    length(start_value) == 0 ||
+    length(end_value) == 0 ||
+    is.na(start_value) ||
+    is.na(end_value) ||
+    start_value <= 0 ||
+    end_value <= 0
+  ) {
+    return(NA)
+  }
+  
+  ((end_value / start_value)^(1 / number_of_years) - 1) * 100
+}
+
+
 ## Plotting function
 plotting_function <- function(
   plot_data,
@@ -286,13 +305,13 @@ plotting_function <- function(
   y_label_position <- y_axis_min + ((y_axis_max - y_axis_min) * 0.95)
 
   historical_label <- paste0(
-    "Historic avg %<br>change: ",
+    "Historic annual <br>change: ",
     round(historical_avg_annual_change, 1),
     "%"
   )
 
   future_label <- paste0(
-    "Future avg %<br>change: ",
+    "Future annual <br>change: ",
     round(future_avg_annual_change, 1),
     "%"
   )
@@ -352,7 +371,7 @@ plotting_function <- function(
           round(.data[[output_type]], 1)
         )
       ),
-      colour = "#5881c1",
+      colour = "#9AB3D9",
       linewidth = 0.6,
       linetype = "dotted",
       group = 1
@@ -391,14 +410,14 @@ plotting_function <- function(
       annotations = if (show_trend_labels) {
         list(
           list(
-            x = 2024.4,
+           x = 2024.4,
             y = y_label_position,
             text = historical_label,
             showarrow = FALSE,
             xanchor = "right",
             yanchor = "middle",
             font = list(size = 14, color = "black")
-          ),
+           ),
           list(
             x = 2025.6,
             y = y_label_position,
@@ -407,10 +426,17 @@ plotting_function <- function(
             xanchor = "left",
             yanchor = "middle",
             font = list(size = 14, color = "black")
-          )
-        )
+          ))
       } else {
-        list()
+        list(   list(
+             x = 2024.4,
+             y = y_label_position,
+             text = historical_label,
+            showarrow = FALSE,
+              xanchor = "right",
+             yanchor = "middle",
+              font = list(size = 14, color = "black")
+        ))
       }
     )
 }
@@ -419,8 +445,9 @@ plotting_function <- function(
 #UI ----------------------------------------------------------------------------
 ##UI General
 ui <- page_navbar(
-  title = "Why do we need more beds?",
-  position = "fixed-top",
+
+  title = "Do we need more hospital beds?",
+  position = "fixed-top", 
   id = "nav",
   bg = "#2c2825",
   theme = bs_theme(
@@ -813,12 +840,18 @@ ui <- page_navbar(
 
   ## Panel 1: Landing page ---------------------------------------------------------
   nav_panel(
-    "",
-
+    title = "",
+    value = "landing_page",
+    
     div(
       style = "max-width: 1400px; margin: 0 auto;",
-
-      div(
+      
+      actionButton(
+        inputId = "go_to_next_page",
+        label = h1(
+          "Do we need more hospital beds?",
+          style = "margin: 0; font-size: 2.2rem; line-height: 1.15; color: #2c2825;"
+        ),
         style = "
         background-color: #f9bf07;
         border: 6px solid #2c2825;
@@ -841,6 +874,7 @@ ui <- page_navbar(
   ## Panel 2: Beds nav panel ---------------------------------------------------------
   nav_panel(
     "Beds Calculator",
+    value="beds_tab",
     class = "panel-one",
 
     layout_sidebar(
@@ -941,7 +975,7 @@ ui <- page_navbar(
             label = NULL,
             min = -5,
             max = 5,
-            value = 0, #historic_trends$los,
+            value = historic_trends$los,
             step = 0.1
           ),
 
@@ -994,8 +1028,8 @@ ui <- page_navbar(
           # ),
 
           actionButton(
-            "reset_scenario",
-            "Reset",
+            "reset_scenario", 
+            "Reset", 
             class = "btn-primary w-100",
             style = "margin-top: 10px;"
           ),
@@ -1040,14 +1074,14 @@ ui <- page_navbar(
         div(
           style = "
           display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
+          grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
           grid-template-rows: 32vh 55vh;
           gap: 8px;
           height: 80vh;
         ",
 
           card(
-            style = "height: 100%;",
+            style ="grid-column: 1 / span 3; height: 100%;",
             card_header(uiOutput("admissions_header")),
             card_body(
               plotlyOutput("admissions", height = "100%"),
@@ -1057,7 +1091,7 @@ ui <- page_navbar(
           ),
 
           card(
-            style = "height: 100%;",
+            style ="grid-column: 4 / span 6; height: 100%;",
             card_header(uiOutput("los_header")),
             card_body(
               plotlyOutput("los", height = "100%"),
@@ -1065,19 +1099,19 @@ ui <- page_navbar(
               style = "height: calc(100% - 48px); overflow: hidden;"
             )
           ),
-
+          
+        #  card(
+        #    style = "height: 100%;",
+        #    card_header(uiOutput("occupancy_header")),
+        #    card_body(
+        #      plotlyOutput("occupancy", height = "100%"),
+        #      padding = 8,
+        #      style = "height: calc(100% - 48px); overflow: hidden;"
+        #    )
+        #  ),
+          
           card(
-            style = "height: 100%;",
-            card_header(uiOutput("occupancy_header")),
-            card_body(
-              plotlyOutput("occupancy", height = "100%"),
-              padding = 8,
-              style = "height: calc(100% - 48px); overflow: hidden;"
-            )
-          ),
-
-          card(
-            style = "grid-column: 1 / span 2; height: 100%;",
+            style = "grid-column: 1 / span 4; height: 100%;",
             card_header(
               uiOutput("beds_header"),
               style = "
@@ -1102,14 +1136,14 @@ ui <- page_navbar(
           ",
 
             card(
-              style = "height: 100%;",
+              style = "grid-column: 5/ span 6; height: 100%;",
               card_header(HTML("Summary")),
               card_body(
                 p(""),
                 uiOutput("future_beds_interpretation"),
                 padding = 10,
                 style = "height: calc(100% - 36px); overflow-y: auto;"
-              )
+            
             )
           )
         )
@@ -1190,7 +1224,7 @@ ui <- page_navbar(
             NULL,
             min = -5,
             max = 5,
-            value = 0, #historic_trends$los,
+            value = historic_trends$los,
             step = 0.1,
             width = "100%"
           ),
@@ -1230,8 +1264,8 @@ ui <- page_navbar(
           # ),
 
           actionButton(
-            "reset_baseline",
-            "Reset to Historic Projections",
+            "reset_baseline", 
+            "Reset", 
             class = "btn-primary w-100",
             style = "margin-top: 10px;"
           ),
@@ -1260,14 +1294,14 @@ ui <- page_navbar(
         div(
           style = "
           display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
+          grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
           grid-template-rows: 32vh 55vh;
           gap: 8px;
           height: 80vh;
         ",
 
           card(
-            style = "height: 100%;",
+            style = "grid-column: 1 / span 3; height: 100%;",
             card_header(uiOutput("beds2_header")),
             card_body(
               plotlyOutput("beds2", height = "100%"),
@@ -1277,7 +1311,7 @@ ui <- page_navbar(
           ),
 
           card(
-            style = "height: 100%;",
+            style = "grid-column: 4 / span 6; height: 100%;",
             card_header(uiOutput("los2_header")),
             card_body(
               plotlyOutput("los2", height = "100%"),
@@ -1285,19 +1319,19 @@ ui <- page_navbar(
               style = "height: calc(100% - 48px); overflow: hidden;"
             )
           ),
-
+          
+        #  card(
+        #    style = "height: 100%;",
+        #    card_header(uiOutput("occupancy2_header")),
+        #    card_body(
+        #      plotlyOutput("occupancy2", height = "100%"),
+        #      padding = 8,
+         #     style = "height: calc(100% - 48px); overflow: hidden;"
+         #   )
+         # ),
+          
           card(
-            style = "height: 100%;",
-            card_header(uiOutput("occupancy2_header")),
-            card_body(
-              plotlyOutput("occupancy2", height = "100%"),
-              padding = 8,
-              style = "height: calc(100% - 48px); overflow: hidden;"
-            )
-          ),
-
-          card(
-            style = "grid-column: 1 / span 2; height: 100%;",
+            style = "grid-column: 1 / span 4; height: 100%;",
             card_header(
               uiOutput("admissions2_header"),
               style = "
@@ -1322,7 +1356,7 @@ ui <- page_navbar(
           ",
 
             card(
-              style = "height: 100%;",
+              style ="grid-column: 5 / span 6; height: 100%;",
               card_header(HTML("Summary")),
               card_body(
                 #p("Historically reductions in LoS have allowed continual reductions in the number of beds, despite rising admissions."),
@@ -1332,7 +1366,7 @@ ui <- page_navbar(
                 padding = 10,
                 style = "height: calc(100% - 48px); overflow-y: auto;"
               )
-            )
+          
           )
         )
       )
@@ -1542,29 +1576,19 @@ ui <- page_navbar(
       #     p(HTML('See <b>"Assumptions and Method"</b> tab for detail.'), style = "margin: 0;")
       #   )
       # ),
-
-      ### Call to action
-      div(
-        style = "
-        border: 2px solid #5881c1;
-        background-color: #eef4fb;
-        padding: 10px 12px;
-        margin: 10px 0;
-      ",
-        h4("Ready to Get Started?", style = "margin: 0 0 6px 0;"),
-        p(
-          HTML(
-            'Go to <b>"Beds Calculator"</b> and adjust assumptions to predict the number of beds required to meet future changes in admissions.'
-          ),
-          style = "margin: 0;"
-        ),
-        p(
-          HTML(
-            'Go to <b>"Admissions Calculator"</b> and adjust assumptions to predict the number of admissions that could be supported by future growth in bed capacity.'
-          ),
-          style = "margin: 0;"
-        )
-      )
+      
+      ### Call to action 
+   #   div(
+   #     style = "
+   #     border: 2px solid #5881c1;
+   #     background-color: #eef4fb;
+   #     padding: 10px 12px;
+   #     margin: 10px 0;
+   #   ",
+    #    h4("Ready to Get Started?", style = "margin: 0 0 6px 0;"),
+    #    p(HTML('Go to <b>"Future Beds Calculator"</b> and adjust assumptions to predict the number of beds required to meet future changes in admissions.'), style = "margin: 0;"),
+    #    p(HTML('Go to <b>"Future Admissions Calculator"</b> and adjust assumptions to predict the number of admissions that could be supported by future growth in bed capacity.'), style = "margin: 0;")
+    #  )
     )
   ),
 
@@ -1766,20 +1790,21 @@ ui <- page_navbar(
 #Server interface --------------------------------------------------------------
 
 server <- function(input, output, session) {
+  
+  observeEvent(input$go_to_next_page, {
+    nav_select("nav", "beds_tab")
+  })
+  
   observeEvent(input$reset_scenario, {
-    updateSliderInput(
-      session,
-      "admissions_change",
-      value = historic_trends$admissions
-    )
-    updateSliderInput(session, "los_change", value = 0) #historic_trends$los)
+    updateSliderInput(session, "admissions_change", value = historic_trends$admissions)
+    updateSliderInput(session, "los_change", value =historic_trends$los)
     updateSliderInput(session, "target_occupancy", value = 90.5)
   })
 
   observeEvent(input$reset_baseline, {
-    updateSliderInput(session, "bedday_growth", value = 0) #historic_trends$beds)
-    updateSliderInput(session, "los_change2", value = 0) #,historic_trends$los)
-    updateSliderInput(session, "bed_occupancy", value = 90.5)
+    updateSliderInput(session, "bedday_growth", value = 0)#historic_trends$beds) 
+    updateSliderInput(session, "los_change2", value =historic_trends$los) 
+    updateSliderInput(session, "bed_occupancy", value = 90.5) 
   })
 
   format_indicator_value <- function(value, suffix = "", digits = 1) {
@@ -2357,7 +2382,7 @@ server <- function(input, output, session) {
             div(
               class = "panel3-smart-value",
               make_compare_badge(
-                0,
+                historic_trends$los,
                 input$los_change2,
                 "%",
                 digits = 1,
