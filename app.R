@@ -19,7 +19,7 @@ options(scipen = 999)
 
 # Data-------------------------------------------------------------------------
 
-data <- read_excel("data/Collating the data_final.xlsx")
+data <- read_excel("data/Collating the data_reconfigured.xlsx")
 from_93 <- data[7:38, ]
 
 # Formatting data----------------------------------------------------------------
@@ -31,11 +31,36 @@ historic_trends<-from_93|>
   summarise(across(everything(),  ~ ((last(.) / first(.))^(1 / (n()-1)) - 1) * 100))|>
   mutate(across(where(is.numeric), round, digits = 2))
 
+percentage_change <- function(x) {
+  # Input validation
+  if (!is.numeric(x)) {
+    stop("Input must be a numeric vector.")
+  }
+  if (length(x) < 2) {
+    stop("Vector must have at least two elements.")
+  }
+  
+  # Calculate percentage change
+  # Formula: ((current - previous) / previous) * 100
+  
+  pct_change <- c(NA)
+  for(i in 2:length(x)){
+    pct_change<-c( pct_change, 100* (x[i]-x[i-1]) / x[i-1])
+  }
+  
+  # Handle division by zero (set to NA)
+  pct_change[is.infinite(pct_change)] <- NA
+  
+  return(pct_change)
+}
+
+historic_trends$los <- -0.09320385 ## this is a linear extrapolation from the cubic polynomial fit that worked best when looking at historic data
+default_target_occupancy <- from_93$`occupancy`[length(from_93$`occupancy`)] * 100
 # Functions--------------------------------------------------------------------
 
 ## Solve for admissions
 solve_for_admissions <- function(admissions, LoS, occupancy, beds) {
-  return(abs(beds - qpois(occupancy, admissions * LoS / 365)))
+  return(abs(beds - (admissions*LoS/365)/(occupancy) ))     #qpois(occupancy, admissions * LoS / 365)
 }
 
 
@@ -161,10 +186,7 @@ future_beds_model <- function(
     beddays <- c(beddays, admissions[length(admissions)] * los[length(los)])
     beds <- c(
       beds,
-      qpois(
-        (occupancy_fixed / 100),
-        (admissions[length(admissions)] / 365) * los[length(los)]
-      )
+      (admissions[length(admissions)]*los[length(los)]/365)/(occupancy_fixed / 100)
     )
     occupancy <- c(occupancy, (occupancy_fixed / 100))
   }
@@ -211,7 +233,8 @@ plotting_function <- function(
   output_type,
   y_axis_label,
   y_axis_max = NULL,
-  show_trend_labels = FALSE
+  show_trend_labels = FALSE,
+  show_default = TRUE
 ) {
   # Heather adding historic and future average annual % change chart labels
 
@@ -253,29 +276,30 @@ plotting_function <- function(
     2035
   )
 
-  # Heather adding historic trend continuation line
+    # Heather adding historic trend continuation line
 
-  historic_trend_data <- data.frame(
-    year = 2025:2035
-  )
-
-  historic_2025_value <- plot_data[[output_type]][plot_data$year == 2025]
-
-  if (output_type == "admissions") {
-    historic_trend_data[[output_type]] <- historic_2025_value *
-      (1 + historical_avg_annual_change / 100)^(historic_trend_data$year - 2025)
-  } else if (output_type == "los") {
-    historic_trend_data[[output_type]] <- historic_2025_value *
-      (1 + historical_avg_annual_change / 100)^(historic_trend_data$year - 2025)
-  } else if (output_type == "beds") {
-    historic_trend_data[[output_type]] <-historic_2025_value *
-      (1 + historical_avg_annual_change / 100)^(historic_trend_data$year - 2025)
-  } else if (output_type == "occupancy") {
-    historic_trend_data[[output_type]] <- rep(
-      historic_2025_value,
-      nrow(historic_trend_data)
+    historic_trend_data <- data.frame(
+      year = 2025:2035
     )
-  }
+
+    historic_2025_value <- plot_data[[output_type]][plot_data$year == 2025]
+
+    if (output_type == "admissions") {
+      historic_trend_data[[output_type]] <- historic_2025_value *
+        (1 + historical_avg_annual_change / 100)^(historic_trend_data$year - 2025)
+    } else if (output_type == "los") {
+      historic_trend_data[[output_type]] <- historic_2025_value *
+        (1 + historic_trends$los  / 100)^(historic_trend_data$year - 2025)
+    } else if (output_type == "beds") {
+      historic_trend_data[[output_type]] <-historic_2025_value *
+        (1 + historical_avg_annual_change / 100)^(historic_trend_data$year - 2025)
+    } else if (output_type == "occupancy") {
+      historic_trend_data[[output_type]] <- rep(
+        historic_2025_value,
+        nrow(historic_trend_data)
+      )
+    }
+  
 
   y_axis_min <- min(
     plot_data[[output_type]],
@@ -351,27 +375,46 @@ plotting_function <- function(
   # }
 
   # Add the main line last so it sits on top
-  p <- p +
-    geom_line(
-      data = historic_trend_data,
-      aes(
-        x = year,
-        y = .data[[output_type]],
-        text = paste0(
-          #"Historic trend continued<br>",
-          "Year: ",
-          year,
-          "<br>",
-          y_axis_label,
-          ": ",
-          round(.data[[output_type]], 1)
-        )
-      ),
-      colour = "#9AB3D9",
-      linewidth = 0.6,
-      linetype = "dotted",
-      group = 1
-    ) +
+  if(show_default==TRUE){
+    p <- p +
+      geom_line(
+        data = historic_trend_data,
+        aes(
+          x = year,
+          y = .data[[output_type]],
+          text = paste0(
+            #"Historic trend continued<br>",
+            "Year: ",
+            year,
+            "<br>",
+            y_axis_label,
+            ": ",
+            round(.data[[output_type]], 1)
+          )
+        ),
+        colour = "#9AB3D9",
+        linewidth = 0.6,
+        linetype = "dotted",
+        group = 1
+      ) +
+      geom_line(
+        data = subset(plot_data, as.numeric(year) >= 2025),
+        aes(x = year, y = .data[[output_type]]),
+        colour = "#5881c1",
+        linewidth = 0.6,
+        linetype = "solid",
+        group = 1
+      ) +
+      geom_line(
+        data = subset(plot_data, as.numeric(year) <= 2025),
+        aes(x = year, y = .data[[output_type]]),
+        colour = "black",
+        linewidth = 0.5,
+        linetype = "solid",
+        group = 1
+      )
+  } else {
+    p <- p +
     geom_line(
       data = subset(plot_data, as.numeric(year) >= 2025),
       aes(x = year, y = .data[[output_type]]),
@@ -388,6 +431,7 @@ plotting_function <- function(
       linetype = "solid",
       group = 1
     )
+  }
 
   #ggplotly(p, tooltip = "text")|>
   #  layout(
@@ -1000,7 +1044,7 @@ ui <- page_navbar(
             label = NULL,
             min = 75,
             max = 100,
-            value = 90.5,
+            value = 89.4,
             step = 0.1
           ),
 
@@ -1234,7 +1278,7 @@ ui <- page_navbar(
             NULL,
             min = 75,
             max = 100,
-            value = 90.5,
+            value = 89.4,
             step = 0.5,
             width = "100%"
           ),
@@ -1582,11 +1626,11 @@ ui <- page_navbar(
             "This model approximates the relationship between bed capacity, patient admissions, length of stay (LoS), and occupancy rates."
           ),
           p(
-            "We use well known theory from the M/G/infinity queueing model to derive the number of beds required to meet target occupancy given assumed admission and length of stay scenarios. This model assumes unconstrained capacity and Poisson admissions. Viewing the system as unconstrained allows us to examine the occupancy distribution and set the number of beds equal to the target quantile of occupancy."
+            "We estimate the number of occupied beds required to meet target occupancy given assumed admission and length of stay scenarios, and assuming no constraints on required future bed numbers. The total number of beds required is then calculated by dividing the number of occupied beds by the target occupancy."
           ),
-          p(
-            "The main result in use is that for an M/G/infinity system the expected number in the system follows a Poisson distribution with mean equal to the arrival rate multiplied by the average length of stay:"
-          ),
+   #       p(
+   #         "The main result in use is that for an M/G/infinity system the expected number in the system follows a Poisson distribution with mean equal to the arrival rate multiplied by the average length of stay:"
+   #       ),
           div(
             style = "
             border: 2px solid #5881c1;
@@ -1595,16 +1639,17 @@ ui <- page_navbar(
             margin: 10px 0 16px 0;
             font-family: monospace;
           ",
-            "λ = Arrival rate (admissions per day) * μ = Average length of stay (days) = Expected number of patients in the system E_NIS"
+            p("λ = Arrival rate (admissions per day) * μ = Average length of stay (days) = Expected number of occupied beds"),
+            p("Total beds required = Expected number of occupied beds / Target occupancy")
           ),
-          p(
-            "we therefore derive the number of beds required to meet a target occupancy level (p) as the p quantile of a Poisson distribution with mean E_NIS."
-          ),
+          #p(
+          #  "we therefore derive the number of beds required to meet a target occupancy level (p) as the p quantile of a Poisson distribution with mean E_NIS."
+          #),
           p(
             "This model is designed for intuition building and is not a forecasting tool. It is not designed to give precise estimates of future bed requirements or admissions capacity, but rather to allow users to explore the relationship between these variables and build intuition about how they interact."
           ),
           p(
-            "In reality the assumption of Poisson admissions may not hold, and other factors such as seasonal variations, changes in patient demographics, and healthcare policies can impact admission rates. Additionally, the model assumes that bed capacity is unconstrained, which may not reflect real-world limitations and their impact on patient flow and occupancy."
+            "In reality the assumed relationship between the input variables may not hold exactly, and other factors such as seasonal variations, changes in patient demographics, and healthcare policies can impact admission rates. Additionally, the model assumes that bed capacity is unconstrained, which may not reflect real-world limitations and their impact on patient flow and occupancy."
           ),
 
           p("Parameters:"),
@@ -1685,13 +1730,16 @@ ui <- page_navbar(
               "Admissions per day are calculated by dividing annual admissions by 365, assuming a constant rate throughout the year. This ignores seasonal variation."
             ),
             tags$li(
-              "Average LoS was estimated using beddays from HES under the assumption that same day admissions take on average 0.2 of a day (5 hours)."
+              "Average LoS was estimated using beddays from HES under the assumption that same day emergency (SDEC) admissions take on average 0.2 of a day (5 hours)."
             ),
             tags$li(
               "The historical number of beds was taken from Q4 each year, which may not reflect the average number of beds across the year."
             ),
             tags$li(
               "The historical occpancy is calculated as the historic beddays divided by the number of available beddays given the number of beds. This assumes that bed occupancy is constant across the year and does not reflect seasonal variation. It also doesn't align exactly with the occupancy reported in the NHS England Bed Availability and Occupancy (KH03) Collection."
+            ),
+            tags$li(
+              "The future trend in LoS was calculated by fitting a cubic polynomial model to historic LoS then linearly extrapolating the annual % change in LoS from 2025 to 2035. This assumes that the historic trend in LoS continues into the future, which may not be the case if there are changes in patient demographics, healthcare policies or other factors that impact LoS."
             )
           ),
           p(strong(
@@ -1774,13 +1822,13 @@ server <- function(input, output, session) {
   observeEvent(input$reset_scenario, {
     updateSliderInput(session, "admissions_change", value = historic_trends$admissions)
     updateSliderInput(session, "los_change", value = historic_trends$los)
-    updateSliderInput(session, "target_occupancy", value = 90.5)
+    updateSliderInput(session, "target_occupancy", value = round(default_target_occupancy, 1))
   })
 
   observeEvent(input$reset_baseline, {
     updateSliderInput(session, "bedday_growth", value = historic_trends$beds) 
     updateSliderInput(session, "los_change2", value = historic_trends$los) 
-    updateSliderInput(session, "bed_occupancy", value = 90.5) 
+    updateSliderInput(session, "bed_occupancy", value = round(default_target_occupancy, 1)) 
   })
 
   format_indicator_value <- function(value, suffix = "", digits = 1) {
@@ -2042,7 +2090,8 @@ server <- function(input, output, session) {
       NULL,
       "beds",
       "Beds (thousands)",
-      show_trend_labels = TRUE
+      show_trend_labels = TRUE,
+      show_default = FALSE
     )
   })
 
@@ -2079,7 +2128,8 @@ server <- function(input, output, session) {
       NULL, #ambitious,
       "admissions",
       "Admissions (millions)",
-      show_trend_labels = TRUE
+      show_trend_labels = TRUE,
+      show_default = FALSE
     )
   })
 
@@ -2219,7 +2269,7 @@ server <- function(input, output, session) {
       from_93,
       historic_trends$admissions,
       historic_trends$los,
-      90.5
+      round(input$target_occupancy, 1) #89.4
     )
 
     beds_2035 <- plot_data$beds[plot_data$year == 2035]
@@ -2271,7 +2321,7 @@ server <- function(input, output, session) {
           div(
             class = "info-value",
             make_compare_badge(
-              90.5,
+              round(input$target_occupancy, 1),
               input$target_occupancy,
               "%",
               digits = 1,
@@ -2316,14 +2366,14 @@ server <- function(input, output, session) {
       from_93,
       input$bedday_growth,
       input$los_change2,
-      90.5 #input$bed_occupancy
+      round(input$target_occupancy, 1) #input$bed_occupancy
     )
 
     default_plot_data <- future_admissions_model(
       from_93,
       historic_trends$beds,
       historic_trends$los,
-      90.5
+      round(input$target_occupancy, 1)
     )
 
     admissions_2035 <- plot_data$admissions[plot_data$year == 2035]
@@ -2378,7 +2428,7 @@ server <- function(input, output, session) {
             div(
               class = "panel3-smart-value",
               make_compare_badge(
-                90.5,
+                round(input$target_occupancy, 1),
                 input$bed_occupancy,
                 "%",
                 digits = 1,
@@ -2482,7 +2532,7 @@ server <- function(input, output, session) {
     make_chart_header(
       "Bed Occupancy Rate (%)",
       make_compare_badge(
-        90.5,
+        round(input$target_occupancy, 1),
         input$target_occupancy,
         "%",
         digits = 1,
@@ -2503,7 +2553,7 @@ server <- function(input, output, session) {
       from_93,
       historic_trends$admissions,
       historic_trends$los,
-      90.5
+      round(input$target_occupancy, 1)
     )
 
     beds_2035 <- plot_data$beds[plot_data$year == 2035]
@@ -2552,7 +2602,7 @@ server <- function(input, output, session) {
     make_chart_header(
       "Bed Occupancy Rate (%)",
       make_compare_badge(
-        90.5,
+        round(input$target_occupancy, 1),
         input$bed_occupancy,
         "%",
         digits = 1,
@@ -2573,7 +2623,7 @@ server <- function(input, output, session) {
       from_93,
       historic_trends$beds,
       historic_trends$los,
-      90.5
+      round(input$target_occupancy, 1)
     )
 
     admissions_2035 <- plot_data$admissions[plot_data$year == 2035]
