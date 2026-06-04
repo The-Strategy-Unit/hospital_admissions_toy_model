@@ -55,7 +55,7 @@ percentage_change <- function(x) {
 }
 
 historic_trends$los <- -0.09320385 ## this is a linear extrapolation from the cubic polynomial fit that worked best when looking at historic data
-default_target_occupancy <- from_93$`occupancy`[length(from_93$`occupancy`)] * 100
+default_target_occupancy <- round(from_93$`occupancy`[length(from_93$`occupancy`)] * 100,1)
 # Functions--------------------------------------------------------------------
 
 ## Solve for admissions
@@ -1044,7 +1044,7 @@ ui <- page_navbar(
             label = NULL,
             min = 75,
             max = 100,
-            value = 89.4,
+            value = default_target_occupancy,
             step = 0.1
           ),
 
@@ -1278,7 +1278,7 @@ ui <- page_navbar(
             NULL,
             min = 75,
             max = 100,
-            value = 89.4,
+            value = default_target_occupancy,
             step = 0.5,
             width = "100%"
           ),
@@ -2321,7 +2321,7 @@ server <- function(input, output, session) {
           div(
             class = "info-value",
             make_compare_badge(
-              round(input$target_occupancy, 1),
+              default_target_occupancy,
               input$target_occupancy,
               "%",
               digits = 1,
@@ -2428,7 +2428,7 @@ server <- function(input, output, session) {
             div(
               class = "panel3-smart-value",
               make_compare_badge(
-                round(input$target_occupancy, 1),
+                default_target_occupancy,
                 input$bed_occupancy,
                 "%",
                 digits = 1,
