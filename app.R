@@ -1626,11 +1626,11 @@ ui <- page_navbar(
             "This model approximates the relationship between bed capacity, patient admissions, length of stay (LoS), and occupancy rates."
           ),
           p(
-            "We use well known theory from the M/G/infinity queueing model to derive the number of beds required to meet target occupancy given assumed admission and length of stay scenarios. This model assumes unconstrained capacity and Poisson admissions. Viewing the system as unconstrained allows us to examine the occupancy distribution and set the number of beds equal to the target quantile of occupancy."
+            "We estimate the number of occupied beds required to meet target occupancy given assumed admission and length of stay scenarios, and assuming no constraints on required future bed numbers. The total number of beds required is then calculated by dividing the number of occupied beds by the target occupancy."
           ),
-          p(
-            "The main result in use is that for an M/G/infinity system the expected number in the system follows a Poisson distribution with mean equal to the arrival rate multiplied by the average length of stay:"
-          ),
+   #       p(
+   #         "The main result in use is that for an M/G/infinity system the expected number in the system follows a Poisson distribution with mean equal to the arrival rate multiplied by the average length of stay:"
+   #       ),
           div(
             style = "
             border: 2px solid #5881c1;
@@ -1639,16 +1639,17 @@ ui <- page_navbar(
             margin: 10px 0 16px 0;
             font-family: monospace;
           ",
-            "λ = Arrival rate (admissions per day) * μ = Average length of stay (days) = Expected number of patients in the system E_NIS"
+            p("λ = Arrival rate (admissions per day) * μ = Average length of stay (days) = Expected number of occupied beds"),
+            p("Total beds required = Expected number of occupied beds / Target occupancy")
           ),
-          p(
-            "we therefore derive the number of beds required to meet a target occupancy level (p) as the p quantile of a Poisson distribution with mean E_NIS."
-          ),
+          #p(
+          #  "we therefore derive the number of beds required to meet a target occupancy level (p) as the p quantile of a Poisson distribution with mean E_NIS."
+          #),
           p(
             "This model is designed for intuition building and is not a forecasting tool. It is not designed to give precise estimates of future bed requirements or admissions capacity, but rather to allow users to explore the relationship between these variables and build intuition about how they interact."
           ),
           p(
-            "In reality the assumption of Poisson admissions may not hold, and other factors such as seasonal variations, changes in patient demographics, and healthcare policies can impact admission rates. Additionally, the model assumes that bed capacity is unconstrained, which may not reflect real-world limitations and their impact on patient flow and occupancy."
+            "In reality the assumed relationship between the input variables may not hold exactly, and other factors such as seasonal variations, changes in patient demographics, and healthcare policies can impact admission rates. Additionally, the model assumes that bed capacity is unconstrained, which may not reflect real-world limitations and their impact on patient flow and occupancy."
           ),
 
           p("Parameters:"),
@@ -1729,13 +1730,16 @@ ui <- page_navbar(
               "Admissions per day are calculated by dividing annual admissions by 365, assuming a constant rate throughout the year. This ignores seasonal variation."
             ),
             tags$li(
-              "Average LoS was estimated using beddays from HES under the assumption that same day admissions take on average 0.2 of a day (5 hours)."
+              "Average LoS was estimated using beddays from HES under the assumption that same day emergency (SDEC) admissions take on average 0.2 of a day (5 hours)."
             ),
             tags$li(
               "The historical number of beds was taken from Q4 each year, which may not reflect the average number of beds across the year."
             ),
             tags$li(
               "The historical occpancy is calculated as the historic beddays divided by the number of available beddays given the number of beds. This assumes that bed occupancy is constant across the year and does not reflect seasonal variation. It also doesn't align exactly with the occupancy reported in the NHS England Bed Availability and Occupancy (KH03) Collection."
+            ),
+            tags$li(
+              "The future trend in LoS was calculated by fitting a cubic polynomial model to historic LoS then linearly extrapolating the annual % change in LoS from 2025 to 2035. This assumes that the historic trend in LoS continues into the future, which may not be the case if there are changes in patient demographics, healthcare policies or other factors that impact LoS."
             )
           ),
           p(strong(
