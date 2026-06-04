@@ -1561,20 +1561,17 @@ ui <- page_navbar(
               div(
                 h5("Step 2: Explore Projections", style = "margin: 0 0 4px 0;"),
                 p(
-                  "Four trend charts are displayed on each calculator tab illustrating number of admissions, average length of stay, number of beds and target bed occupancy over time. Charts allow a user to:"
+                  "Three trend charts are displayed on each calculator tab illustrating number of admissions, average length of stay and number of beds over time. Charts allow a user to:"
                 ),
                 tags$ul(
                   style = "margin: 0; padding-left: 20px;",
                   #tags$li("Number of admissions, Average length of stay, Number of beds and Target bed occupancy."),
                   tags$li(
-                    "View historic trends (solid black line) and projected trends (red dotted line) from 2026-2035 (based on the selected assumptions)."
-                  ),
-                  tags$li(
-                    "View pre-set admission scenarios (3 dotted grey lines) under do nothing, planned and ambitious admission strategies."
+                    "View historic trends (solid black line) and projected trends (blue line) from 2026-2035 (based on the selected assumptions)."
                   ),
                   #tags$li("Adjust the sliders to watch trends change in real time."),
                   tags$li(
-                    "Hover over the chart lines to read off yearly values. Actual values for 2025 and projected values for 2035 are given on the sidebar."
+                    "Hover over the chart lines to read off yearly values."
                   )
                 )
             
