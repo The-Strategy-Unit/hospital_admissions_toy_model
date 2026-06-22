@@ -2363,14 +2363,14 @@ server <- function(input, output, session) {
       from_93,
       input$bedday_growth,
       input$los_change2,
-      round(input$target_occupancy, 1) #input$bed_occupancy
+      input$bed_occupancy #input$bed_occupancy
     )
 
     default_plot_data <- future_admissions_model(
       from_93,
       historic_trends$beds,
       historic_trends$los,
-      round(input$target_occupancy, 1)
+      input$bed_occupancy
     )
 
     admissions_2035 <- plot_data$admissions[plot_data$year == 2035]
