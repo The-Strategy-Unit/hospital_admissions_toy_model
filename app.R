@@ -1755,6 +1755,31 @@ ui <- page_navbar(
         padding: 10px 12px;
         margin: 10px 0;
       ",
+        card_header("Open-source model code"),
+        card_body(
+          style = "padding: 10px 12px 8px 12px; padding-bottom: 10px;",
+          p("This model is open source. You can view and reuse the code in the GitHub repository:"),
+          tags$ul(
+            style = "margin: 0; padding-left: 20px;",
+            tags$li(
+              tags$a(
+                "Hospital Admissions Toy Model – GitHub repository",
+                href = "https://github.com/The-Strategy-Unit/hospital_admissions_toy_model",
+                target = "_blank",
+                rel = "noopener noreferrer"
+              )
+            )
+          )
+        )
+      ),
+
+      card(
+        class = "toy-model-links",
+        style = "
+        border: 2px solid #5881c1;
+        padding: 10px 12px;
+        margin: 10px 0;
+      ",
         card_header("References"),
         card_body(
           style = "padding: 10px 12px 8px 12px; padding-bottom: 10px;",
